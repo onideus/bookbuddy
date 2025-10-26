@@ -17,18 +17,25 @@
     "lint": "eslint .",
     "format": "prettier --write \"src/**/*.js\" \"tests/**/*.js\""
   },
-  "keywords": ["bookbuddy", "reading-tracker", "fastify"],
+  "keywords": [
+    "bookbuddy",
+    "reading-tracker",
+    "fastify"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "fastify": "^4.25.0",
+    "@fastify/cookie": "^9.4.0",
     "@fastify/cors": "^8.5.0",
-    "@fastify/session": "^10.7.0",
     "@fastify/rate-limit": "^9.1.0",
+    "@fastify/session": "^10.7.0",
+    "connect-pg-simple": "^10.0.0",
+    "dotenv": "^17.2.3",
+    "fastify": "^4.25.0",
     "pg": "^8.11.3",
-    "postgres-migrations": "^5.3.0",
     "pino": "^8.17.2",
     "pino-pretty": "^10.3.1",
+    "postgres-migrations": "^5.3.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

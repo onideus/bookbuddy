@@ -5,6 +5,7 @@
 
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import fastifyCookie from '@fastify/cookie';
 import { config, validateConfig } from './lib/config.js';
 import logger from './lib/logger.js';
 import correlationIdPlugin from './api/middleware/correlation-id.js';
@@ -34,6 +35,9 @@ async function registerPlugins() {
 
   // Correlation ID middleware (must be early in chain)
   await fastify.register(correlationIdPlugin);
+
+  // Cookie support (required by @fastify/session)
+  await fastify.register(fastifyCookie);
 
   // Session middleware
   await configureSession(fastify);
