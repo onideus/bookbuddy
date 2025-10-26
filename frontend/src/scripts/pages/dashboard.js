@@ -13,7 +13,7 @@ import * as readingEntriesApi from '../api/reading-entries-api.js';
 const bookStore = new BookStore();
 
 // Mock reader ID for development (in production, this would come from auth)
-const READER_ID = 'test-reader-123';
+const READER_ID = '00000000-0000-0000-0000-000000000001';
 
 // Component instances
 let toReadList, readingList, finishedList;
