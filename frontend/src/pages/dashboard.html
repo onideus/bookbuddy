@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BookBuddy - Reading Dashboard</title>
+    <link rel="stylesheet" href="/src/styles/tokens.css" />
+    <link rel="stylesheet" href="/src/styles/base.css" />
+    <link rel="stylesheet" href="/src/styles/components.css" />
+  </head>
+  <body>
+    <!-- Skip to main content link (accessibility) -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <div id="app">
+      <header role="banner">
+        <div class="container">
+          <h1>BookBuddy</h1>
+          <p>Track Your Reading Journey</p>
+        </div>
+      </header>
+
+      <main id="main-content" role="main" tabindex="-1">
+        <div class="container">
+          <!-- Loading indicator -->
+          <div id="loading" data-testid="loading" role="status" aria-live="polite" class="loading" style="display: none;">
+            <span>Loading your books...</span>
+          </div>
+
+          <!-- Add book section -->
+          <section class="add-book-section">
+            <button type="button" id="add-book-btn" class="btn btn-primary">
+              + Add Book
+            </button>
+          </section>
+
+          <!-- Add book form (hidden by default) -->
+          <div id="add-book-form-container" style="display: none;"></div>
+
+          <!-- Status filter -->
+          <div class="filters">
+            <label for="status-filter" class="filter-label">Filter by status:</label>
+            <select id="status-filter" data-testid="status-filter" class="status-filter">
+              <option value="">All Books</option>
+              <option value="TO_READ">To Read</option>
+              <option value="READING">Reading</option>
+              <option value="FINISHED">Finished</option>
+            </select>
+          </div>
+
+          <!-- Live region for status announcements -->
+          <div aria-live="polite" aria-atomic="true" class="sr-only" id="status-announcer"></div>
+
+          <!-- Reading status sections -->
+          <div class="reading-sections">
+            <!-- To Read -->
+            <section
+              class="status-section"
+              data-testid="status-section-to-read"
+              aria-label="Books to read"
+            >
+              <h2>To Read</h2>
+              <div id="to-read-list" data-testid="book-list-to-read" class="book-list"></div>
+            </section>
+
+            <!-- Reading -->
+            <section
+              class="status-section"
+              data-testid="status-section-reading"
+              aria-label="Books currently reading"
+            >
+              <h2>Reading</h2>
+              <div id="reading-list" data-testid="book-list-reading" class="book-list"></div>
+            </section>
+
+            <!-- Finished -->
+            <section
+              class="status-section"
+              data-testid="status-section-finished"
+              aria-label="Finished books"
+            >
+              <h2>Finished</h2>
+              <div id="finished-list" data-testid="book-list-finished" class="book-list"></div>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="/src/scripts/pages/dashboard.js"></script>
+  </body>
+</html>

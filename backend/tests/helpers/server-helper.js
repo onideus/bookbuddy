@@ -45,10 +45,12 @@ export async function build(opts = {}) {
     timestamp: new Date().toISOString(),
   }));
 
-  // Register API routes (will be added as they're implemented)
-  // TODO: Import and register route modules here
-  // Example:
-  // await fastify.register(readingEntriesRoutes, { prefix: '/api' });
+  // Register API routes
+  const authRoutes = await import('../../src/api/routes/auth.js');
+  const readingEntriesRoutes = await import('../../src/api/routes/reading-entries.js');
+
+  await fastify.register(authRoutes.default, { prefix: '/api' });
+  await fastify.register(readingEntriesRoutes.default, { prefix: '/api' });
 
   fastify.setNotFoundHandler(notFoundHandler);
   fastify.setErrorHandler(errorHandler);

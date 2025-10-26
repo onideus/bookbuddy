@@ -50,10 +50,12 @@ async function registerPlugins() {
     };
   });
 
-  // API routes will be registered here
-  // TODO: Register route modules as they are created
-  // Example:
-  // await fastify.register(readingEntriesRoutes, { prefix: '/api' });
+  // API routes
+  const authRoutes = await import('./api/routes/auth.js');
+  const readingEntriesRoutes = await import('./api/routes/reading-entries.js');
+
+  await fastify.register(authRoutes.default, { prefix: '/api' });
+  await fastify.register(readingEntriesRoutes.default, { prefix: '/api' });
 
   // 404 handler
   fastify.setNotFoundHandler(notFoundHandler);
