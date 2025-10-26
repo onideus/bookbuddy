@@ -1,0 +1,19 @@
+{
+  "name": "bookbuddy-mk2",
+  "version": "1.0.0",
+  "description": "BookBuddy Reading Journey Tracker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "npm test --prefix backend && npm test --prefix frontend",
+    "lint": "npm run lint --prefix backend && npm run lint --prefix frontend",
+    "lint:fix": "npm run lint --prefix backend -- --fix && npm run lint --prefix frontend -- --fix",
+    "format": "npm run format --prefix backend && npm run format --prefix frontend",
+    "format:check": "npm run format --prefix backend -- --check && npm run format --prefix frontend -- --check",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend"
+  },
+  "keywords": ["bookbuddy", "reading-tracker"],
+  "author": "",
+  "license": "ISC"
+}

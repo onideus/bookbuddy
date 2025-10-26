@@ -1,0 +1,40 @@
+{
+  "name": "bookbuddy-backend",
+  "version": "1.0.0",
+  "description": "BookBuddy Reading Journey Tracker - Backend API",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "test": "vitest",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:contract": "vitest run tests/contract",
+    "test:coverage": "vitest run --coverage",
+    "migrate:up": "node src/db/migrate.js up",
+    "migrate:down": "node src/db/migrate.js down",
+    "lint": "eslint .",
+    "format": "prettier --write \"src/**/*.js\" \"tests/**/*.js\""
+  },
+  "keywords": ["bookbuddy", "reading-tracker", "fastify"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fastify": "^4.25.0",
+    "@fastify/cors": "^8.5.0",
+    "@fastify/session": "^10.7.0",
+    "@fastify/rate-limit": "^9.1.0",
+    "pg": "^8.11.3",
+    "postgres-migrations": "^5.3.0",
+    "pino": "^8.17.2",
+    "pino-pretty": "^10.3.1",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^1.1.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.1.1",
+    "vitest": "^1.1.0"
+  }
+}

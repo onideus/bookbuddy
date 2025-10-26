@@ -1,0 +1,31 @@
+{
+  "name": "bookbuddy-frontend",
+  "version": "1.0.0",
+  "description": "BookBuddy Reading Journey Tracker - Frontend",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:unit": "vitest run tests/unit",
+    "test:e2e": "playwright test",
+    "test:a11y": "playwright test --grep @a11y",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "format": "prettier --write \"src/**/*.{js,html,css}\""
+  },
+  "keywords": ["bookbuddy", "reading-tracker", "vite"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@axe-core/playwright": "^4.8.3",
+    "@playwright/test": "^1.40.1",
+    "@testing-library/dom": "^9.3.4",
+    "@vitest/coverage-v8": "^1.1.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.1.1",
+    "vite": "^5.0.10",
+    "vitest": "^1.1.0"
+  }
+}

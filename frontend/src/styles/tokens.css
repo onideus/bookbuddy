@@ -1,0 +1,153 @@
+/**
+ * Design tokens for BookBuddy
+ * WCAG 2.1 AA compliant colors and accessibility defaults
+ */
+
+:root {
+  /* Color Palette - WCAG 2.1 AA compliant */
+  --color-primary: #2563eb; /* Blue - 4.5:1 contrast ratio on white */
+  --color-primary-dark: #1e40af;
+  --color-primary-light: #60a5fa;
+
+  --color-secondary: #059669; /* Green */
+  --color-secondary-dark: #047857;
+  --color-secondary-light: #34d399;
+
+  --color-accent: #dc2626; /* Red for warnings */
+  --color-accent-dark: #b91c1c;
+  --color-accent-light: #f87171;
+
+  /* Neutral colors */
+  --color-text-primary: #1f2937; /* Dark gray - high contrast */
+  --color-text-secondary: #4b5563;
+  --color-text-tertiary: #6b7280;
+  --color-text-inverse: #ffffff;
+
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f9fafb;
+  --color-bg-tertiary: #f3f4f6;
+  --color-bg-dark: #1f2937;
+
+  --color-border: #e5e7eb;
+  --color-border-focus: #2563eb;
+  --color-border-error: #dc2626;
+
+  /* Status colors */
+  --color-status-to-read: #8b5cf6; /* Purple */
+  --color-status-reading: #0891b2; /* Cyan */
+  --color-status-finished: #059669; /* Green */
+
+  /* Semantic colors */
+  --color-success: #059669;
+  --color-warning: #f59e0b;
+  --color-error: #dc2626;
+  --color-info: #2563eb;
+
+  /* Typography */
+  --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  --font-family-heading: var(--font-family-base);
+  --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+
+  --font-size-xs: 0.75rem; /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-base: 1rem; /* 16px */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem; /* 20px */
+  --font-size-2xl: 1.5rem; /* 24px */
+  --font-size-3xl: 1.875rem; /* 30px */
+  --font-size-4xl: 2.25rem; /* 36px */
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* Spacing (4px base unit) */
+  --spacing-xs: 0.25rem; /* 4px */
+  --spacing-sm: 0.5rem; /* 8px */
+  --spacing-md: 1rem; /* 16px */
+  --spacing-lg: 1.5rem; /* 24px */
+  --spacing-xl: 2rem; /* 32px */
+  --spacing-2xl: 3rem; /* 48px */
+  --spacing-3xl: 4rem; /* 64px */
+
+  /* Border radius */
+  --radius-sm: 0.25rem; /* 4px */
+  --radius-md: 0.375rem; /* 6px */
+  --radius-lg: 0.5rem; /* 8px */
+  --radius-xl: 0.75rem; /* 12px */
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  /* Focus ring (WCAG 2.1 AA) */
+  --focus-ring-width: 3px;
+  --focus-ring-color: var(--color-border-focus);
+  --focus-ring-offset: 2px;
+  --focus-ring: 0 0 0 var(--focus-ring-offset) var(--color-bg-primary),
+                0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--focus-ring-color);
+
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 200ms ease-in-out;
+  --transition-slow: 300ms ease-in-out;
+
+  /* Z-index layers */
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1020;
+  --z-index-fixed: 1030;
+  --z-index-modal-backdrop: 1040;
+  --z-index-modal: 1050;
+  --z-index-popover: 1060;
+  --z-index-tooltip: 1070;
+
+  /* Layout */
+  --container-max-width: 1280px;
+  --content-max-width: 800px;
+  --sidebar-width: 280px;
+
+  /* Form controls */
+  --input-height: 2.5rem; /* 40px - meets WCAG minimum touch target */
+  --button-height: 2.5rem;
+  --button-padding-x: var(--spacing-lg);
+  --button-padding-y: var(--spacing-sm);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --color-border: #000000;
+    --focus-ring-width: 4px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-fast: 0ms;
+    --transition-base: 0ms;
+    --transition-slow: 0ms;
+  }
+}
+
+/* Dark mode support (future enhancement) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text-primary: #f9fafb;
+    --color-text-secondary: #d1d5db;
+    --color-text-tertiary: #9ca3af;
+    --color-bg-primary: #111827;
+    --color-bg-secondary: #1f2937;
+    --color-bg-tertiary: #374151;
+    --color-border: #4b5563;
+  }
+}
