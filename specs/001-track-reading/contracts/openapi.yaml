@@ -2,9 +2,21 @@ openapi: 3.1.0
 info:
   title: BookBuddy Reading Journey API
   version: 1.0.0-draft
-  description: Endpoints enabling readers to manage books across To Read, Reading, and Finished states, log progress, and record ratings.
+  description: |
+    Endpoints enabling readers to manage books across To Read, Reading, and Finished states, log progress, and record ratings.
+
+    **Authentication**: Session-based with httpOnly cookies (spec: session-based authentication with RBAC)
+    **Rate Limiting**: 100 book additions/hour per reader (FR-019), headers: X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset
+    **Correlation IDs**: All responses include X-Correlation-ID header for debugging (FR-017)
+
 servers:
+  - url: http://localhost:3000/api
+    description: Local development
   - url: https://api.bookbuddy.com/v1
+    description: Production
+
+security:
+  - sessionCookie: []
 paths:
   /readers/{readerId}/reading-entries:
     get:
@@ -362,18 +374,35 @@ components:
           type: integer
         totalItems:
           type: integer
+    ReadingStatus:
+      type: string
+      enum: [TO_READ, READING, FINISHED]
+      description: |
+        Book status in reader's journey (spec FR-001):
+        - TO_READ: Book is on reading list
+        - READING: Book is currently being read
+        - FINISHED: Book has been completed
     Error:
       type: object
-      required: [code, message]
+      required: [code, message, correlationId]
       properties:
         code:
           type: string
+          example: "VALIDATION_ERROR"
         message:
           type: string
+          example: "Invalid book title"
+        correlationId:
+          type: string
+          format: uuid
+          description: Request correlation ID for debugging (FR-017)
         details:
           type: array
           items:
             type: string
-    ReadingStatus:
-      type: string
-      enum: [to_read, reading, finished]
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: sessionId
+      description: Session-based authentication with RBAC (spec assumptions)

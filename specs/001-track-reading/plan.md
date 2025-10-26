@@ -1,43 +1,70 @@
 # Implementation Plan: Reading Journey Tracker
 
-**Branch**: `001-track-reading` | **Date**: 2025-10-25 | **Spec**: `specs/001-track-reading/spec.md`
+**Branch**: `001-track-reading` | **Date**: 2025-10-25 | **Spec**: [spec.md](./spec.md)
 **Input**: Feature specification from `/specs/001-track-reading/spec.md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
 ## Summary
 
-Deliver a unified reading dashboard that lets BookBuddy readers capture books across To Read, Reading, and Finished states, log in-progress notes, and rate completed titles while preserving accessibility and design-token consistency. Technical approach will extend existing BookBuddy components, introduce status-transition logic, and ensure analytics capture of progress/rating events.
+BookBuddy Reading Journey Tracker enables readers to organize books into three statuses (To Read, Reading, Finished), track reading progress with notes, and rate completed books. The application is built as a lightweight web application using Vite for development and build tooling, vanilla HTML/CSS/JavaScript for the frontend to minimize dependencies, and PostgreSQL for persistent data storage. The architecture prioritizes simplicity and maintainability while meeting WCAG 2.1 AA accessibility standards and sub-3-second response times for all user operations.
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
+**Language/Version**: JavaScript (ES2022+) for frontend and backend, Node.js 20+ LTS for server runtime
+**Primary Dependencies**:
+  - Frontend: Vite 5.x (dev server & build), minimal libraries (vanilla HTML/CSS/JS)
+  - Backend: NEEDS CLARIFICATION (Node.js HTTP framework - Express/Fastify/native http)
+  - Database: PostgreSQL 15+ with node-postgres (pg) driver
 
-**Language/Version**: JavaScript (ES2023) with optional TypeScript typing in Vite
-**Primary Dependencies**: Vite 5 (vanilla template), Vitest for testing, BookBuddy shared component library, Accessible Rich Internet Applications (ARIA) patterns
-**Storage**: PostgreSQL 15 (managed cluster shared with BookBuddy services)
-**Testing**: Vitest + Testing Library DOM for unit/integration; Playwright for accessibility regression
-**Target Platform**: Responsive web (desktop, tablet, mobile web) served via existing BookBuddy web app
-**Project Type**: Single web project with existing backend API tier
-**Performance Goals**: Dashboard loads in ≤2s on median network; interactions (add/update status) round-trip API latency ≤300ms p95
-**Constraints**: Maintain minimal third-party libraries, reuse BookBuddy design tokens, ensure WCAG 2.1 AA compliance, no offline requirement in this release
-**Scale/Scope**: Support up to 100k active readers with personal libraries up to 5k books each
+**Storage**: PostgreSQL 15+ (books, reading entries, progress updates, status history, reader profiles)
+**Testing**: NEEDS CLARIFICATION (Vitest for consistency with Vite, or Jest, or native Node test runner)
+**Target Platform**: Modern web browsers (Chrome/Firefox/Safari/Edge - ES2022 support), Node.js 20+ server on Linux/macOS
+**Project Type**: Web application (frontend + backend)
+**Performance Goals**: <3s response time for UI operations (FR-014), 95% of progress updates appear within 3s (SC-002), pagination for 100+ books per list (FR-012)
+**Constraints**:
+  - Minimal frontend dependencies (vanilla JS, no React/Vue/Svelte)
+  - Server-side pagination for lists >100 items
+  - WCAG 2.1 AA accessibility compliance
+  - Rate limiting: 100 book additions/hour per reader (FR-019)
+
+**Scale/Scope**: Support up to 5,000 books per user (Principle IV), concurrent multi-device access with last-write-wins, session-based auth with RBAC
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **Quality-Driven Implementation**: Plan mandates CI gates for linting, formatting, static analysis, and unit/integration suites; all commits reference `specs/001-track-reading` tasks; no complexity waivers anticipated.
-- **Modular Architecture Contracts**: Reading status, progress, and rating logic will reside in a dedicated reading-journey module exposing contracts for UI and analytics; no cross-module imports outside published interfaces allowed.
-- **Test-First Reliability**: Red-green-refactor workflow enforced with failing tests written before code; unit, integration, and contract suites must deliver ≥90% statement coverage with mock data for progress transitions.
-- **Sustainable Maintainability**: Documentation (spec, changelog, configuration) updated alongside implementation; any new dependency requires version pin and license review; deliberate debt not yet identified—will log if discovered.
-- **Consistent User Experience**: UX work will use BookBuddy design tokens, standard list components, and WCAG 2.1 AA validation including screen-reader regression scripts; UX sign-off required before merge.
+Verify compliance with BookBuddy Constitution (v1.0.0):
 
-**Post-Design Review**: Research and design artifacts confirm all gates satisfied—no waivers needed.
+- [x] **Code Quality**: Architecture promotes clarity, single responsibility, and minimal dependencies
+  - ✅ Vanilla JS reduces external dependencies to Vite (build tool only)
+  - ✅ Web application structure with clear frontend/backend separation
+  - ✅ PostgreSQL provides stable, well-understood storage layer
+
+- [x] **Testing Standards**: TDD approach planned (tests first, red-green-refactor cycle)
+  - ✅ QT-006 mandates Red-Green-Refactor cycle
+  - ✅ QT-001 requires ≥90% statement coverage
+  - ✅ QT-002 requires contract tests (all API endpoints) and integration tests (each user story critical path)
+  - ⚠️ Testing framework selection pending (research.md Phase 0)
+
+- [x] **UX Consistency**: Design tokens and WCAG 2.1 AA accessibility requirements identified
+  - ✅ FR-002, QT-004, SC-004 mandate WCAG 2.1 AA compliance
+  - ✅ Spec requires keyboard navigation, focus indicators, screen reader support
+  - ⚠️ Design tokens source location pending (research.md Phase 0)
+
+- [x] **Performance**: Response time targets defined (<3s for user operations)
+  - ✅ FR-014: <3s for all UI operations (up to 5,000 books)
+  - ✅ FR-012: Pagination at 100 books per list
+  - ✅ FR-013: Loading states and optimistic UI updates
+  - ✅ SC-002: 95% of progress updates appear within 3s
+
+- [x] **Observability**: Logging, monitoring, and debugging strategy outlined
+  - ✅ FR-015: Structured logging (reader ID, book ID, operation type, timestamp)
+  - ✅ FR-016: Analytics events for success criteria
+  - ✅ FR-017: Correlation IDs in error responses
+  - ⚠️ Logging library/strategy pending (research.md Phase 0)
+
+**Gate Status**: ✅ PASS - Pending items are research tasks, not violations. No complexity justifications required.
 
 ## Project Structure
 
@@ -54,50 +81,61 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
 
 ```text
-web/
+backend/
 ├── src/
-│   ├── features/
-│   │   └── reading-journey/
-│   │       ├── components/
-│   │       ├── pages/
-│   │       ├── state/
-│   │       └── styles/
-│   ├── design-tokens/
-│   └── analytics/
-├── public/
-└── tests/
-    ├── unit/
-    ├── integration/
-    └── accessibility/
+│   ├── db/                  # Database connection, migrations, schema
+│   ├── models/              # Data access layer (Book, ReadingEntry, ProgressUpdate, etc.)
+│   ├── services/            # Business logic (reading service, auth service)
+│   ├── api/                 # HTTP endpoints and request handlers
+│   │   ├── routes/          # Route definitions
+│   │   ├── middleware/      # Auth, logging, rate limiting
+│   │   └── validators/      # Input validation and sanitization
+│   ├── lib/                 # Shared utilities (logger, correlation IDs)
+│   └── server.js            # Entry point
+├── tests/
+│   ├── contract/            # API contract tests (QT-002)
+│   ├── integration/         # User story critical paths (QT-002)
+│   └── unit/                # Business logic tests (QT-001)
+├── migrations/              # PostgreSQL schema migrations
+└── package.json
 
-services/
-├── reading-journey/
-│   ├── api/
-│   ├── db/
-│   │   ├── migrations/
-│   │   └── seeds/
-│   ├── models/
-│   └── contracts/
-└── tests/
-    ├── contract/
-    └── integration/
+frontend/
+├── src/
+│   ├── pages/               # HTML page templates
+│   │   ├── dashboard.html   # Main reading dashboard (P1)
+│   │   ├── book-detail.html # Progress tracking view (P2)
+│   │   └── index.html       # Landing/auth
+│   ├── styles/              # CSS modules (design tokens, components, utilities)
+│   │   ├── tokens.css       # Design tokens (colors, spacing, typography)
+│   │   ├── base.css         # Reset, accessibility defaults
+│   │   └── components.css   # Reusable UI components
+│   ├── scripts/             # Vanilla JavaScript modules
+│   │   ├── api/             # Backend API client
+│   │   ├── components/      # UI component logic (book list, filters, ratings)
+│   │   ├── services/        # Frontend services (state management, local storage)
+│   │   └── utils/           # Helpers (date formatting, validation)
+│   └── assets/              # Static assets (icons, images)
+├── tests/
+│   ├── integration/         # User flow tests (Playwright or similar)
+│   └── unit/                # Component logic tests
+├── vite.config.js           # Vite configuration
+└── package.json
+
+shared/                      # Shared contracts and types (if needed)
+├── contracts/               # API contracts (OpenAPI specs from Phase 1)
+└── constants.js             # Shared enums (TO_READ, READING, FINISHED)
+
+docs/                        # Project documentation
+├── architecture.md          # System design overview
+└── api.md                   # API documentation (generated from contracts)
 ```
 
-**Structure Decision**: Extend existing BookBuddy web app with a `web/src/features/reading-journey` module for UI/state, backed by a `services/reading-journey` service layer hosting API handlers, migrations, and contract tests.
+**Structure Decision**: Web application with frontend/backend separation. Frontend uses Vite for dev server and build, serving static HTML/CSS/JS with no framework dependencies. Backend is Node.js with PostgreSQL. Shared directory contains API contracts to ensure frontend/backend alignment. This structure supports independent testing per QT-002 (contract tests for API, integration tests for user flows).
 
 ## Complexity Tracking
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+No complexity violations. Architecture adheres to BookBuddy Constitution with minimal dependencies and clear separation of concerns.

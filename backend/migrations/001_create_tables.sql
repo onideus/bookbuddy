@@ -21,9 +21,11 @@ CREATE TABLE IF NOT EXISTS books (
   CONSTRAINT books_title_length CHECK (LENGTH(title) >= 1 AND LENGTH(title) <= 500),
   CONSTRAINT books_author_length CHECK (LENGTH(author) >= 1 AND LENGTH(author) <= 200),
   CONSTRAINT books_edition_length CHECK (edition IS NULL OR (LENGTH(edition) >= 1 AND LENGTH(edition) <= 100)),
-  CONSTRAINT books_isbn_format CHECK (isbn IS NULL OR isbn ~ '^[0-9-]{10,17}$'),
-  CONSTRAINT books_unique_book UNIQUE (title, author, COALESCE(edition, ''))
+  CONSTRAINT books_isbn_format CHECK (isbn IS NULL OR isbn ~ '^[0-9-]{10,17}$')
 );
+
+-- Unique index for book identity (handles NULL edition)
+CREATE UNIQUE INDEX books_unique_book_idx ON books (title, author, COALESCE(edition, ''));
 
 -- Reader profiles: User preferences and settings
 CREATE TABLE IF NOT EXISTS reader_profiles (
