@@ -3,9 +3,13 @@
 ## Prerequisites
 
 Both servers must be running:
-- **Backend**: http://localhost:3001 (running via `npm run dev` in backend/)
-- **Frontend**: http://localhost:3000 (running via `npm run dev` in frontend/)
+- **Backend**: http://localhost:3001
+  - Start: `cd backend && DATABASE_URL=postgresql://bookbuddy:bookbuddy_dev_password@localhost:5432/bookbuddy_dev NODE_ENV=development npm run dev`
+  - **Note**: Development mode has authentication bypass for test reader
+- **Frontend**: http://localhost:3000
+  - Start: `cd frontend && npm run dev`
 - **PostgreSQL**: Running in Docker on port 5432
+  - Start: `docker-compose up -d`
 
 ## Test Reader
 

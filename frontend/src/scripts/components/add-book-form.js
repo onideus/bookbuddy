@@ -3,7 +3,7 @@
  * Form for adding books with validation and optimistic UI updates
  */
 
-import { ReadingStatus } from '../../../../shared/constants.js';
+import { ReadingStatus } from '@shared/constants.js';
 
 export class AddBookForm {
   constructor(options) {
