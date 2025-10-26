@@ -18,6 +18,11 @@
   - Tested independently
   - Deployed independently
   - Demonstrated to users independently
+
+  Constitution alignment:
+  - Capture the UX patterns, design tokens, and copy standards each story relies on.
+  - Define accessibility acceptance steps that prove WCAG 2.1 AA compliance.
+  - Outline the automated tests (unit, integration, contract) that will fail first before code exists.
 -->
 
 ### User Story 1 - [Brief Title] (Priority: P1)
@@ -74,6 +79,8 @@
 
 - What happens when [boundary condition]?
 - How does system handle [error scenario]?
+- How is accessibility impacted when [assistive technology scenario]?
+- What safeguards keep UX consistent when [design token variance]?
 
 ## Requirements *(mandatory)*
 
@@ -102,15 +109,10 @@
 
 ### Quality, Testing, and UX Standards *(mandatory)*
 
-<!--
-  ACTION REQUIRED: Define quality gates per constitution principles.
-  All features must meet these standards before merge.
--->
-
 - **QT-001**: Automated unit tests MUST target ≥90% statement coverage for modules touched by this feature.
 - **QT-002**: Integration or contract tests MUST verify each critical path and external dependency.
 - **QT-003**: Document updates REQUIRED for specs, changelog, and configuration impacted by this work.
-- **QT-004**: UX validation MUST confirm adherence to design system and capture accessibility evidence (WCAG 2.1 AA).
+- **QT-004**: UX validation MUST confirm adherence to BookBuddy design tokens and capture accessibility evidence (WCAG 2.1 AA).
 - **QT-005**: Note any intentional technical debt, assign an owner, and include the planned remediation date (≤1 release cycle).
 
 ## Success Criteria *(mandatory)*

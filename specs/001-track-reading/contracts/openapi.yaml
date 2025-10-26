@@ -1,0 +1,379 @@
+openapi: 3.1.0
+info:
+  title: BookBuddy Reading Journey API
+  version: 1.0.0-draft
+  description: Endpoints enabling readers to manage books across To Read, Reading, and Finished states, log progress, and record ratings.
+servers:
+  - url: https://api.bookbuddy.com/v1
+paths:
+  /readers/{readerId}/reading-entries:
+    get:
+      summary: List reading entries for a reader
+      operationId: listReadingEntries
+      parameters:
+        - $ref: '#/components/parameters/ReaderId'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ReadingStatus'
+          description: Optional filter limiting results to a specific status.
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 10
+            maximum: 100
+            default: 50
+      responses:
+        '200':
+          description: Reading entries returned successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReadingEntry'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/ReaderNotFound'
+    post:
+      summary: Create or attach a book to the reader's journey
+      operationId: createReadingEntry
+      parameters:
+        - $ref: '#/components/parameters/ReaderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReadingEntryRequest'
+      responses:
+        '201':
+          description: Book added to the reader's journey.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingEntry'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Duplicate entry detected based on title, author, and edition.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /reading-entries/{entryId}:
+    patch:
+      summary: Update reading entry status or metadata
+      operationId: updateReadingEntry
+      parameters:
+        - $ref: '#/components/parameters/EntryId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateReadingEntryRequest'
+      responses:
+        '200':
+          description: Reading entry updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingEntry'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/EntryNotFound'
+  /reading-entries/{entryId}/progress-notes:
+    post:
+      summary: Record a progress note for a reading entry
+      operationId: createProgressNote
+      parameters:
+        - $ref: '#/components/parameters/EntryId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProgressNoteRequest'
+      responses:
+        '201':
+          description: Progress note recorded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProgressNote'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/EntryNotFound'
+  /reading-entries/{entryId}/rating:
+    put:
+      summary: Record or update a rating/reflection for a finished book
+      operationId: upsertRating
+      parameters:
+        - $ref: '#/components/parameters/EntryId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertRatingRequest'
+      responses:
+        '200':
+          description: Rating saved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingEntry'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/EntryNotFound'
+components:
+  parameters:
+    ReaderId:
+      name: readerId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    EntryId:
+      name: entryId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    Unauthorized:
+      description: Authentication failed or missing.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ReaderNotFound:
+      description: Reader profile not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    EntryNotFound:
+      description: Reading entry not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Validation failed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    ReadingEntry:
+      type: object
+      required: [entryId, readerId, book, status, statusStartedAt]
+      properties:
+        entryId:
+          type: string
+          format: uuid
+        readerId:
+          type: string
+          format: uuid
+        book:
+          $ref: '#/components/schemas/Book'
+        status:
+          $ref: '#/components/schemas/ReadingStatus'
+        statusStartedAt:
+          type: string
+          format: date-time
+        currentPage:
+          type: integer
+          minimum: 0
+          nullable: true
+        targetCompletionDate:
+          type: string
+          format: date
+          nullable: true
+        notesPreview:
+          type: string
+          nullable: true
+        rating:
+          $ref: '#/components/schemas/Rating'
+        progressNotes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProgressNote'
+        statusHistory:
+          type: array
+          items:
+            type: object
+            required: [fromStatus, toStatus, changedAt]
+            properties:
+              fromStatus:
+                $ref: '#/components/schemas/ReadingStatus'
+              toStatus:
+                $ref: '#/components/schemas/ReadingStatus'
+              changedAt:
+                type: string
+                format: date-time
+    Book:
+      type: object
+      required: [bookId, title, author]
+      properties:
+        bookId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        author:
+          type: string
+        editionLabel:
+          type: string
+          nullable: true
+        isbn:
+          type: string
+          nullable: true
+        coverImageUrl:
+          type: string
+          format: uri
+          nullable: true
+    ProgressNote:
+      type: object
+      required: [noteId, recordedAt, content]
+      properties:
+        noteId:
+          type: string
+          format: uuid
+        recordedAt:
+          type: string
+          format: date-time
+        content:
+          type: string
+        progressMarker:
+          type: string
+          nullable: true
+    Rating:
+      type: object
+      required: [value]
+      properties:
+        value:
+          type: integer
+          minimum: 1
+          maximum: 5
+        note:
+          type: string
+          nullable: true
+        recordedAt:
+          type: string
+          format: date-time
+    CreateReadingEntryRequest:
+      type: object
+      required: [title, author, status]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        author:
+          type: string
+          minLength: 1
+        editionLabel:
+          type: string
+          nullable: true
+        isbn:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/ReadingStatus'
+        targetCompletionDate:
+          type: string
+          format: date
+          nullable: true
+    UpdateReadingEntryRequest:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/ReadingStatus'
+        currentPage:
+          type: integer
+          minimum: 0
+        targetCompletionDate:
+          type: string
+          format: date
+          nullable: true
+        revertRating:
+          type: boolean
+          description: When true, clears existing rating while moving back to reading.
+    CreateProgressNoteRequest:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        progressMarker:
+          type: string
+          nullable: true
+    UpsertRatingRequest:
+      type: object
+      required: [value]
+      properties:
+        value:
+          type: integer
+          minimum: 1
+          maximum: 5
+        note:
+          type: string
+          nullable: true
+          maxLength: 2000
+    Pagination:
+      type: object
+      required: [page, pageSize, totalPages, totalItems]
+      properties:
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        totalPages:
+          type: integer
+        totalItems:
+          type: integer
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: string
+    ReadingStatus:
+      type: string
+      enum: [to_read, reading, finished]

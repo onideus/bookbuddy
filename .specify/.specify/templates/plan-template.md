@@ -31,15 +31,11 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Verify compliance with BookBuddy Constitution (v1.0.0):
-
-- [ ] **Code Quality**: Architecture promotes clarity, single responsibility, and minimal dependencies
-- [ ] **Testing Standards**: TDD approach planned (tests first, red-green-refactor cycle)
-- [ ] **UX Consistency**: Design tokens and WCAG 2.1 AA accessibility requirements identified
-- [ ] **Performance**: Response time targets defined (<3s for user operations)
-- [ ] **Observability**: Logging, monitoring, and debugging strategy outlined
-
-**Complexity Justification**: If any principle requires violation (e.g., adding heavy dependency, skipping tests for prototyping), document in Complexity Tracking section below.
+- **Quality-Driven Implementation**: Enumerate linting, static analysis, and formatting gates that must pass in CI; reference the source spec/tasks for each planned change; flag any anticipated complexity exceptions with justification.
+- **Modular Architecture Contracts**: Define module boundaries, public APIs, and data flow; document any proposed boundary changes and the required architecture approval.
+- **Test-First Reliability**: Detail the failing-first test plan covering unit, integration, and contract layers with ≥90% statement coverage targets.
+- **Sustainable Maintainability**: List documentation, changelog, and configuration updates; identify dependency additions/removals with version pins and licensing notes; log deliberate debt with owner and due date.
+- **Consistent User Experience**: Identify affected design tokens, UX patterns, and accessibility validation steps ensuring WCAG 2.1 AA compliance.
 
 ## Project Structure
 
