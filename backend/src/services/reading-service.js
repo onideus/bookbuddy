@@ -7,7 +7,7 @@ import { Book } from '../models/book.js';
 import { ReadingEntry } from '../models/reading-entry.js';
 import { StatusTransition } from '../models/status-transition.js';
 import * as ProgressUpdate from '../models/progress-update.js';
-import { transaction } from '../db/connection.js';
+import { transaction, query } from '../db/connection.js';
 import { logAnalyticsEvent } from '../lib/logger.js';
 
 export class ReadingService {
@@ -200,13 +200,34 @@ export class ReadingService {
 
   /**
    * Set rating for a finished book (T100 - for User Story 3)
+   * Validates rating 1-5, FINISHED status only, reflection_note max 2000 chars
    * @param {string} readerId - Reader ID
    * @param {string} entryId - Entry ID
    * @param {Object} ratingData - Rating and reflection
    * @returns {Promise<Object>} Updated entry
    */
   static async setRating(readerId, entryId, ratingData) {
-    const { rating, reflectionNote } = ratingData;
+    const { rating, reflectionNote = null } = ratingData;
+
+    // Validate rating
+    if (typeof rating !== 'number' || !Number.isInteger(rating)) {
+      const error = new Error('Rating must be an integer');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    if (rating < 1 || rating > 5) {
+      const error = new Error('Rating must be between 1 and 5');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    // Validate reflection note length (FR-018)
+    if (reflectionNote && reflectionNote.length > 2000) {
+      const error = new Error('Reflection note must not exceed 2000 characters');
+      error.statusCode = 400;
+      throw error;
+    }
 
     const entry = await ReadingEntry.findById(entryId);
 
@@ -217,7 +238,7 @@ export class ReadingService {
     }
 
     if (entry.readerId !== readerId) {
-      const error = new Error('Access denied');
+      const error = new Error('Access denied to this reading entry');
       error.statusCode = 403;
       throw error;
     }
@@ -228,9 +249,83 @@ export class ReadingService {
       throw error;
     }
 
-    // Update would go here - not fully implemented yet as it's for US3
+    // Update rating and reflection note
+    const result = await query(
+      `UPDATE reading_entries
+       SET rating = $1, reflection_note = $2, updated_at = NOW()
+       WHERE id = $3
+       RETURNING *`,
+      [rating, reflectionNote, entryId]
+    );
 
-    return entry;
+    const updatedEntry = ReadingEntry.mapRow(result.rows[0]);
+
+    // Log analytics event (FR-016, SC-003)
+    logAnalyticsEvent({
+      eventType: 'rating_set',
+      readerId,
+      entryId,
+      bookId: entry.book.id,
+      rating,
+      hasReflection: !!reflectionNote,
+      timestamp: new Date().toISOString(),
+    });
+
+    return {
+      readingEntry: {
+        ...updatedEntry,
+        book: entry.book,
+      },
+    };
+  }
+
+  /**
+   * Clear rating for a reading entry (T101 - allow rating removal for re-reads)
+   * @param {string} readerId - Reader ID
+   * @param {string} entryId - Entry ID
+   * @returns {Promise<Object>} Updated entry
+   */
+  static async clearRating(readerId, entryId) {
+    const entry = await ReadingEntry.findById(entryId);
+
+    if (!entry) {
+      const error = new Error('Reading entry not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (entry.readerId !== readerId) {
+      const error = new Error('Access denied to this reading entry');
+      error.statusCode = 403;
+      throw error;
+    }
+
+    // Clear rating and reflection note
+    const result = await query(
+      `UPDATE reading_entries
+       SET rating = NULL, reflection_note = NULL, updated_at = NOW()
+       WHERE id = $1
+       RETURNING *`,
+      [entryId]
+    );
+
+    const updatedEntry = ReadingEntry.mapRow(result.rows[0]);
+
+    // Log analytics event (FR-016)
+    logAnalyticsEvent({
+      eventType: 'rating_cleared',
+      readerId,
+      entryId,
+      bookId: entry.book.id,
+      timestamp: new Date().toISOString(),
+    });
+
+    return {
+      readingEntry: {
+        ...updatedEntry,
+        book: entry.book,
+      },
+    };
   }
 
   /**
@@ -322,16 +417,49 @@ export class ReadingService {
   }
 
   /**
-   * Get top rated books (rating >= 4) for User Story 3
+   * Get top rated books (rating >= 4) for User Story 3 (T102)
+   * Filters rating ≥4, ORDER BY rating DESC, supports pagination
    * @param {string} readerId - Reader ID
    * @param {Object} options - Pagination options
    * @returns {Promise<Object>} Top rated entries
    */
   static async getTopRatedBooks(readerId, options = {}) {
-    // Implementation for US3 - placeholder
+    const { page = 1, pageSize = 50 } = options;
+    const offset = (page - 1) * pageSize;
+
+    // Get total count of top rated books (rating >= 4)
+    const countResult = await query(
+      `SELECT COUNT(*)
+       FROM reading_entries
+       WHERE reader_id = $1
+       AND rating >= 4`,
+      [readerId]
+    );
+    const total = parseInt(countResult.rows[0].count, 10);
+
+    // Get top rated entries with books, ordered by rating DESC
+    const result = await query(
+      `SELECT re.*,
+              b.id as book_id, b.title, b.author, b.edition, b.isbn, b.cover_image_url
+       FROM reading_entries re
+       JOIN books b ON b.id = re.book_id
+       WHERE re.reader_id = $1
+       AND re.rating >= 4
+       ORDER BY re.rating DESC, re.updated_at DESC
+       LIMIT $2 OFFSET $3`,
+      [readerId, pageSize, offset]
+    );
+
+    const entries = result.rows.map((row) => ReadingEntry.mapRowWithBook(row));
+
     return {
-      entries: [],
-      pagination: { page: 1, pageSize: 50, total: 0, hasMore: false },
+      entries,
+      pagination: {
+        page,
+        pageSize,
+        total,
+        hasMore: offset + entries.length < total,
+      },
     };
   }
 }

@@ -44,6 +44,7 @@ export const createReadingEntrySchema = {
 
 /**
  * Schema for getting reading entries (query params)
+ * T106: Added topRated parameter for User Story 3
  */
 export const getReadingEntriesSchema = {
   querystring: {
@@ -53,6 +54,11 @@ export const getReadingEntriesSchema = {
         type: 'string',
         enum: [ReadingStatus.TO_READ, ReadingStatus.READING, ReadingStatus.FINISHED],
         nullable: true,
+      },
+      topRated: {
+        type: 'string',
+        enum: ['true', 'false'],
+        description: 'Filter for top rated books (rating >= 4)',
       },
       page: {
         type: 'integer',

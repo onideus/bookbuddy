@@ -56,8 +56,8 @@ export default async function readingEntriesRoutes(fastify, options) {
   );
 
   /**
-   * GET /api/readers/:readerId/reading-entries (T052)
-   * Get reading entries for a reader with optional status filter
+   * GET /api/readers/:readerId/reading-entries (T052, T106)
+   * Get reading entries for a reader with optional status filter or top rated filter
    */
   fastify.get(
     '/readers/:readerId/reading-entries',
@@ -67,7 +67,16 @@ export default async function readingEntriesRoutes(fastify, options) {
     },
     async (request, reply) => {
       const { readerId } = request.params;
-      const { status, page, pageSize } = request.query;
+      const { status, page, pageSize, topRated } = request.query;
+
+      // T106: Support topRated query parameter for User Story 3
+      if (topRated === 'true' || topRated === true) {
+        const result = await ReadingService.getTopRatedBooks(readerId, {
+          page,
+          pageSize,
+        });
+        return reply.send(result);
+      }
 
       const result = await ReadingService.getReadingEntries(readerId, {
         status,

@@ -57,9 +57,13 @@ async function registerPlugins() {
   // API routes
   const authRoutes = await import('./api/routes/auth.js');
   const readingEntriesRoutes = await import('./api/routes/reading-entries.js');
+  const progressNotesRoutes = await import('./api/routes/progress-notes.js');
+  const ratingsRoutes = await import('./api/routes/ratings.js');
 
   await fastify.register(authRoutes.default, { prefix: '/api' });
   await fastify.register(readingEntriesRoutes.default, { prefix: '/api' });
+  await fastify.register(progressNotesRoutes.default, { prefix: '/api' });
+  await fastify.register(ratingsRoutes.default, { prefix: '/api' });
 
   // 404 handler
   fastify.setNotFoundHandler(notFoundHandler);
@@ -105,6 +109,51 @@ async function shutdown(signal) {
 // Handle shutdown signals
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
+
+// Export build function for testing
+export async function build() {
+  const testFastify = Fastify({
+    logger: logger,
+    requestIdLogLabel: 'reqId',
+    disableRequestLogging: false,
+    trustProxy: true,
+  });
+
+  // Register CORS
+  await testFastify.register(cors, {
+    origin: config.corsOrigin,
+    credentials: true,
+  });
+
+  // Register correlation ID
+  await testFastify.register(correlationIdPlugin);
+
+  // Register cookie support
+  await testFastify.register(fastifyCookie);
+
+  // Register session
+  await configureSession(testFastify);
+
+  // Register rate limiting
+  await configureRateLimit(testFastify);
+
+  // API routes
+  const authRoutes = await import('./api/routes/auth.js');
+  const readingEntriesRoutes = await import('./api/routes/reading-entries.js');
+  const progressNotesRoutes = await import('./api/routes/progress-notes.js');
+  const ratingsRoutes = await import('./api/routes/ratings.js');
+
+  await testFastify.register(authRoutes.default, { prefix: '/api' });
+  await testFastify.register(readingEntriesRoutes.default, { prefix: '/api' });
+  await testFastify.register(progressNotesRoutes.default, { prefix: '/api' });
+  await testFastify.register(ratingsRoutes.default, { prefix: '/api' });
+
+  // Error handlers
+  testFastify.setNotFoundHandler(notFoundHandler);
+  testFastify.setErrorHandler(errorHandler);
+
+  return testFastify;
+}
 
 // Start the server
 start();
