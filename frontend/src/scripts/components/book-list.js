@@ -46,7 +46,7 @@ export class BookList {
    * @returns {string} HTML string
    */
   renderBookCard(entry) {
-    const { id, book, status } = entry;
+    const { id, book, status, rating, reflectionNote } = entry;
     const { title, author, edition } = book;
 
     return `
@@ -57,16 +57,54 @@ export class BookList {
         data-status="${status}"
         tabindex="0"
         role="listitem"
-        aria-label="${title} by ${author}"
+        aria-label="${title} by ${author}${rating ? `, rated ${rating} out of 5 stars` : ''}"
       >
         <h3 class="book-title">${this.escapeHtml(title)}</h3>
         <p class="book-author">by ${this.escapeHtml(author)}</p>
         ${edition ? `<p class="book-edition">${this.escapeHtml(edition)}</p>` : ''}
 
+        ${this.renderRating(rating, reflectionNote)}
+
         <div class="book-actions">
           ${this.renderStatusButtons(entry)}
         </div>
       </article>
+    `;
+  }
+
+  /**
+   * Render rating display (T110)
+   * @param {number|null} rating - Rating (1-5)
+   * @param {string|null} reflectionNote - Reflection note
+   * @returns {string} HTML string
+   */
+  renderRating(rating, reflectionNote) {
+    if (!rating) {
+      return '';
+    }
+
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(i <= rating ? '★' : '☆');
+    }
+
+    return `
+      <div class="book-rating" data-testid="book-rating">
+        <div class="rating-stars-display" role="img" aria-label="${rating} out of 5 stars">
+          ${stars.join('')}
+        </div>
+        ${reflectionNote ? `
+          <button
+            type="button"
+            class="reflection-preview"
+            data-action="show-reflection"
+            aria-label="View reflection note"
+            title="${this.escapeHtml(reflectionNote.substring(0, 100))}${reflectionNote.length > 100 ? '...' : ''}"
+          >
+            💭
+          </button>
+        ` : ''}
+      </div>
     `;
   }
 
