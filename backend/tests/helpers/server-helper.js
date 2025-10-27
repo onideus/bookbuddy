@@ -48,9 +48,11 @@ export async function build(opts = {}) {
   // Register API routes
   const authRoutes = await import('../../src/api/routes/auth.js');
   const readingEntriesRoutes = await import('../../src/api/routes/reading-entries.js');
+  const progressNotesRoutes = await import('../../src/api/routes/progress-notes.js');
 
   await fastify.register(authRoutes.default, { prefix: '/api' });
   await fastify.register(readingEntriesRoutes.default, { prefix: '/api' });
+  await fastify.register(progressNotesRoutes.default, { prefix: '/api' });
 
   fastify.setNotFoundHandler(notFoundHandler);
   fastify.setErrorHandler(errorHandler);

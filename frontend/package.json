@@ -15,7 +15,11 @@
     "lint": "eslint .",
     "format": "prettier --write \"src/**/*.{js,html,css}\""
   },
-  "keywords": ["bookbuddy", "reading-tracker", "vite"],
+  "keywords": [
+    "bookbuddy",
+    "reading-tracker",
+    "vite"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
@@ -24,6 +28,7 @@
     "@testing-library/dom": "^9.3.4",
     "@vitest/coverage-v8": "^1.1.0",
     "eslint": "^8.56.0",
+    "jsdom": "^27.0.1",
     "prettier": "^3.1.1",
     "vite": "^5.0.10",
     "vitest": "^1.1.0"

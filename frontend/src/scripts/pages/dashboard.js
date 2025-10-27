@@ -8,6 +8,7 @@ import { BookList } from '../components/book-list.js';
 import { AddBookForm } from '../components/add-book-form.js';
 import { StatusFilter } from '../components/status-filter.js';
 import * as readingEntriesApi from '../api/reading-entries-api.js';
+import { getTopRatedBooks } from '../api/ratings-api.js';
 
 // Initialize store
 const bookStore = new BookStore();
@@ -91,8 +92,13 @@ function initComponents() {
   statusFilter = new StatusFilter({
     selectElement: document.getElementById('status-filter'),
     announcerElement: document.getElementById('status-announcer'),
-    onChange: (status) => {
-      bookStore.setFilter(status);
+    onChange: async (status) => {
+      // Handle Top Rated filter (T111)
+      if (status === 'TOP_RATED') {
+        await loadTopRatedBooks();
+      } else {
+        bookStore.setFilter(status);
+      }
     },
   });
   statusFilter.init();
@@ -114,6 +120,29 @@ async function loadBooks() {
   } catch (error) {
     console.error('Failed to load books:', error);
     showError('Failed to load your books. Please try again.');
+  }
+}
+
+/**
+ * Load top rated books (T111)
+ */
+async function loadTopRatedBooks() {
+  try {
+    showLoading(true);
+    const result = await getTopRatedBooks(READER_ID);
+
+    // Display top rated books in the finished section
+    finishedList.update(result.entries);
+
+    // Clear other sections
+    toReadList.update([]);
+    readingList.update([]);
+
+    showLoading(false);
+  } catch (error) {
+    console.error('Failed to load top rated books:', error);
+    showError('Failed to load top rated books. Please try again.');
+    showLoading(false);
   }
 }
 

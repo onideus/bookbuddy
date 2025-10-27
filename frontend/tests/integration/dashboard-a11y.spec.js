@@ -9,7 +9,7 @@ import AxeBuilder from '@axe-core/playwright';
 
 test.describe('Dashboard - Accessibility (WCAG 2.1 AA)', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/dashboard.html');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
   });
 

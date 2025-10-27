@@ -6,8 +6,8 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Dashboard - Reading Entries', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to dashboard
-    await page.goto('/dashboard.html');
+    // Navigate to dashboard (index redirects to dashboard)
+    await page.goto('/');
 
     // Wait for page to load
     await page.waitForLoadState('networkidle');

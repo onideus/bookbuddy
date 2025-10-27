@@ -5,6 +5,7 @@
 
 import { ProgressNotesList } from '../components/progress-notes-list.js';
 import { AddProgressNoteForm } from '../components/add-progress-note-form.js';
+import { AddRatingForm } from '../components/add-rating-form.js';
 import { getProgressNotes } from '../api/progress-notes-api.js';
 import { getEntries } from '../api/reading-entries-api.js';
 
@@ -14,6 +15,7 @@ class BookDetailPage {
     this.bookData = null;
     this.progressNotesList = null;
     this.addProgressNoteForm = null;
+    this.addRatingForm = null;
   }
 
   async init() {
@@ -115,6 +117,37 @@ class BookDetailPage {
       );
       this.addProgressNoteForm.setEntryId(this.entryId);
     }
+
+    // Initialize rating form for FINISHED books
+    if (this.bookData && this.bookData.status === 'FINISHED') {
+      this.initializeRatingForm();
+    }
+  }
+
+  initializeRatingForm() {
+    const ratingSection = document.getElementById('rating-section');
+    const ratingContainer = document.getElementById('rating-form-container');
+
+    if (ratingSection && ratingContainer) {
+      // Show rating section
+      ratingSection.style.display = 'block';
+
+      // Initialize rating form
+      this.addRatingForm = new AddRatingForm(ratingContainer, {
+        entryId: this.entryId,
+        currentRating: this.bookData.rating || 0,
+        currentReflection: this.bookData.reflectionNote || '',
+        onSuccess: (updatedEntry) => {
+          // Update book data with new rating
+          this.bookData.rating = updatedEntry.rating;
+          this.bookData.reflectionNote = updatedEntry.reflectionNote;
+          console.log('Rating saved successfully!', updatedEntry);
+        },
+        onCancel: () => {
+          console.log('Rating cancelled');
+        }
+      });
+    }
   }
 
   async loadProgressNotes() {
@@ -164,6 +197,10 @@ class BookDetailPage {
 
     if (this.addProgressNoteForm) {
       this.addProgressNoteForm.destroy();
+    }
+
+    if (this.addRatingForm) {
+      this.addRatingForm.destroy();
     }
   }
 }

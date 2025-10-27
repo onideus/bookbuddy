@@ -23,6 +23,7 @@ export class StatusFilter {
 
   /**
    * Announce filter change to screen readers
+   * T111: Added support for Top Rated filter
    * @param {string} status - Selected status
    */
   announce(status) {
@@ -34,8 +35,13 @@ export class StatusFilter {
     if (!status) {
       message = 'Showing all books';
     } else {
-      const statusLabel = this.selectElement.querySelector(`option[value="${status}"]`).textContent;
-      message = `Showing ${statusLabel} books`;
+      const option = this.selectElement.querySelector(`option[value="${status}"]`);
+      if (option) {
+        const statusLabel = option.textContent;
+        message = `Showing ${statusLabel} books`;
+      } else {
+        message = 'Filter updated';
+      }
     }
 
     this.announcerElement.textContent = message;
