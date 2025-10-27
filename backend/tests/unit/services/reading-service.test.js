@@ -353,4 +353,456 @@ describe('ReadingService', () => {
       ).rejects.toThrow();
     });
   });
+
+  describe('addProgressNote (T071 - note length validation, timestamp handling)', () => {
+    let testBookId;
+    let testEntryId;
+
+    beforeEach(async () => {
+      // Create a book and reading entry for progress notes
+      testBookId = await createBookDirect('Progress Test Book', 'Progress Author');
+      testEntryId = await createReadingEntryDirect(testReaderId, testBookId, 'READING');
+    });
+
+    it('should add progress note with content and page marker', async () => {
+      const result = await ReadingService.addProgressNote(testEntryId, {
+        content: 'Finished Chapter 5, great plot twist!',
+        progressMarker: 'Chapter 5',
+      });
+
+      expect(result).toHaveProperty('noteId');
+      expect(result).toHaveProperty('recordedAt');
+      expect(result).toHaveProperty('content', 'Finished Chapter 5, great plot twist!');
+      expect(result).toHaveProperty('progressMarker', 'Chapter 5');
+      expect(new Date(result.recordedAt)).toBeInstanceOf(Date);
+
+      // Verify analytics event was logged
+      expect(logAnalyticsEvent).toHaveBeenCalledWith('progress_note_added', expect.any(Object));
+    });
+
+    it('should add progress note without page marker', async () => {
+      const result = await ReadingService.addProgressNote(testEntryId, {
+        content: 'Really enjoying the character development',
+      });
+
+      expect(result.content).toBe('Really enjoying the character development');
+      expect(result.progressMarker).toBeNull();
+    });
+
+    it('should reject note exceeding 1000 characters', async () => {
+      const longNote = 'a'.repeat(1001);
+
+      await expect(
+        ReadingService.addProgressNote(testEntryId, {
+          content: longNote,
+        })
+      ).rejects.toThrow(/length/i);
+    });
+
+    it('should reject empty note content', async () => {
+      await expect(
+        ReadingService.addProgressNote(testEntryId, {
+          content: '',
+        })
+      ).rejects.toThrow();
+    });
+
+    it('should reject progress marker exceeding 50 characters', async () => {
+      const longMarker = 'a'.repeat(51);
+
+      await expect(
+        ReadingService.addProgressNote(testEntryId, {
+          content: 'Test note',
+          progressMarker: longMarker,
+        })
+      ).rejects.toThrow(/length/i);
+    });
+
+    it('should reject note for non-existent reading entry', async () => {
+      const fakeEntryId = '00000000-0000-0000-0000-000000000000';
+
+      await expect(
+        ReadingService.addProgressNote(fakeEntryId, {
+          content: 'Test note',
+        })
+      ).rejects.toThrow(/not found|does not exist/i);
+    });
+
+    it('should set recordedAt timestamp automatically', async () => {
+      const beforeTime = new Date();
+
+      const result = await ReadingService.addProgressNote(testEntryId, {
+        content: 'Test timestamp',
+      });
+
+      const afterTime = new Date();
+      const recordedAt = new Date(result.recordedAt);
+
+      expect(recordedAt >= beforeTime).toBe(true);
+      expect(recordedAt <= afterTime).toBe(true);
+    });
+  });
+
+  describe('getProgressNotes (T071 - chronological ordering)', () => {
+    let testBookId;
+    let testEntryId;
+
+    beforeEach(async () => {
+      testBookId = await createBookDirect('Progress Book', 'Author');
+      testEntryId = await createReadingEntryDirect(testReaderId, testBookId, 'READING');
+
+      // Add multiple progress notes
+      await ReadingService.addProgressNote(testEntryId, {
+        content: 'First note',
+        progressMarker: 'Page 10',
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      await ReadingService.addProgressNote(testEntryId, {
+        content: 'Second note',
+        progressMarker: 'Page 25',
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      await ReadingService.addProgressNote(testEntryId, {
+        content: 'Third note',
+      });
+    });
+
+    it('should return progress notes in chronological DESC order (newest first)', async () => {
+      const notes = await ReadingService.getProgressNotes(testEntryId);
+
+      expect(notes).toHaveLength(3);
+      expect(notes[0].content).toBe('Third note');
+      expect(notes[1].content).toBe('Second note');
+      expect(notes[2].content).toBe('First note');
+    });
+
+    it('should include book details with progress notes', async () => {
+      const notes = await ReadingService.getProgressNotes(testEntryId);
+
+      expect(notes[0]).toHaveProperty('book');
+      expect(notes[0].book).toMatchObject({
+        title: 'Progress Book',
+        author: 'Author',
+      });
+    });
+
+    it('should return empty array when no notes exist', async () => {
+      // Create new entry without notes
+      const newBookId = await createBookDirect('New Book', 'New Author');
+      const newEntryId = await createReadingEntryDirect(testReaderId, newBookId, 'READING');
+
+      const notes = await ReadingService.getProgressNotes(newEntryId);
+
+      expect(notes).toEqual([]);
+    });
+
+    it('should reject request for non-existent entry', async () => {
+      const fakeEntryId = '00000000-0000-0000-0000-000000000000';
+
+      await expect(ReadingService.getProgressNotes(fakeEntryId)).rejects.toThrow(/not found|does not exist/i);
+    });
+  });
+
+  describe('setRating (T094 - validate rating 1-5, only for FINISHED, reflection max 2000)', () => {
+    let testBookId;
+    let testEntryId;
+
+    beforeEach(async () => {
+      // Create finished book entry
+      testBookId = await createBookDirect('Finished Book', 'Author');
+      testEntryId = await createReadingEntryDirect(testReaderId, testBookId, 'FINISHED');
+    });
+
+    it('should set rating for finished book', async () => {
+      const result = await ReadingService.setRating(testReaderId, testEntryId, {
+        rating: 4,
+      });
+
+      expect(result.readingEntry.rating).toBe(4);
+      expect(result.readingEntry.status).toBe('FINISHED');
+    });
+
+    it('should set rating with reflection note', async () => {
+      const result = await ReadingService.setRating(testReaderId, testEntryId, {
+        rating: 5,
+        reflectionNote: 'Absolutely brilliant! A masterpiece of modern literature.',
+      });
+
+      expect(result.readingEntry.rating).toBe(5);
+      expect(result.readingEntry.reflectionNote).toBe('Absolutely brilliant! A masterpiece of modern literature.');
+    });
+
+    it('should update existing rating', async () => {
+      // Set initial rating
+      await ReadingService.setRating(testReaderId, testEntryId, {
+        rating: 3,
+        reflectionNote: 'It was okay',
+      });
+
+      // Update rating
+      const result = await ReadingService.setRating(testReaderId, testEntryId, {
+        rating: 5,
+        reflectionNote: 'Actually, on second thought, this is amazing!',
+      });
+
+      expect(result.readingEntry.rating).toBe(5);
+      expect(result.readingEntry.reflectionNote).toBe('Actually, on second thought, this is amazing!');
+    });
+
+    it('should reject rating < 1', async () => {
+      await expect(
+        ReadingService.setRating(testReaderId, testEntryId, {
+          rating: 0,
+        })
+      ).rejects.toThrow(/rating must be between 1 and 5/i);
+    });
+
+    it('should reject rating > 5', async () => {
+      await expect(
+        ReadingService.setRating(testReaderId, testEntryId, {
+          rating: 6,
+        })
+      ).rejects.toThrow(/rating must be between 1 and 5/i);
+    });
+
+    it('should reject non-integer ratings', async () => {
+      await expect(
+        ReadingService.setRating(testReaderId, testEntryId, {
+          rating: 3.5,
+        })
+      ).rejects.toThrow(/rating must be an integer/i);
+    });
+
+    it('should reject rating for non-FINISHED book', async () => {
+      const readingBookId = await createBookDirect('Reading Book', 'Author');
+      const readingEntryId = await createReadingEntryDirect(testReaderId, readingBookId, 'READING');
+
+      await expect(
+        ReadingService.setRating(testReaderId, readingEntryId, {
+          rating: 4,
+        })
+      ).rejects.toThrow(/only rate finished books/i);
+    });
+
+    it('should reject reflection note exceeding 2000 characters', async () => {
+      const longNote = 'a'.repeat(2001);
+
+      await expect(
+        ReadingService.setRating(testReaderId, testEntryId, {
+          rating: 4,
+          reflectionNote: longNote,
+        })
+      ).rejects.toThrow(/reflection note.*2000 characters/i);
+    });
+
+    it('should accept reflection note at max length (2000 chars)', async () => {
+      const maxNote = 'a'.repeat(2000);
+
+      const result = await ReadingService.setRating(testReaderId, testEntryId, {
+        rating: 4,
+        reflectionNote: maxNote,
+      });
+
+      expect(result.readingEntry.reflectionNote).toHaveLength(2000);
+    });
+
+    it('should reject request for non-existent entry', async () => {
+      const fakeEntryId = '00000000-0000-0000-0000-000000000000';
+
+      await expect(
+        ReadingService.setRating(testReaderId, fakeEntryId, {
+          rating: 4,
+        })
+      ).rejects.toThrow(/not found/i);
+    });
+
+    it('should reject if reader does not own entry', async () => {
+      const otherReaderId = await createTestReader();
+
+      await expect(
+        ReadingService.setRating(otherReaderId, testEntryId, {
+          rating: 4,
+        })
+      ).rejects.toThrow(/access denied/i);
+
+      // Clean up
+      await cleanupTestData();
+    });
+
+    it('should log analytics event for rating set', async () => {
+      await ReadingService.setRating(testReaderId, testEntryId, {
+        rating: 4,
+      });
+
+      expect(logAnalyticsEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          eventType: 'rating_set',
+          readerId: testReaderId,
+          entryId: testEntryId,
+          rating: 4,
+        })
+      );
+    });
+  });
+
+  describe('clearRating (T094 - allow rating removal)', () => {
+    let testBookId;
+    let testEntryId;
+
+    beforeEach(async () => {
+      testBookId = await createBookDirect('Rated Book', 'Author');
+      testEntryId = await createReadingEntryDirect(testReaderId, testBookId, 'FINISHED');
+
+      // Set a rating
+      await ReadingService.setRating(testReaderId, testEntryId, {
+        rating: 4,
+        reflectionNote: 'Good book',
+      });
+    });
+
+    it('should clear rating and reflection note', async () => {
+      const result = await ReadingService.clearRating(testReaderId, testEntryId);
+
+      expect(result.readingEntry.rating).toBeNull();
+      expect(result.readingEntry.reflectionNote).toBeNull();
+    });
+
+    it('should succeed even if no rating exists', async () => {
+      // Clear rating first
+      await ReadingService.clearRating(testReaderId, testEntryId);
+
+      // Clear again
+      const result = await ReadingService.clearRating(testReaderId, testEntryId);
+
+      expect(result.readingEntry.rating).toBeNull();
+    });
+
+    it('should reject request for non-existent entry', async () => {
+      const fakeEntryId = '00000000-0000-0000-0000-000000000000';
+
+      await expect(
+        ReadingService.clearRating(testReaderId, fakeEntryId)
+      ).rejects.toThrow(/not found/i);
+    });
+
+    it('should reject if reader does not own entry', async () => {
+      const otherReaderId = await createTestReader();
+
+      await expect(
+        ReadingService.clearRating(otherReaderId, testEntryId)
+      ).rejects.toThrow(/access denied/i);
+
+      // Clean up
+      await cleanupTestData();
+    });
+
+    it('should log analytics event for rating cleared', async () => {
+      await ReadingService.clearRating(testReaderId, testEntryId);
+
+      expect(logAnalyticsEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          eventType: 'rating_cleared',
+          readerId: testReaderId,
+          entryId: testEntryId,
+        })
+      );
+    });
+  });
+
+  describe('getTopRatedBooks (T095 - filter rating ≥4, ordering)', () => {
+    beforeEach(async () => {
+      // Create multiple finished books with various ratings
+      const books = [
+        { title: 'Book A', author: 'Author A', rating: 5, note: 'Masterpiece!' },
+        { title: 'Book B', author: 'Author B', rating: 4, note: 'Great read' },
+        { title: 'Book C', author: 'Author C', rating: 3, note: 'It was okay' },
+        { title: 'Book D', author: 'Author D', rating: 2, note: 'Not for me' },
+        { title: 'Book E', author: 'Author E', rating: 4, note: 'Loved it' },
+        { title: 'Book F', author: 'Author F', rating: 5, note: 'Perfect!' },
+        { title: 'Book G', author: 'Author G', rating: null, note: null }, // No rating
+      ];
+
+      for (const book of books) {
+        const bookId = await createBookDirect(book.title, book.author);
+        const entryId = await createReadingEntryDirect(testReaderId, bookId, 'FINISHED');
+
+        if (book.rating !== null) {
+          await ReadingService.setRating(testReaderId, entryId, {
+            rating: book.rating,
+            reflectionNote: book.note,
+          });
+        }
+      }
+    });
+
+    it('should return only books with rating >= 4', async () => {
+      const result = await ReadingService.getTopRatedBooks(testReaderId);
+
+      expect(result.entries).toHaveLength(4); // Books A, B, E, F
+      result.entries.forEach((entry) => {
+        expect(entry.rating).toBeGreaterThanOrEqual(4);
+      });
+    });
+
+    it('should order top rated books by rating DESC', async () => {
+      const result = await ReadingService.getTopRatedBooks(testReaderId);
+
+      const ratings = result.entries.map((e) => e.rating);
+
+      // Check descending order
+      for (let i = 0; i < ratings.length - 1; i++) {
+        expect(ratings[i]).toBeGreaterThanOrEqual(ratings[i + 1]);
+      }
+    });
+
+    it('should return empty array if no top rated books', async () => {
+      // Clean all data
+      await cleanupTestData();
+      const newReaderId = await createTestReader();
+
+      const result = await ReadingService.getTopRatedBooks(newReaderId);
+
+      expect(result.entries).toEqual([]);
+      expect(result.pagination.total).toBe(0);
+    });
+
+    it('should support pagination', async () => {
+      const result = await ReadingService.getTopRatedBooks(testReaderId, {
+        page: 1,
+        pageSize: 2,
+      });
+
+      expect(result.entries).toHaveLength(2);
+      expect(result.pagination.page).toBe(1);
+      expect(result.pagination.pageSize).toBe(2);
+      expect(result.pagination.total).toBe(4);
+      expect(result.pagination.hasMore).toBe(true);
+    });
+
+    it('should include book details and reflection notes', async () => {
+      const result = await ReadingService.getTopRatedBooks(testReaderId);
+
+      const topBook = result.entries[0];
+      expect(topBook).toHaveProperty('book');
+      expect(topBook.book).toHaveProperty('title');
+      expect(topBook.book).toHaveProperty('author');
+      expect(topBook).toHaveProperty('rating');
+      expect(topBook).toHaveProperty('reflectionNote');
+    });
+
+    it('should handle second page correctly', async () => {
+      const page2 = await ReadingService.getTopRatedBooks(testReaderId, {
+        page: 2,
+        pageSize: 2,
+      });
+
+      expect(page2.entries).toHaveLength(2);
+      expect(page2.pagination.page).toBe(2);
+      expect(page2.pagination.hasMore).toBe(false);
+    });
+  });
 });
