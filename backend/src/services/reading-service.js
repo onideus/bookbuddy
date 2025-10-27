@@ -6,6 +6,7 @@
 import { Book } from '../models/book.js';
 import { ReadingEntry } from '../models/reading-entry.js';
 import { StatusTransition } from '../models/status-transition.js';
+import * as ProgressUpdate from '../models/progress-update.js';
 import { transaction } from '../db/connection.js';
 import { logAnalyticsEvent } from '../lib/logger.js';
 
@@ -230,6 +231,94 @@ export class ReadingService {
     // Update would go here - not fully implemented yet as it's for US3
 
     return entry;
+  }
+
+  /**
+   * Add a progress note for a reading entry (User Story 2 - T077)
+   * @param {string} entryId - Reading entry ID
+   * @param {Object} noteData - Note data
+   * @param {string} noteData.content - Note content (1-1000 chars)
+   * @param {string} [noteData.progressMarker] - Optional page/chapter marker (max 50 chars)
+   * @returns {Promise<Object>} Created progress note
+   */
+  static async addProgressNote(entryId, noteData) {
+    const { content, progressMarker } = noteData;
+
+    // Validation
+    if (!content || content.trim().length === 0) {
+      throw new Error('Note content is required');
+    }
+
+    if (content.length > 1000) {
+      throw new Error('Note content must not exceed 1000 characters');
+    }
+
+    if (progressMarker && progressMarker.length > 50) {
+      throw new Error('Progress marker must not exceed 50 characters');
+    }
+
+    // Check if reading entry exists
+    const entry = await ReadingEntry.findById(entryId);
+    if (!entry) {
+      throw new Error('Reading entry not found or does not exist');
+    }
+
+    // Create progress note
+    const progressUpdate = await ProgressUpdate.create({
+      readingEntryId: entryId,
+      note: content,
+      pageOrChapter: progressMarker,
+    });
+
+    // Log analytics event
+    logAnalyticsEvent('progress_note_added', {
+      entryId,
+      readerId: entry.reader_id,
+      hasProgressMarker: !!progressMarker,
+    });
+
+    // Return formatted response
+    return {
+      noteId: progressUpdate.id,
+      recordedAt: progressUpdate.created_at.toISOString(),
+      content: progressUpdate.note,
+      progressMarker: progressUpdate.page_or_chapter,
+    };
+  }
+
+  /**
+   * Get progress notes for a reading entry (User Story 2 - T078)
+   * @param {string} entryId - Reading entry ID
+   * @returns {Promise<Array>} Progress notes with book details, newest first
+   */
+  static async getProgressNotes(entryId) {
+    // Check if reading entry exists
+    const entry = await ReadingEntry.findById(entryId);
+    if (!entry) {
+      throw new Error('Reading entry not found or does not exist');
+    }
+
+    // Verify book data is included (should always be present from findById JOIN)
+    if (!entry.book) {
+      throw new Error('Book data not found for this reading entry');
+    }
+
+    // Get progress updates
+    const updates = await ProgressUpdate.findByEntry(entryId);
+
+    // Format response - use book data already included in entry
+    return updates.map((update) => ({
+      noteId: update.id,
+      recordedAt: update.created_at.toISOString(),
+      content: update.note,
+      progressMarker: update.page_or_chapter,
+      book: {
+        id: entry.book.id,
+        title: entry.book.title,
+        author: entry.book.author,
+        edition: entry.book.edition,
+      },
+    }));
   }
 
   /**

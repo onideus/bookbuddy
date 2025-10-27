@@ -1,0 +1,258 @@
+/**
+ * Contract tests for Progress Notes API (T068-T069)
+ * Tests API compliance with OpenAPI spec for User Story 2
+ */
+
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { build } from '../helpers/server-helper.js';
+import { pool } from '../../src/db/connection.js';
+
+describe('Progress Notes API - Contract Tests', () => {
+  let app;
+  let testReaderId;
+  let testBookId;
+  let testEntryId;
+
+  beforeEach(async () => {
+    app = await build();
+
+    // Create test reader
+    const readerResult = await pool.query(
+      'INSERT INTO reader_profiles (id) VALUES (gen_random_uuid()) RETURNING id'
+    );
+    testReaderId = readerResult.rows[0].id;
+
+    // Create test book
+    const bookResult = await pool.query(
+      `INSERT INTO books (title, author)
+       VALUES ($1, $2)
+       RETURNING id`,
+      ['Test Book for Progress', 'Test Author']
+    );
+    testBookId = bookResult.rows[0].id;
+
+    // Create reading entry with READING status
+    const entryResult = await pool.query(
+      `INSERT INTO reading_entries (reader_id, book_id, status)
+       VALUES ($1, $2, $3)
+       RETURNING id`,
+      [testReaderId, testBookId, 'READING']
+    );
+    testEntryId = entryResult.rows[0].id;
+  });
+
+  afterEach(async () => {
+    // Clean up test data
+    await pool.query('DELETE FROM reading_entries WHERE id = $1', [testEntryId]);
+    await pool.query('DELETE FROM books WHERE id = $1', [testBookId]);
+    await pool.query('DELETE FROM reader_profiles WHERE id = $1', [testReaderId]);
+    await app.close();
+  });
+
+  describe('POST /api/reading-entries/{entryId}/progress-notes', () => {
+    it('should create progress note with valid data', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: `/api/reading-entries/${testEntryId}/progress-notes`,
+        payload: {
+          content: 'Finished Chapter 5',
+          progressMarker: 'Chapter 5',
+        },
+      });
+
+      expect(response.statusCode).toBe(201);
+      const data = JSON.parse(response.body);
+
+      // Verify response schema matches OpenAPI spec
+      expect(data).toHaveProperty('noteId');
+      expect(data).toHaveProperty('recordedAt');
+      expect(data).toHaveProperty('content');
+      expect(data).toHaveProperty('progressMarker');
+
+      expect(data.content).toBe('Finished Chapter 5');
+      expect(data.progressMarker).toBe('Chapter 5');
+      expect(data.noteId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+    });
+
+    it('should create progress note without progress marker', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: `/api/reading-entries/${testEntryId}/progress-notes`,
+        payload: {
+          content: 'Really enjoying the plot twist',
+        },
+      });
+
+      expect(response.statusCode).toBe(201);
+      const data = JSON.parse(response.body);
+
+      expect(data.content).toBe('Really enjoying the plot twist');
+      expect(data.progressMarker).toBeNull();
+    });
+
+    it('should reject progress note with empty content', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: `/api/reading-entries/${testEntryId}/progress-notes`,
+        payload: {
+          content: '',
+        },
+      });
+
+      expect(response.statusCode).toBe(400);
+      const data = JSON.parse(response.body);
+      expect(data.error).toBeDefined();
+    });
+
+    it('should reject progress note exceeding max length (1000 chars)', async () => {
+      const longContent = 'a'.repeat(1001);
+
+      const response = await app.inject({
+        method: 'POST',
+        url: `/api/reading-entries/${testEntryId}/progress-notes`,
+        payload: {
+          content: longContent,
+        },
+      });
+
+      expect(response.statusCode).toBe(400);
+      const data = JSON.parse(response.body);
+      expect(data.error).toBeDefined();
+    });
+
+    it('should reject progress marker exceeding max length (50 chars)', async () => {
+      const longMarker = 'a'.repeat(51);
+
+      const response = await app.inject({
+        method: 'POST',
+        url: `/api/reading-entries/${testEntryId}/progress-notes`,
+        payload: {
+          content: 'Test note',
+          progressMarker: longMarker,
+        },
+      });
+
+      expect(response.statusCode).toBe(400);
+      const data = JSON.parse(response.body);
+      expect(data.error).toBeDefined();
+    });
+
+    it('should return 404 for non-existent reading entry', async () => {
+      const fakeEntryId = '00000000-0000-0000-0000-000000000000';
+
+      const response = await app.inject({
+        method: 'POST',
+        url: `/api/reading-entries/${fakeEntryId}/progress-notes`,
+        payload: {
+          content: 'Test note',
+        },
+      });
+
+      expect(response.statusCode).toBe(404);
+      const data = JSON.parse(response.body);
+      expect(data.error).toBe('Not Found');
+    });
+
+    it('should include correlation ID in response', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: `/api/reading-entries/${testEntryId}/progress-notes`,
+        payload: {
+          content: 'Test note',
+        },
+      });
+
+      expect(response.headers).toHaveProperty('x-correlation-id');
+      const data = JSON.parse(response.body);
+      expect(data).toHaveProperty('correlationId');
+    });
+  });
+
+  describe('GET /api/reading-entries/{entryId}/progress-notes', () => {
+    let noteId1, noteId2;
+
+    beforeEach(async () => {
+      // Create progress notes for testing
+      const result1 = await pool.query(
+        `INSERT INTO progress_updates (reading_entry_id, note, page_or_chapter)
+         VALUES ($1, $2, $3)
+         RETURNING id`,
+        [testEntryId, 'First note', 'Chapter 1']
+      );
+      noteId1 = result1.rows[0].id;
+
+      // Wait a tiny bit to ensure different timestamps
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      const result2 = await pool.query(
+        `INSERT INTO progress_updates (reading_entry_id, note, page_or_chapter)
+         VALUES ($1, $2, $3)
+         RETURNING id`,
+        [testEntryId, 'Second note', 'Chapter 2']
+      );
+      noteId2 = result2.rows[0].id;
+    });
+
+    afterEach(async () => {
+      await pool.query('DELETE FROM progress_updates WHERE reading_entry_id = $1', [testEntryId]);
+    });
+
+    it('should return progress notes in chronological order (newest first)', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: `/api/reading-entries/${testEntryId}/progress-notes`,
+      });
+
+      expect(response.statusCode).toBe(200);
+      const data = JSON.parse(response.body);
+
+      expect(Array.isArray(data)).toBe(true);
+      expect(data.length).toBe(2);
+
+      // Verify newest first (DESC order)
+      expect(data[0].content).toBe('Second note');
+      expect(data[1].content).toBe('First note');
+
+      // Verify schema
+      expect(data[0]).toHaveProperty('noteId');
+      expect(data[0]).toHaveProperty('recordedAt');
+      expect(data[0]).toHaveProperty('content');
+      expect(data[0]).toHaveProperty('progressMarker');
+    });
+
+    it('should return empty array when no notes exist', async () => {
+      // Delete all notes
+      await pool.query('DELETE FROM progress_updates WHERE reading_entry_id = $1', [testEntryId]);
+
+      const response = await app.inject({
+        method: 'GET',
+        url: `/api/reading-entries/${testEntryId}/progress-notes`,
+      });
+
+      expect(response.statusCode).toBe(200);
+      const data = JSON.parse(response.body);
+      expect(Array.isArray(data)).toBe(true);
+      expect(data.length).toBe(0);
+    });
+
+    it('should return 404 for non-existent reading entry', async () => {
+      const fakeEntryId = '00000000-0000-0000-0000-000000000000';
+
+      const response = await app.inject({
+        method: 'GET',
+        url: `/api/reading-entries/${fakeEntryId}/progress-notes`,
+      });
+
+      expect(response.statusCode).toBe(404);
+    });
+
+    it('should include correlation ID in response', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: `/api/reading-entries/${testEntryId}/progress-notes`,
+      });
+
+      expect(response.headers).toHaveProperty('x-correlation-id');
+    });
+  });
+});

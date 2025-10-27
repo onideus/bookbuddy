@@ -28,19 +28,19 @@ Per plan.md structure:
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create backend directory structure: src/{db,models,services,api/{routes,middleware,validators},lib}
-- [ ] T002 Create frontend directory structure: src/{pages,styles,scripts/{api,components,services,utils},assets}
-- [ ] T003 Create shared directory structure: contracts/, constants.js
-- [ ] T004 Initialize backend package.json with Fastify, pg, pino, @fastify/{cors,session,rate-limit}, uuid, vitest
-- [ ] T005 [P] Initialize frontend package.json with vite, @testing-library/dom, vitest
-- [ ] T006 [P] Install Playwright for E2E and accessibility testing: npm install -D playwright @axe-core/playwright
-- [ ] T007 [P] Configure ESLint and Prettier for backend (backend/.eslintrc.js, backend/.prettierrc)
-- [ ] T008 [P] Configure ESLint and Prettier for frontend (frontend/.eslintrc.js, frontend/.prettierrc)
-- [ ] T009 Configure Vitest for backend unit tests in backend/vitest.config.js (coverage ≥90% threshold)
-- [ ] T010 [P] Configure Vitest for frontend unit tests in frontend/vitest.config.js
-- [ ] T011 [P] Configure Playwright for E2E tests in frontend/playwright.config.js with axe accessibility checks
-- [ ] T012 Create shared constants file shared/constants.js with status enums (TO_READ, READING, FINISHED)
-- [ ] T013 Copy OpenAPI spec from specs/001-track-reading/contracts/openapi.yaml to shared/contracts/openapi.yaml
+- [X] T001 Create backend directory structure: src/{db,models,services,api/{routes,middleware,validators},lib}
+- [X] T002 Create frontend directory structure: src/{pages,styles,scripts/{api,components,services,utils},assets}
+- [X] T003 Create shared directory structure: contracts/, constants.js
+- [X] T004 Initialize backend package.json with Fastify, pg, pino, @fastify/{cors,session,rate-limit}, uuid, vitest
+- [X] T005 [P] Initialize frontend package.json with vite, @testing-library/dom, vitest
+- [X] T006 [P] Install Playwright for E2E and accessibility testing: npm install -D playwright @axe-core/playwright
+- [X] T007 [P] Configure ESLint and Prettier for backend (backend/.eslintrc.js, backend/.prettierrc)
+- [X] T008 [P] Configure ESLint and Prettier for frontend (frontend/.eslintrc.js, frontend/.prettierrc)
+- [X] T009 Configure Vitest for backend unit tests in backend/vitest.config.js (coverage ≥90% threshold)
+- [X] T010 [P] Configure Vitest for frontend unit tests in frontend/vitest.config.js
+- [X] T011 [P] Configure Playwright for E2E tests in frontend/playwright.config.js with axe accessibility checks
+- [X] T012 Create shared constants file shared/constants.js with status enums (TO_READ, READING, FINISHED)
+- [X] T013 Copy OpenAPI spec from specs/001-track-reading/contracts/openapi.yaml to shared/contracts/openapi.yaml
 
 ---
 
@@ -52,29 +52,29 @@ Per plan.md structure:
 
 ### Database Setup
 
-- [ ] T014 Create database migration 001_create_tables.sql for books, reader_profiles, reading_entries, progress_updates, status_transitions, sessions tables per data-model.md
-- [ ] T015 [P] Create database migration 002_create_indexes.sql for performance indexes per data-model.md
-- [ ] T016 Create migration runner script backend/src/db/migrate.js using postgres-migrations
-- [ ] T017 Create database connection module backend/src/db/connection.js using node-postgres with pool management
+- [X] T014 Create database migration 001_create_tables.sql for books, reader_profiles, reading_entries, progress_updates, status_transitions, sessions tables per data-model.md
+- [X] T015 [P] Create database migration 002_create_indexes.sql for performance indexes per data-model.md
+- [X] T016 Create migration runner script backend/src/db/migrate.js using postgres-migrations
+- [X] T017 Create database connection module backend/src/db/connection.js using node-postgres with pool management
 
 ### Backend Infrastructure
 
-- [ ] T018 Implement Pino logger setup in backend/src/lib/logger.js with correlation ID support (FR-015, FR-017)
-- [ ] T019 [P] Implement correlation ID middleware in backend/src/api/middleware/correlation-id.js using uuid v4
-- [ ] T020 [P] Implement session middleware configuration in backend/src/api/middleware/session.js using @fastify/session + PostgreSQL store
-- [ ] T021 [P] Implement rate limiting middleware in backend/src/api/middleware/rate-limit.js using @fastify/rate-limit (100 additions/hour per reader - FR-019)
-- [ ] T022 [P] Implement authentication middleware in backend/src/api/middleware/auth.js (session validation, RBAC - FR-009)
-- [ ] T023 [P] Implement error handler middleware in backend/src/api/middleware/error-handler.js (correlation IDs in responses - FR-017)
-- [ ] T024 Create Fastify server setup in backend/src/server.js with all middleware, CORS, logging
-- [ ] T025 Create environment configuration loader in backend/src/lib/config.js (.env support for DATABASE_URL, PORT, SESSION_SECRET, etc.)
+- [X] T018 Implement Pino logger setup in backend/src/lib/logger.js with correlation ID support (FR-015, FR-017)
+- [X] T019 [P] Implement correlation ID middleware in backend/src/api/middleware/correlation-id.js using uuid v4
+- [X] T020 [P] Implement session middleware configuration in backend/src/api/middleware/session.js using @fastify/session + PostgreSQL store
+- [X] T021 [P] Implement rate limiting middleware in backend/src/api/middleware/rate-limit.js using @fastify/rate-limit (100 additions/hour per reader - FR-019)
+- [X] T022 [P] Implement authentication middleware in backend/src/api/middleware/auth.js (session validation, RBAC - FR-009)
+- [X] T023 [P] Implement error handler middleware in backend/src/api/middleware/error-handler.js (correlation IDs in responses - FR-017)
+- [X] T024 Create Fastify server setup in backend/src/server.js with all middleware, CORS, logging
+- [X] T025 Create environment configuration loader in backend/src/lib/config.js (.env support for DATABASE_URL, PORT, SESSION_SECRET, etc.)
 
 ### Frontend Infrastructure
 
-- [ ] T026 Configure Vite multi-page app in frontend/vite.config.js with entry points: index.html, dashboard.html, book-detail.html
-- [ ] T027 [P] Create CSS design tokens in frontend/src/styles/tokens.css (colors, spacing, typography, focus indicators - WCAG 2.1 AA)
-- [ ] T028 [P] Create base CSS in frontend/src/styles/base.css (reset, accessibility defaults)
-- [ ] T029 [P] Create API client base in frontend/src/scripts/api/client.js (fetch wrapper with error handling, correlation ID extraction)
-- [ ] T030 Create environment configuration in frontend/.env.local.example (VITE_API_URL)
+- [X] T026 Configure Vite multi-page app in frontend/vite.config.js with entry points: index.html, dashboard.html, book-detail.html
+- [X] T027 [P] Create CSS design tokens in frontend/src/styles/tokens.css (colors, spacing, typography, focus indicators - WCAG 2.1 AA)
+- [X] T028 [P] Create base CSS in frontend/src/styles/base.css (reset, accessibility defaults)
+- [X] T029 [P] Create API client base in frontend/src/scripts/api/client.js (fetch wrapper with error handling, correlation ID extraction)
+- [X] T030 Create environment configuration in frontend/.env.local.example (VITE_API_URL)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -88,63 +88,63 @@ Per plan.md structure:
 
 ### Tests for User Story 1 (Write FIRST - ensure they FAIL before implementation)
 
-- [ ] T031 [P] [US1] Contract test for POST /api/readers/{readerId}/reading-entries in backend/tests/contract/reading-entries.test.js
-- [ ] T032 [P] [US1] Contract test for GET /api/readers/{readerId}/reading-entries with status filter in backend/tests/contract/reading-entries.test.js
-- [ ] T033 [P] [US1] Contract test for PATCH /api/reading-entries/{entryId} (status transitions) in backend/tests/contract/reading-entries.test.js
-- [ ] T034 [P] [US1] Unit test for Book model CRUD operations in backend/tests/unit/models/book.test.js (≥90% coverage)
-- [ ] T035 [P] [US1] Unit test for ReadingEntry model CRUD operations in backend/tests/unit/models/reading-entry.test.js (≥90% coverage)
-- [ ] T036 [P] [US1] Unit test for StatusTransition model create/query in backend/tests/unit/models/status-transition.test.js (≥90% coverage)
-- [ ] T037 [US1] Unit test for ReadingService book addition logic (duplicate detection, unique constraint) in backend/tests/unit/services/reading-service.test.js (≥90% coverage)
-- [ ] T038 [US1] Unit test for ReadingService status transition logic (from/to validation, history recording) in backend/tests/unit/services/reading-service.test.js (≥90% coverage)
-- [ ] T039 [US1] Integration test for complete user journey: add book → move TO_READ → move READING → verify status_transitions in backend/tests/integration/us1-organize-pipeline.test.js
-- [ ] T040 [P] [US1] E2E test for dashboard rendering with books in all three statuses in frontend/tests/integration/dashboard.spec.js
-- [ ] T041 [P] [US1] E2E accessibility test for dashboard keyboard navigation and screen reader announcements in frontend/tests/integration/dashboard-a11y.spec.js
-- [ ] T042 [P] [US1] Unit test for BookList component rendering and filtering in frontend/tests/unit/components/book-list.test.js
+- [X] T031 [P] [US1] Contract test for POST /api/readers/{readerId}/reading-entries in backend/tests/contract/reading-entries.test.js
+- [X] T032 [P] [US1] Contract test for GET /api/readers/{readerId}/reading-entries with status filter in backend/tests/contract/reading-entries.test.js
+- [X] T033 [P] [US1] Contract test for PATCH /api/reading-entries/{entryId} (status transitions) in backend/tests/contract/reading-entries.test.js
+- [X] T034 [P] [US1] Unit test for Book model CRUD operations in backend/tests/unit/models/book.test.js (≥90% coverage)
+- [X] T035 [P] [US1] Unit test for ReadingEntry model CRUD operations in backend/tests/unit/models/reading-entry.test.js (≥90% coverage)
+- [X] T036 [P] [US1] Unit test for StatusTransition model create/query in backend/tests/unit/models/status-transition.test.js (≥90% coverage)
+- [X] T037 [US1] Unit test for ReadingService book addition logic (duplicate detection, unique constraint) in backend/tests/unit/services/reading-service.test.js (≥90% coverage)
+- [X] T038 [US1] Unit test for ReadingService status transition logic (from/to validation, history recording) in backend/tests/unit/services/reading-service.test.js (≥90% coverage)
+- [X] T039 [US1] Integration test for complete user journey: add book → move TO_READ → move READING → verify status_transitions in backend/tests/integration/us1-organize-pipeline.test.js
+- [X] T040 [P] [US1] E2E test for dashboard rendering with books in all three statuses in frontend/tests/integration/dashboard.spec.js
+- [X] T041 [P] [US1] E2E accessibility test for dashboard keyboard navigation and screen reader announcements in frontend/tests/integration/dashboard-a11y.spec.js
+- [X] T042 [P] [US1] Unit test for BookList component rendering and filtering in frontend/tests/unit/components/book-list.test.js
 
 ### Implementation for User Story 1
 
 **Backend Models** (Data Access Layer)
 
-- [ ] T043 [P] [US1] Create Book model in backend/src/models/book.js (create, findById, findByTitleAuthorEdition for duplicates, update)
-- [ ] T044 [P] [US1] Create ReadingEntry model in backend/src/models/reading-entry.js (create, findById, findByReader, findByReaderAndStatus, updateStatus, delete)
-- [ ] T045 [P] [US1] Create StatusTransition model in backend/src/models/status-transition.js (create, findByEntry for history)
-- [ ] T046 [P] [US1] Create ReaderProfile model in backend/src/models/reader-profile.js (create, findById, update preferences)
+- [X] T043 [P] [US1] Create Book model in backend/src/models/book.js (create, findById, findByTitleAuthorEdition for duplicates, update)
+- [X] T044 [P] [US1] Create ReadingEntry model in backend/src/models/reading-entry.js (create, findById, findByReader, findByReaderAndStatus, updateStatus, delete)
+- [X] T045 [P] [US1] Create StatusTransition model in backend/src/models/status-transition.js (create, findByEntry for history)
+- [X] T046 [P] [US1] Create ReaderProfile model in backend/src/models/reader-profile.js (create, findById, update preferences)
 
 **Backend Services** (Business Logic)
 
-- [ ] T047 [US1] Implement ReadingService.addBook in backend/src/services/reading-service.js (check duplicates, create book + reading_entry + initial status_transition, analytics event - FR-016)
-- [ ] T048 [US1] Implement ReadingService.getReadingEntries in backend/src/services/reading-service.js (query by reader + status filter, pagination FR-012, join with books)
-- [ ] T049 [US1] Implement ReadingService.updateStatus in backend/src/services/reading-service.js (validate transition, update reading_entry, create status_transition, last-write-wins with timestamp check - FR-010, analytics event)
-- [ ] T050 [US1] Add input validation schemas in backend/src/api/validators/reading-entry-schemas.js using Fastify JSON Schema (title max 500, author max 200, status enum - FR-018)
+- [X] T047 [US1] Implement ReadingService.addBook in backend/src/services/reading-service.js (check duplicates, create book + reading_entry + initial status_transition, analytics event - FR-016)
+- [X] T048 [US1] Implement ReadingService.getReadingEntries in backend/src/services/reading-service.js (query by reader + status filter, pagination FR-012, join with books)
+- [X] T049 [US1] Implement ReadingService.updateStatus in backend/src/services/reading-service.js (validate transition, update reading_entry, create status_transition, last-write-wins with timestamp check - FR-010, analytics event)
+- [X] T050 [US1] Add input validation schemas in backend/src/api/validators/reading-entry-schemas.js using Fastify JSON Schema (title max 500, author max 200, status enum - FR-018)
 
 **Backend API Routes**
 
-- [ ] T051 [US1] Implement POST /api/readers/:readerId/reading-entries route in backend/src/api/routes/reading-entries.js (calls ReadingService.addBook, rate limited, requires auth)
-- [ ] T052 [P] [US1] Implement GET /api/readers/:readerId/reading-entries route with status query param and pagination in backend/src/api/routes/reading-entries.js
-- [ ] T053 [US1] Implement PATCH /api/reading-entries/:entryId route for status updates in backend/src/api/routes/reading-entries.js (calls ReadingService.updateStatus, handles FR-010 concurrent edit conflicts)
-- [ ] T054 [US1] Register reading-entries routes in backend/src/server.js
+- [X] T051 [US1] Implement POST /api/readers/:readerId/reading-entries route in backend/src/api/routes/reading-entries.js (calls ReadingService.addBook, rate limited, requires auth)
+- [X] T052 [P] [US1] Implement GET /api/readers/:readerId/reading-entries route with status query param and pagination in backend/src/api/routes/reading-entries.js
+- [X] T053 [US1] Implement PATCH /api/reading-entries/:entryId route for status updates in backend/src/api/routes/reading-entries.js (calls ReadingService.updateStatus, handles FR-010 concurrent edit conflicts)
+- [X] T054 [US1] Register reading-entries routes in backend/src/server.js
 
 **Frontend Pages & Styles**
 
-- [ ] T055 [P] [US1] Create dashboard HTML structure in frontend/src/pages/dashboard.html (semantic HTML, ARIA labels, three status sections)
-- [ ] T056 [P] [US1] Create component styles in frontend/src/styles/components.css (book-list, book-card, status-filter, accessible focus indicators - WCAG 2.1 AA contrast)
+- [X] T055 [P] [US1] Create dashboard HTML structure in frontend/src/pages/dashboard.html (semantic HTML, ARIA labels, three status sections)
+- [X] T056 [P] [US1] Create component styles in frontend/src/styles/components.css (book-list, book-card, status-filter, accessible focus indicators - WCAG 2.1 AA contrast)
 
 **Frontend Scripts** (Vanilla JS)
 
-- [ ] T057 [P] [US1] Create API client for reading entries in frontend/src/scripts/api/reading-entries-api.js (addBook, getEntries, updateStatus methods with correlation ID handling)
-- [ ] T058 [US1] Create BookStore state management class in frontend/src/scripts/services/book-store.js (extends EventTarget, manages reading entries state, emits events on updates)
-- [ ] T059 [US1] Create BookList component in frontend/src/scripts/components/book-list.js (renders book cards, handles filter changes, keyboard navigation, ARIA live regions)
-- [ ] T060 [US1] Create AddBookForm component in frontend/src/scripts/components/add-book-form.js (form validation, optimistic UI update - FR-013, error handling)
-- [ ] T061 [US1] Create StatusFilter component in frontend/src/scripts/components/status-filter.js (keyboard accessible, updates BookStore, ARIA announcements)
-- [ ] T062 [US1] Initialize dashboard page in frontend/src/scripts/pages/dashboard.js (wires up components, BookStore, event listeners, loads initial data)
+- [X] T057 [P] [US1] Create API client for reading entries in frontend/src/scripts/api/reading-entries-api.js (addBook, getEntries, updateStatus methods with correlation ID handling)
+- [X] T058 [US1] Create BookStore state management class in frontend/src/scripts/services/book-store.js (extends EventTarget, manages reading entries state, emits events on updates)
+- [X] T059 [US1] Create BookList component in frontend/src/scripts/components/book-list.js (renders book cards, handles filter changes, keyboard navigation, ARIA live regions)
+- [X] T060 [US1] Create AddBookForm component in frontend/src/scripts/components/add-book-form.js (form validation, optimistic UI update - FR-013, error handling)
+- [X] T061 [US1] Create StatusFilter component in frontend/src/scripts/components/status-filter.js (keyboard accessible, updates BookStore, ARIA announcements)
+- [X] T062 [US1] Initialize dashboard page in frontend/src/scripts/pages/dashboard.js (wires up components, BookStore, event listeners, loads initial data)
 
 **Validation & Polish**
 
-- [ ] T063 [US1] Run all US1 tests (unit, integration, contract, E2E) - verify all pass
-- [ ] T064 [US1] Run Playwright accessibility audit on dashboard - verify WCAG 2.1 AA compliance (QT-004, SC-004)
-- [ ] T065 [US1] Verify ≥90% code coverage for US1 modules (QT-001)
-- [ ] T066 [US1] Manual test: Add "The Invisible Library" as TO_READ, move to READING, verify status_transitions logged, filter by status
-- [ ] T067 [US1] Document US1 completion in specs/001-track-reading/tasks.md, update CHANGELOG.md
+- [X] T063 [US1] Run all US1 tests (unit, integration, contract, E2E) - verify all pass
+- [X] T064 [US1] Run Playwright accessibility audit on dashboard - verify WCAG 2.1 AA compliance (QT-004, SC-004)
+- [X] T065 [US1] Verify ≥90% code coverage for US1 modules (QT-001)
+- [X] T066 [US1] Manual test: Add "The Invisible Library" as TO_READ, move to READING, verify status_transitions logged, filter by status
+- [X] T067 [US1] Document US1 completion in specs/001-track-reading/tasks.md, update CHANGELOG.md
 
 **Checkpoint**: User Story 1 (MVP) complete and independently validated ✅
 
@@ -158,45 +158,45 @@ Per plan.md structure:
 
 ### Tests for User Story 2 (Write FIRST - ensure they FAIL before implementation)
 
-- [ ] T068 [P] [US2] Contract test for POST /api/reading-entries/{entryId}/progress-notes in backend/tests/contract/progress-notes.test.js
-- [ ] T069 [P] [US2] Contract test for GET /api/reading-entries/{entryId}/progress-notes in backend/tests/contract/progress-notes.test.js
-- [ ] T070 [P] [US2] Unit test for ProgressUpdate model create/query in backend/tests/unit/models/progress-update.test.js (≥90% coverage)
-- [ ] T071 [US2] Unit test for ReadingService.addProgressNote in backend/tests/unit/services/reading-service.test.js (note length validation, timestamp handling - ≥90% coverage)
-- [ ] T072 [US2] Integration test for complete user journey: add progress note → retrieve notes chronologically → verify analytics event in backend/tests/integration/us2-track-progress.test.js
-- [ ] T073 [P] [US2] E2E test for book detail page progress note form in frontend/tests/integration/book-detail.spec.js
-- [ ] T074 [P] [US2] E2E accessibility test for progress notes timeline (screen reader announcements, keyboard navigation) in frontend/tests/integration/book-detail-a11y.spec.js
-- [ ] T075 [P] [US2] Unit test for ProgressNotesList component rendering in frontend/tests/unit/components/progress-notes-list.test.js
+- [X] T068 [P] [US2] Contract test for POST /api/reading-entries/{entryId}/progress-notes in backend/tests/contract/progress-notes.test.js
+- [X] T069 [P] [US2] Contract test for GET /api/reading-entries/{entryId}/progress-notes in backend/tests/contract/progress-notes.test.js
+- [X] T070 [P] [US2] Unit test for ProgressUpdate model create/query in backend/tests/unit/models/progress-update.test.js (≥90% coverage)
+- [X] T071 [US2] Unit test for ReadingService.addProgressNote in backend/tests/unit/services/reading-service.test.js (note length validation, timestamp handling - ≥90% coverage)
+- [X] T072 [US2] Integration test for complete user journey: add progress note → retrieve notes chronologically → verify analytics event in backend/tests/integration/us2-track-progress.test.js
+- [X] T073 [P] [US2] E2E test for book detail page progress note form in frontend/tests/integration/book-detail.spec.js
+- [X] T074 [P] [US2] E2E accessibility test for progress notes timeline (screen reader announcements, keyboard navigation) in frontend/tests/integration/book-detail-a11y.spec.js
+- [X] T075 [P] [US2] Unit test for ProgressNotesList component rendering in frontend/tests/unit/components/progress-notes-list.test.js
 
 ### Implementation for User Story 2
 
 **Backend Models & Services**
 
-- [ ] T076 [P] [US2] Create ProgressUpdate model in backend/src/models/progress-update.js (create, findByEntry with DESC ordering)
-- [ ] T077 [US2] Implement ReadingService.addProgressNote in backend/src/services/reading-service.js (validate note length max 1000, page_or_chapter max 50 - FR-004, FR-018, analytics event)
-- [ ] T078 [US2] Implement ReadingService.getProgressNotes in backend/src/services/reading-service.js (query by entry, chronological DESC, include book details)
-- [ ] T079 [US2] Add progress note validation schemas in backend/src/api/validators/progress-note-schemas.js
+- [X] T076 [P] [US2] Create ProgressUpdate model in backend/src/models/progress-update.js (create, findByEntry with DESC ordering)
+- [X] T077 [US2] Implement ReadingService.addProgressNote in backend/src/services/reading-service.js (validate note length max 1000, page_or_chapter max 50 - FR-004, FR-018, analytics event)
+- [X] T078 [US2] Implement ReadingService.getProgressNotes in backend/src/services/reading-service.js (query by entry, chronological DESC, include book details)
+- [X] T079 [US2] Add progress note validation schemas in backend/src/api/validators/progress-note-schemas.js
 
 **Backend API Routes**
 
-- [ ] T080 [US2] Implement POST /api/reading-entries/:entryId/progress-notes route in backend/src/api/routes/progress-notes.js (calls ReadingService.addProgressNote, rate limited 500/hour)
-- [ ] T081 [P] [US2] Implement GET /api/reading-entries/:entryId/progress-notes route in backend/src/api/routes/progress-notes.js
-- [ ] T082 [US2] Register progress-notes routes in backend/src/server.js
+- [X] T080 [US2] Implement POST /api/reading-entries/:entryId/progress-notes route in backend/src/api/routes/progress-notes.js (calls ReadingService.addProgressNote, rate limited 500/hour)
+- [X] T081 [P] [US2] Implement GET /api/reading-entries/:entryId/progress-notes route in backend/src/api/routes/progress-notes.js
+- [X] T082 [US2] Register progress-notes routes in backend/src/server.js
 
 **Frontend Pages & Components**
 
-- [ ] T083 [P] [US2] Create book detail HTML structure in frontend/src/pages/book-detail.html (book info section, progress timeline, add note form)
-- [ ] T084 [P] [US2] Create API client for progress notes in frontend/src/scripts/api/progress-notes-api.js (addNote, getNotes methods)
-- [ ] T085 [US2] Create ProgressNotesList component in frontend/src/scripts/components/progress-notes-list.js (renders timeline, newest first, ARIA live region for updates, relative time formatting)
-- [ ] T086 [US2] Create AddProgressNoteForm component in frontend/src/scripts/components/add-progress-note-form.js (validation, optimistic UI update - FR-013, clear form on success)
-- [ ] T087 [US2] Initialize book detail page in frontend/src/scripts/pages/book-detail.js (loads book data, progress notes, wires up components)
+- [X] T083 [P] [US2] Create book detail HTML structure in frontend/src/pages/book-detail.html (book info section, progress timeline, add note form)
+- [X] T084 [P] [US2] Create API client for progress notes in frontend/src/scripts/api/progress-notes-api.js (addNote, getNotes methods)
+- [X] T085 [US2] Create ProgressNotesList component in frontend/src/scripts/components/progress-notes-list.js (renders timeline, newest first, ARIA live region for updates, relative time formatting)
+- [X] T086 [US2] Create AddProgressNoteForm component in frontend/src/scripts/components/add-progress-note-form.js (validation, optimistic UI update - FR-013, clear form on success)
+- [X] T087 [US2] Initialize book detail page in frontend/src/scripts/pages/book-detail.js (loads book data, progress notes, wires up components)
 
 **Validation & Polish**
 
-- [ ] T088 [US2] Run all US2 tests (unit, integration, contract, E2E) - verify all pass
-- [ ] T089 [US2] Run Playwright accessibility audit on book detail page - verify WCAG 2.1 AA compliance (QT-004, SC-004)
-- [ ] T090 [US2] Verify ≥90% code coverage for US2 modules (QT-001)
-- [ ] T091 [US2] Manual test: Add progress note "Finished Chapter 5" with page marker, verify timestamp displays, check screen reader announcements
-- [ ] T092 [US2] Document US2 completion in specs/001-track-reading/tasks.md, update CHANGELOG.md
+- [X] T088 [US2] Run all US2 tests (unit, integration, contract, E2E) - verify all pass
+- [X] T089 [US2] Run Playwright accessibility audit on book detail page - verify WCAG 2.1 AA compliance (QT-004, SC-004)
+- [X] T090 [US2] Verify ≥90% code coverage for US2 modules (QT-001)
+- [X] T091 [US2] Manual test: Add progress note "Finished Chapter 5" with page marker, verify timestamp displays, check screen reader announcements
+- [X] T092 [US2] Document US2 completion in specs/001-track-reading/tasks.md, update CHANGELOG.md
 
 **Checkpoint**: User Story 2 complete and independently validated ✅
 

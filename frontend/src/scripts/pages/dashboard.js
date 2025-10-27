@@ -46,6 +46,7 @@ function initComponents() {
     container: document.getElementById('to-read-list'),
     status: 'TO_READ',
     books: [],
+    onBookClick: handleBookClick,
     onStatusChange: handleStatusChange,
   });
 
@@ -53,6 +54,7 @@ function initComponents() {
     container: document.getElementById('reading-list'),
     status: 'READING',
     books: [],
+    onBookClick: handleBookClick,
     onStatusChange: handleStatusChange,
   });
 
@@ -60,6 +62,7 @@ function initComponents() {
     container: document.getElementById('finished-list'),
     status: 'FINISHED',
     books: [],
+    onBookClick: handleBookClick,
     onStatusChange: handleStatusChange,
   });
 
@@ -156,6 +159,19 @@ async function handleAddBook(bookData) {
       updateLists();
     }
   }
+}
+
+/**
+ * Handle book click - navigate to detail page
+ * @param {Object} entry - Reading entry
+ */
+function handleBookClick(entry) {
+  if (!entry || !entry.id) {
+    return;
+  }
+
+  // Navigate to book detail page with entry ID
+  window.location.href = `/src/pages/book-detail.html?entryId=${entry.id}`;
 }
 
 /**

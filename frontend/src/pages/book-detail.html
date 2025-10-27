@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Detail - BookBuddy</title>
+  <link rel="stylesheet" href="../styles/tokens.css">
+  <link rel="stylesheet" href="../styles/base.css">
+  <link rel="stylesheet" href="../styles/components.css">
+</head>
+<body>
+  <div class="app-container" data-testid="book-detail-page">
+    <!-- Header -->
+    <header class="app-header">
+      <nav class="nav-bar">
+        <a href="/src/pages/dashboard.html" class="btn btn-secondary">← Back to Dashboard</a>
+        <h1 class="page-title">Reading Progress</h1>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Book Information Section -->
+      <section class="book-info-section" aria-labelledby="book-info-heading">
+        <h2 id="book-info-heading" class="sr-only">Book Information</h2>
+        
+        <div class="book-header">
+          <div class="book-header-content">
+            <h2 class="book-title" data-testid="book-title">
+              <!-- Populated by JavaScript -->
+            </h2>
+            <p class="book-author" data-testid="book-author">
+              <!-- Populated by JavaScript -->
+            </p>
+            <div class="book-meta">
+              <span class="book-edition" data-testid="book-edition">
+                <!-- Populated by JavaScript -->
+              </span>
+              <span class="book-status-badge" data-testid="book-status">
+                <!-- Populated by JavaScript -->
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Progress Notes Section -->
+      <section class="progress-notes-section" aria-labelledby="progress-notes-heading">
+        <h2 id="progress-notes-heading">Reading Progress Timeline</h2>
+
+        <!-- Add Progress Note Form -->
+        <div class="add-note-container">
+          <form id="add-progress-note-form" class="add-note-form" aria-labelledby="add-note-heading">
+            <h3 id="add-note-heading" class="form-heading">Add Progress Note</h3>
+            
+            <div class="form-group">
+              <label for="progress-note-textarea" class="form-label">
+                Note <span class="required-indicator" aria-label="required">*</span>
+              </label>
+              <textarea
+                id="progress-note-textarea"
+                data-testid="progress-note-textarea"
+                class="form-textarea"
+                rows="4"
+                maxlength="1000"
+                placeholder="Share your thoughts about this section..."
+                aria-describedby="note-help note-char-count"
+                required
+              ></textarea>
+              <div class="form-help-text" id="note-help">
+                Maximum 1000 characters
+              </div>
+              <div class="char-count" id="note-char-count" aria-live="polite">
+                <span id="current-char-count">0</span> / 1000 characters
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="page-chapter-input" class="form-label">
+                Page or Chapter <span class="optional-indicator">(optional)</span>
+              </label>
+              <input
+                type="text"
+                id="page-chapter-input"
+                data-testid="page-chapter-input"
+                class="form-input"
+                maxlength="50"
+                placeholder="e.g., Chapter 5, Page 142"
+                aria-describedby="marker-help"
+              />
+              <div class="form-help-text" id="marker-help">
+                Maximum 50 characters
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button
+                type="submit"
+                id="add-progress-note-button"
+                data-testid="add-progress-note-button"
+                class="btn btn-primary"
+              >
+                <span class="btn-text">Add Note</span>
+                <span class="btn-loading" hidden aria-hidden="true">
+                  <span class="loading-spinner"></span>
+                  Saving...
+                </span>
+              </button>
+            </div>
+
+            <!-- Error Message Container -->
+            <div
+              id="form-error-message"
+              data-testid="error-message"
+              class="error-message"
+              role="alert"
+              aria-live="assertive"
+              hidden
+            ></div>
+          </form>
+        </div>
+
+        <!-- Progress Notes Timeline -->
+        <div class="progress-timeline" aria-labelledby="timeline-heading">
+          <h3 id="timeline-heading" class="timeline-heading">Your Notes</h3>
+          
+          <!-- Empty State -->
+          <div
+            id="empty-progress-state"
+            data-testid="empty-progress-state"
+            class="empty-state"
+            hidden
+          >
+            <p class="empty-state-message">No progress notes yet. Add your first note above!</p>
+          </div>
+
+          <!-- Progress Notes List -->
+          <div
+            id="progress-notes-list"
+            data-testid="progress-notes-list"
+            class="notes-list"
+            role="list"
+            aria-live="polite"
+          >
+            <!-- Notes populated by JavaScript -->
+          </div>
+
+          <!-- Loading State -->
+          <div
+            id="notes-loading-state"
+            class="loading-state"
+            aria-live="polite"
+            hidden
+          >
+            <span class="loading-spinner"></span>
+            <span>Loading progress notes...</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>&copy; 2025 BookBuddy. Track your reading journey.</p>
+    </footer>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="../scripts/pages/book-detail.js"></script>
+</body>
+</html>

@@ -4,10 +4,11 @@
  */
 
 import pg from 'pg';
+import { config } from '../lib/config.js';
 const { Pool } = pg;
 
-// Get database URL from environment
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://localhost:5432/bookbuddy_dev';
+// Get database URL from config (which loads .env file)
+const DATABASE_URL = config.databaseUrl;
 
 // Create connection pool with optimized settings
 const pool = new Pool({
