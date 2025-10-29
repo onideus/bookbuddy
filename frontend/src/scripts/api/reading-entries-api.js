@@ -2,7 +2,7 @@
  * API client for reading entries endpoints (T057)
  */
 
-import { get, post, patch, retryWithBackoff } from './client.js';
+import { get, post, patch, put, del, retryWithBackoff } from './client.js';
 
 /**
  * Add a new book to reader's library
@@ -51,9 +51,34 @@ export async function getTransitions(entryId) {
   return await get(`/reading-entries/${entryId}/transitions`);
 }
 
+/**
+ * Update book metadata for a reading entry
+ * @param {string} entryId - Entry ID
+ * @param {Object} bookUpdates - Book fields to update (title, author, edition, isbn)
+ * @returns {Promise<Object>} Updated entry
+ */
+export async function updateBookMetadata(entryId, bookUpdates) {
+  return await retryWithBackoff(() =>
+    put(`/reading-entries/${entryId}/book`, bookUpdates)
+  );
+}
+
+/**
+ * Delete a reading entry
+ * @param {string} entryId - Entry ID
+ * @returns {Promise<Object>} Deletion confirmation
+ */
+export async function deleteEntry(entryId) {
+  return await retryWithBackoff(() =>
+    del(`/reading-entries/${entryId}`)
+  );
+}
+
 export default {
   addBook,
   getEntries,
   updateStatus,
   getTransitions,
+  updateBookMetadata,
+  deleteEntry,
 };

@@ -1,0 +1,1800 @@
+
+> bookbuddy-backend@1.0.0 test
+> NODE_ENV=test vitest --run
+
+
+ RUN  v1.6.1 /Users/zachmartin/projects/active/bookbuddy-mk2/backend
+
+stdout | _log (/Users/zachmartin/projects/active/bookbuddy-mk2/backend/node_modules/dotenv/lib/main.js:142:11)
+[dotenv@17.2.3] injecting env (4) from .env.test -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+
+stderr | tests/unit/services/reading-service.test.js > ReadingService > addBook (T037 - duplicate detection, unique constraint) > should detect duplicate books by title, author, and edition
+Database query error: {
+  error: 'duplicate key value violates unique constraint "reading_entries_unique_reader_book"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/unit/services/reading-service.test.js > ReadingService > addBook (T037 - duplicate detection, unique constraint) > should validate title length (max 500)
+Database query error: {
+  error: 'value too long for type character varying(500)',
+  query: 'INSERT INTO books (id, title, author, edition, isbn, cover_image_url, created_at, updated_at)\n' +
+    '      '
+}
+
+stderr | tests/unit/services/reading-service.test.js > ReadingService > addBook (T037 - duplicate detection, unique constraint) > should validate author length (max 200)
+Database query error: {
+  error: 'value too long for type character varying(200)',
+  query: 'INSERT INTO books (id, title, author, edition, isbn, cover_image_url, created_at, updated_at)\n' +
+    '      '
+}
+
+stderr | tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should update status and record transition
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '     VALUES ($1'
+}
+
+stderr | tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should log analytics event for status change (FR-016)
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '     VALUES ($1'
+}
+
+stderr | tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should validate status transitions
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '     VALUES ($1'
+}
+
+stderr | tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should handle last-write-wins for concurrent edits (FR-010)
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '     VALUES ($1'
+}
+
+stderr | tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should update updatedAt timestamp
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '     VALUES ($1'
+}
+
+stderr | tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should reject invalid status values
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '     VALUES ($1'
+}
+
+stderr | tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should reject updates to non-existent entries
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '     VALUES ($1'
+}
+
+ ❯ tests/unit/services/reading-service.test.js  (52 tests | 12 failed) 1635ms
+   ❯ tests/unit/services/reading-service.test.js > ReadingService > addBook (T037 - duplicate detection, unique constraint) > should detect duplicate books by title, author, and edition
+     → expected [Function] to throw error matching /already exists/i but got 'duplicate key value violates unique c…'
+   ❯ tests/unit/services/reading-service.test.js > ReadingService > addBook (T037 - duplicate detection, unique constraint) > should validate title length (max 500)
+     → expected [Function] to throw error matching /title/i but got 'value too long for type character var…'
+   ❯ tests/unit/services/reading-service.test.js > ReadingService > addBook (T037 - duplicate detection, unique constraint) > should validate author length (max 200)
+     → expected [Function] to throw error matching /author/i but got 'value too long for type character var…'
+   ❯ tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should update status and record transition
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should log analytics event for status change (FR-016)
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should validate status transitions
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should handle last-write-wins for concurrent edits (FR-010)
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should update updatedAt timestamp
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should reject invalid status values
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should reject updates to non-existent entries
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/services/reading-service.test.js > ReadingService > addProgressNote (T071 - note length validation, timestamp handling) > should reject note exceeding 1000 characters
+     → expected [Function] to throw error matching /length/i but got 'Note content must not exceed 1000 cha…'
+   ❯ tests/unit/services/reading-service.test.js > ReadingService > addProgressNote (T071 - note length validation, timestamp handling) > should reject progress marker exceeding 50 characters
+     → expected [Function] to throw error matching /length/i but got 'Progress marker must not exceed 50 ch…'
+stdout | _log (/Users/zachmartin/projects/active/bookbuddy-mk2/backend/node_modules/dotenv/lib/main.js:142:11)
+[dotenv@17.2.3] injecting env (0) from .env.test -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+
+ ❯ tests/integration/us3-rate-reflect.test.js  (11 tests | 11 failed) 83ms
+   ❯ tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Complete Rating Journey > should allow reader to finish book, rate it, and see it in Top Rated filter
+     → expected 401 to be 201 // Object.is equality
+   ❯ tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Complete Rating Journey > should support rating without reflection note
+     → Cannot read properties of undefined (reading 'id')
+   ❯ tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Complete Rating Journey > should allow updating rating and reflection
+     → Cannot read properties of undefined (reading 'id')
+   ❯ tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Complete Rating Journey > should allow clearing rating (for re-reads)
+     → Cannot read properties of undefined (reading 'id')
+   ❯ tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Top Rated Filter > should return only books with rating >= 4 in correct order
+     → Cannot read properties of undefined (reading 'id')
+   ❯ tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Top Rated Filter > should include reflection notes in Top Rated list
+     → Cannot read properties of undefined (reading 'id')
+   ❯ tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Top Rated Filter > should support pagination in Top Rated filter
+     → Cannot read properties of undefined (reading 'id')
+   ❯ tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Rating Validations > should reject rating for non-FINISHED book
+     → Cannot read properties of undefined (reading 'id')
+   ❯ tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Rating Validations > should reject invalid ratings
+     → Cannot read properties of undefined (reading 'id')
+   ❯ tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Rating Validations > should reject reflection note exceeding 2000 characters
+     → Cannot read properties of undefined (reading 'id')
+   ❯ tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Rating Validations > should accept reflection note at max length (2000 chars)
+     → Cannot read properties of undefined (reading 'id')
+stdout | _log (/Users/zachmartin/projects/active/bookbuddy-mk2/backend/node_modules/dotenv/lib/main.js:142:11)
+[dotenv@17.2.3] injecting env (0) from .env.test -- tip: ⚙️  suppress all logs with { quiet: true }
+
+stderr | tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > POST /api/readers/:readerId/reading-entries (T031) > should create a new reading entry with valid book data
+Database query error: {
+  error: 'insert or update on table "reading_entries" violates foreign key constraint "reading_entries_reader_id_fkey"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > POST /api/readers/:readerId/reading-entries (T031) > should detect duplicate books (same title, author, edition)
+Database query error: {
+  error: 'insert or update on table "reading_entries" violates foreign key constraint "reading_entries_reader_id_fkey"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > GET /api/readers/:readerId/reading-entries (T032) > should return all reading entries for a reader
+Database query error: {
+  error: 'insert or update on table "reading_entries" violates foreign key constraint "reading_entries_reader_id_fkey"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > GET /api/readers/:readerId/reading-entries (T032) > should filter reading entries by status
+Database query error: {
+  error: 'insert or update on table "reading_entries" violates foreign key constraint "reading_entries_reader_id_fkey"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > GET /api/readers/:readerId/reading-entries (T032) > should support pagination
+Database query error: {
+  error: 'insert or update on table "reading_entries" violates foreign key constraint "reading_entries_reader_id_fkey"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > GET /api/readers/:readerId/reading-entries (T032) > should require authentication
+Database query error: {
+  error: 'insert or update on table "reading_entries" violates foreign key constraint "reading_entries_reader_id_fkey"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > GET /api/readers/:readerId/reading-entries (T032) > should enforce reader access control
+Database query error: {
+  error: 'insert or update on table "reading_entries" violates foreign key constraint "reading_entries_reader_id_fkey"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > PATCH /api/reading-entries/:entryId (T033) > should update entry status and record transition
+Database query error: {
+  error: 'insert or update on table "reading_entries" violates foreign key constraint "reading_entries_reader_id_fkey"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > PATCH /api/reading-entries/:entryId (T033) > should handle concurrent edit conflicts (last-write-wins)
+Database query error: {
+  error: 'insert or update on table "reading_entries" violates foreign key constraint "reading_entries_reader_id_fkey"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > PATCH /api/reading-entries/:entryId (T033) > should reject invalid status transition
+Database query error: {
+  error: 'insert or update on table "reading_entries" violates foreign key constraint "reading_entries_reader_id_fkey"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > PATCH /api/reading-entries/:entryId (T033) > should require authentication
+Database query error: {
+  error: 'insert or update on table "reading_entries" violates foreign key constraint "reading_entries_reader_id_fkey"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+ ❯ tests/contract/reading-entries.test.js  (14 tests | 12 failed) 115ms
+   ❯ tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > POST /api/readers/:readerId/reading-entries (T031) > should create a new reading entry with valid book data
+     → expected 500 to be 201 // Object.is equality
+   ❯ tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > POST /api/readers/:readerId/reading-entries (T031) > should reject invalid status value
+     → expected { statusCode: 400, …(3) } to match object { statusCode: 400, …(3) }
+(1 matching property omitted from actual)
+   ❯ tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > POST /api/readers/:readerId/reading-entries (T031) > should detect duplicate books (same title, author, edition)
+     → expected 500 to be 201 // Object.is equality
+   ❯ tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > GET /api/readers/:readerId/reading-entries (T032) > should return all reading entries for a reader
+     → Failed to create test book: {"statusCode":500,"code":"23503","error":"Internal Server Error","message":"insert or update on table \"reading_entries\" violates foreign key constraint \"reading_entries_reader_id_fkey\""}
+   ❯ tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > GET /api/readers/:readerId/reading-entries (T032) > should filter reading entries by status
+     → Failed to create test book: {"statusCode":500,"code":"23503","error":"Internal Server Error","message":"insert or update on table \"reading_entries\" violates foreign key constraint \"reading_entries_reader_id_fkey\""}
+   ❯ tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > GET /api/readers/:readerId/reading-entries (T032) > should support pagination
+     → Failed to create test book: {"statusCode":500,"code":"23503","error":"Internal Server Error","message":"insert or update on table \"reading_entries\" violates foreign key constraint \"reading_entries_reader_id_fkey\""}
+   ❯ tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > GET /api/readers/:readerId/reading-entries (T032) > should require authentication
+     → Failed to create test book: {"statusCode":500,"code":"23503","error":"Internal Server Error","message":"insert or update on table \"reading_entries\" violates foreign key constraint \"reading_entries_reader_id_fkey\""}
+   ❯ tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > GET /api/readers/:readerId/reading-entries (T032) > should enforce reader access control
+     → Failed to create test book: {"statusCode":500,"code":"23503","error":"Internal Server Error","message":"insert or update on table \"reading_entries\" violates foreign key constraint \"reading_entries_reader_id_fkey\""}
+   ❯ tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > PATCH /api/reading-entries/:entryId (T033) > should update entry status and record transition
+     → Failed to create test book: {"statusCode":500,"code":"23503","error":"Internal Server Error","message":"insert or update on table \"reading_entries\" violates foreign key constraint \"reading_entries_reader_id_fkey\""}
+   ❯ tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > PATCH /api/reading-entries/:entryId (T033) > should handle concurrent edit conflicts (last-write-wins)
+     → Failed to create test book: {"statusCode":500,"code":"23503","error":"Internal Server Error","message":"insert or update on table \"reading_entries\" violates foreign key constraint \"reading_entries_reader_id_fkey\""}
+   ❯ tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > PATCH /api/reading-entries/:entryId (T033) > should reject invalid status transition
+     → Failed to create test book: {"statusCode":500,"code":"23503","error":"Internal Server Error","message":"insert or update on table \"reading_entries\" violates foreign key constraint \"reading_entries_reader_id_fkey\""}
+   ❯ tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > PATCH /api/reading-entries/:entryId (T033) > should require authentication
+     → Failed to create test book: {"statusCode":500,"code":"23503","error":"Internal Server Error","message":"insert or update on table \"reading_entries\" violates foreign key constraint \"reading_entries_reader_id_fkey\""}
+stdout | _log (/Users/zachmartin/projects/active/bookbuddy-mk2/backend/node_modules/dotenv/lib/main.js:142:11)
+[dotenv@17.2.3] injecting env (0) from .env.test -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+
+{"level":50,"time":"2025-10-29T00:46:25.770Z","env":"test","err":{"type":"Error","message":"listen EADDRINUSE: address already in use 0.0.0.0:3002","stack":"Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at processTicksAndRejections (node:internal/process/task_queues:90:21)","code":"EADDRINUSE","errno":-48,"syscall":"listen","address":"0.0.0.0","port":3002},"msg":"Failed to start server"}
+stderr | tests/contract/ratings.test.js > Rating API Contract Tests > PUT /api/reading-entries/:entryId/rating > should reject rating for non-finished book
+Database query error: {
+  error: 'duplicate key value violates unique constraint "reading_entries_unique_reader_book"',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '         VALUES'
+}
+
+ ❯ tests/contract/ratings.test.js  (14 tests | 10 failed) 80ms
+   ❯ tests/contract/ratings.test.js > Rating API Contract Tests > PUT /api/reading-entries/:entryId/rating > should set rating and reflection for finished book
+     → expected 403 to be 200 // Object.is equality
+   ❯ tests/contract/ratings.test.js > Rating API Contract Tests > PUT /api/reading-entries/:entryId/rating > should set rating without reflection note
+     → expected 403 to be 200 // Object.is equality
+   ❯ tests/contract/ratings.test.js > Rating API Contract Tests > PUT /api/reading-entries/:entryId/rating > should reject rating for non-finished book
+     → duplicate key value violates unique constraint "reading_entries_unique_reader_book"
+   ❯ tests/contract/ratings.test.js > Rating API Contract Tests > PUT /api/reading-entries/:entryId/rating > should allow updating existing rating
+     → expected 403 to be 200 // Object.is equality
+   ❯ tests/contract/ratings.test.js > Rating API Contract Tests > DELETE /api/reading-entries/:entryId/rating > should clear rating and reflection note
+     → expected 403 to be 200 // Object.is equality
+   ❯ tests/contract/ratings.test.js > Rating API Contract Tests > DELETE /api/reading-entries/:entryId/rating > should succeed even if no rating exists
+     → expected 403 to be 200 // Object.is equality
+   ❯ tests/contract/ratings.test.js > Rating API Contract Tests > GET /api/readers/:readerId/reading-entries?topRated=true > should return only books with rating >= 4
+     → expected 401 to be 200 // Object.is equality
+   ❯ tests/contract/ratings.test.js > Rating API Contract Tests > GET /api/readers/:readerId/reading-entries?topRated=true > should order top rated books by rating DESC
+     → expected 401 to be 200 // Object.is equality
+   ❯ tests/contract/ratings.test.js > Rating API Contract Tests > GET /api/readers/:readerId/reading-entries?topRated=true > should return empty array if no top rated books
+     → expected 401 to be 200 // Object.is equality
+   ❯ tests/contract/ratings.test.js > Rating API Contract Tests > GET /api/readers/:readerId/reading-entries?topRated=true > should support pagination for top rated
+     → expected 401 to be 200 // Object.is equality
+stdout | _log (/Users/zachmartin/projects/active/bookbuddy-mk2/backend/node_modules/dotenv/lib/main.js:142:11)
+[dotenv@17.2.3] injecting env (0) from .env.test -- tip: ⚙️  suppress all logs with { quiet: true }
+
+ ❯ tests/integration/us2-track-progress.test.js  (8 tests | 8 failed) 10ms
+   ❯ tests/integration/us2-track-progress.test.js > US2: Track Active Reading Progress Integration Test > should complete full user journey: add progress note → retrieve chronologically → verify analytics
+     → create is not a function
+   ❯ tests/integration/us2-track-progress.test.js > US2: Track Active Reading Progress Integration Test > should handle progress notes for books in READING status
+     → create is not a function
+   ❯ tests/integration/us2-track-progress.test.js > US2: Track Active Reading Progress Integration Test > should validate note length constraints
+     → create is not a function
+   ❯ tests/integration/us2-track-progress.test.js > US2: Track Active Reading Progress Integration Test > should validate page/chapter marker length constraints
+     → create is not a function
+   ❯ tests/integration/us2-track-progress.test.js > US2: Track Active Reading Progress Integration Test > should reject empty notes
+     → create is not a function
+   ❯ tests/integration/us2-track-progress.test.js > US2: Track Active Reading Progress Integration Test > should handle multiple progress notes over time
+     → create is not a function
+   ❯ tests/integration/us2-track-progress.test.js > US2: Track Active Reading Progress Integration Test > should return empty array when no progress notes exist
+     → create is not a function
+   ❯ tests/integration/us2-track-progress.test.js > US2: Track Active Reading Progress Integration Test > should isolate progress notes by reading entry
+     → create is not a function
+stdout | _log (/Users/zachmartin/projects/active/bookbuddy-mk2/backend/node_modules/dotenv/lib/main.js:142:11)
+[dotenv@17.2.3] injecting env (0) from .env.test -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+
+stderr | tests/integration/us1-organize-pipeline.test.js > US1: Organize Reading Pipeline - Integration Test > should complete full reading journey: add → TO_READ → READING → verify transitions
+Database query error: {
+  error: 'insert or update on table "reading_entries" violates foreign key constraint "reading_entries_reader_id_fkey"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/integration/us1-organize-pipeline.test.js > US1: Organize Reading Pipeline - Integration Test > should support filtering books by status
+Database query error: {
+  error: 'insert or update on table "reading_entries" violates foreign key constraint "reading_entries_reader_id_fkey"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/integration/us1-organize-pipeline.test.js > US1: Organize Reading Pipeline - Integration Test > should support filtering books by status
+Database query error: {
+  error: 'insert or update on table "reading_entries" violates foreign key constraint "reading_entries_reader_id_fkey"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/integration/us1-organize-pipeline.test.js > US1: Organize Reading Pipeline - Integration Test > should support filtering books by status
+Database query error: {
+  error: 'insert or update on table "reading_entries" violates foreign key constraint "reading_entries_reader_id_fkey"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/integration/us1-organize-pipeline.test.js > US1: Organize Reading Pipeline - Integration Test > should prevent duplicate book entries for same reader
+Database query error: {
+  error: 'insert or update on table "reading_entries" violates foreign key constraint "reading_entries_reader_id_fkey"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/integration/us1-organize-pipeline.test.js > US1: Organize Reading Pipeline - Integration Test > should handle re-reading scenario (FINISHED → READING)
+Database query error: {
+  error: 'insert or update on table "reading_entries" violates foreign key constraint "reading_entries_reader_id_fkey"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/integration/us1-organize-pipeline.test.js > US1: Organize Reading Pipeline - Integration Test > should maintain book metadata across status changes
+Database query error: {
+  error: 'insert or update on table "reading_entries" violates foreign key constraint "reading_entries_reader_id_fkey"',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+ ❯ tests/integration/us1-organize-pipeline.test.js  (5 tests | 5 failed) 76ms
+   ❯ tests/integration/us1-organize-pipeline.test.js > US1: Organize Reading Pipeline - Integration Test > should complete full reading journey: add → TO_READ → READING → verify transitions
+     → expected 500 to be 201 // Object.is equality
+   ❯ tests/integration/us1-organize-pipeline.test.js > US1: Organize Reading Pipeline - Integration Test > should support filtering books by status
+     → expected [] to have a length of 1 but got +0
+   ❯ tests/integration/us1-organize-pipeline.test.js > US1: Organize Reading Pipeline - Integration Test > should prevent duplicate book entries for same reader
+     → expected 500 to be 201 // Object.is equality
+   ❯ tests/integration/us1-organize-pipeline.test.js > US1: Organize Reading Pipeline - Integration Test > should handle re-reading scenario (FINISHED → READING)
+     → expected 400 to be 200 // Object.is equality
+   ❯ tests/integration/us1-organize-pipeline.test.js > US1: Organize Reading Pipeline - Integration Test > should maintain book metadata across status changes
+     → Cannot read properties of undefined (reading 'id')
+stdout | _log (/Users/zachmartin/projects/active/bookbuddy-mk2/backend/node_modules/dotenv/lib/main.js:142:11)
+[dotenv@17.2.3] injecting env (0) from .env.test -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+
+ ❯ tests/unit/models/progress-update.test.js  (16 tests | 1 failed) 146ms
+   ❯ tests/unit/models/progress-update.test.js > ProgressUpdate Model > findByEntry > should only return updates for the specified entry
+     → duplicate key value violates unique constraint "reading_entries_unique_reader_book"
+stdout | _log (/Users/zachmartin/projects/active/bookbuddy-mk2/backend/node_modules/dotenv/lib/main.js:142:11)
+[dotenv@17.2.3] injecting env (0) from .env.test -- tip: ⚙️  write to custom object with { processEnv: myObject }
+
+ ❯ tests/contract/progress-notes.test.js  (11 tests | 8 failed) 162ms
+   ❯ tests/contract/progress-notes.test.js > Progress Notes API - Contract Tests > POST /api/reading-entries/{entryId}/progress-notes > should create progress note with valid data
+     → expected 401 to be 201 // Object.is equality
+   ❯ tests/contract/progress-notes.test.js > Progress Notes API - Contract Tests > POST /api/reading-entries/{entryId}/progress-notes > should create progress note without progress marker
+     → expected 401 to be 201 // Object.is equality
+   ❯ tests/contract/progress-notes.test.js > Progress Notes API - Contract Tests > POST /api/reading-entries/{entryId}/progress-notes > should return 404 for non-existent reading entry
+     → expected 401 to be 404 // Object.is equality
+   ❯ tests/contract/progress-notes.test.js > Progress Notes API - Contract Tests > POST /api/reading-entries/{entryId}/progress-notes > should include correlation ID in response
+     → expected { vary: 'Origin', …(5) } to have property "x-correlation-id"
+   ❯ tests/contract/progress-notes.test.js > Progress Notes API - Contract Tests > GET /api/reading-entries/{entryId}/progress-notes > should return progress notes in chronological order (newest first)
+     → expected 401 to be 200 // Object.is equality
+   ❯ tests/contract/progress-notes.test.js > Progress Notes API - Contract Tests > GET /api/reading-entries/{entryId}/progress-notes > should return empty array when no notes exist
+     → expected 401 to be 200 // Object.is equality
+   ❯ tests/contract/progress-notes.test.js > Progress Notes API - Contract Tests > GET /api/reading-entries/{entryId}/progress-notes > should return 404 for non-existent reading entry
+     → expected 401 to be 404 // Object.is equality
+   ❯ tests/contract/progress-notes.test.js > Progress Notes API - Contract Tests > GET /api/reading-entries/{entryId}/progress-notes > should include correlation ID in response
+     → expected { vary: 'Origin', …(5) } to have property "x-correlation-id"
+stdout | _log (/Users/zachmartin/projects/active/bookbuddy-mk2/backend/node_modules/dotenv/lib/main.js:142:11)
+[dotenv@17.2.3] injecting env (0) from .env.test -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+
+stderr | tests/unit/models/reading-entry.test.js > ReadingEntry Model > create > should create a reading entry with valid data
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/unit/models/reading-entry.test.js > ReadingEntry Model > create > should enforce unique constraint on reader_id + book_id
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/unit/models/reading-entry.test.js > ReadingEntry Model > create > should reject invalid status value
+Database query error: {
+  error: 'value too long for type character varying(10)',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/unit/models/reading-entry.test.js > ReadingEntry Model > create > should reject rating without FINISHED status
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/unit/models/reading-entry.test.js > ReadingEntry Model > create > should allow rating with FINISHED status
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/unit/models/reading-entry.test.js > ReadingEntry Model > findById > should find reading entry by ID
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/unit/models/reading-entry.test.js > ReadingEntry Model > findByReader > should find all entries for a reader
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/unit/models/reading-entry.test.js > ReadingEntry Model > findByReader > should include book details in results
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/unit/models/reading-entry.test.js > ReadingEntry Model > findByReader > should support pagination
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/unit/models/reading-entry.test.js > ReadingEntry Model > findByReaderAndStatus > should filter entries by status
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/unit/models/reading-entry.test.js > ReadingEntry Model > findByReaderAndStatus > should return empty array for status with no entries
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/unit/models/reading-entry.test.js > ReadingEntry Model > updateStatus > should update entry status
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/unit/models/reading-entry.test.js > ReadingEntry Model > updateStatus > should allow updating to any valid status
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/unit/models/reading-entry.test.js > ReadingEntry Model > updateStatus > should reject invalid status
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+stderr | tests/unit/models/reading-entry.test.js > ReadingEntry Model > delete > should delete a reading entry
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries\n' +
+    '       (id, reader_id, book_id, status, rating, reflection_note, created'
+}
+
+ ❯ tests/unit/models/reading-entry.test.js  (17 tests | 14 failed) 455ms
+   ❯ tests/unit/models/reading-entry.test.js > ReadingEntry Model > create > should create a reading entry with valid data
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/reading-entry.test.js > ReadingEntry Model > create > should enforce unique constraint on reader_id + book_id
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/reading-entry.test.js > ReadingEntry Model > create > should reject invalid status value
+     → expected [Function] to throw error matching /status/i but got 'value too long for type character var…'
+   ❯ tests/unit/models/reading-entry.test.js > ReadingEntry Model > create > should allow rating with FINISHED status
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/reading-entry.test.js > ReadingEntry Model > findById > should find reading entry by ID
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/reading-entry.test.js > ReadingEntry Model > findByReader > should find all entries for a reader
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/reading-entry.test.js > ReadingEntry Model > findByReader > should include book details in results
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/reading-entry.test.js > ReadingEntry Model > findByReader > should support pagination
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/reading-entry.test.js > ReadingEntry Model > findByReaderAndStatus > should filter entries by status
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/reading-entry.test.js > ReadingEntry Model > findByReaderAndStatus > should return empty array for status with no entries
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/reading-entry.test.js > ReadingEntry Model > updateStatus > should update entry status
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/reading-entry.test.js > ReadingEntry Model > updateStatus > should allow updating to any valid status
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/reading-entry.test.js > ReadingEntry Model > updateStatus > should reject invalid status
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/reading-entry.test.js > ReadingEntry Model > delete > should delete a reading entry
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+stdout | _log (/Users/zachmartin/projects/active/bookbuddy-mk2/backend/node_modules/dotenv/lib/main.js:142:11)
+[dotenv@17.2.3] injecting env (0) from .env.test -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+
+stderr | tests/unit/models/status-transition.test.js > StatusTransition Model > create > should create initial transition with null fromStatus
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '     VALUES ($1'
+}
+
+stderr | tests/unit/models/status-transition.test.js > StatusTransition Model > create > should create transition with both statuses
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '     VALUES ($1'
+}
+
+stderr | tests/unit/models/status-transition.test.js > StatusTransition Model > create > should reject invalid fromStatus
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '     VALUES ($1'
+}
+
+stderr | tests/unit/models/status-transition.test.js > StatusTransition Model > create > should reject invalid toStatus
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '     VALUES ($1'
+}
+
+stderr | tests/unit/models/status-transition.test.js > StatusTransition Model > create > should allow all valid status combinations
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '     VALUES ($1'
+}
+
+stderr | tests/unit/models/status-transition.test.js > StatusTransition Model > findByEntry > should return all transitions for an entry
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '     VALUES ($1'
+}
+
+stderr | tests/unit/models/status-transition.test.js > StatusTransition Model > findByEntry > should return transitions in reverse chronological order (newest first)
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '     VALUES ($1'
+}
+
+stderr | tests/unit/models/status-transition.test.js > StatusTransition Model > findByEntry > should return empty array for entry with no transitions
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '     VALUES ($1'
+}
+
+stderr | tests/unit/models/status-transition.test.js > StatusTransition Model > findByEntry > should return empty array for non-existent entry
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '     VALUES ($1'
+}
+
+stderr | tests/unit/models/status-transition.test.js > StatusTransition Model > getLatest > should return the most recent transition for an entry
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '     VALUES ($1'
+}
+
+stderr | tests/unit/models/status-transition.test.js > StatusTransition Model > getLatest > should return null for entry with no transitions
+Database query error: {
+  error: 'null value in column "book_id" of relation "reading_entries" violates not-null constraint',
+  query: 'INSERT INTO reading_entries (id, reader_id, book_id, status, created_at, updated_at)\n' +
+    '     VALUES ($1'
+}
+
+ ❯ tests/unit/models/status-transition.test.js  (11 tests | 11 failed) 303ms
+   ❯ tests/unit/models/status-transition.test.js > StatusTransition Model > create > should create initial transition with null fromStatus
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/status-transition.test.js > StatusTransition Model > create > should create transition with both statuses
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/status-transition.test.js > StatusTransition Model > create > should reject invalid fromStatus
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/status-transition.test.js > StatusTransition Model > create > should reject invalid toStatus
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/status-transition.test.js > StatusTransition Model > create > should allow all valid status combinations
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/status-transition.test.js > StatusTransition Model > findByEntry > should return all transitions for an entry
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/status-transition.test.js > StatusTransition Model > findByEntry > should return transitions in reverse chronological order (newest first)
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/status-transition.test.js > StatusTransition Model > findByEntry > should return empty array for entry with no transitions
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/status-transition.test.js > StatusTransition Model > findByEntry > should return empty array for non-existent entry
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/status-transition.test.js > StatusTransition Model > getLatest > should return the most recent transition for an entry
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+   ❯ tests/unit/models/status-transition.test.js > StatusTransition Model > getLatest > should return null for entry with no transitions
+     → null value in column "book_id" of relation "reading_entries" violates not-null constraint
+stdout | _log (/Users/zachmartin/projects/active/bookbuddy-mk2/backend/node_modules/dotenv/lib/main.js:142:11)
+[dotenv@17.2.3] injecting env (0) from .env.test -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+stderr | tests/unit/models/book.test.js > Book Model > create > should reject title exceeding 500 characters
+Database query error: {
+  error: 'value too long for type character varying(500)',
+  query: 'INSERT INTO books (id, title, author, edition, isbn, cover_image_url, created_at, updated_at)\n' +
+    '      '
+}
+
+stderr | tests/unit/models/book.test.js > Book Model > create > should reject author exceeding 200 characters
+Database query error: {
+  error: 'value too long for type character varying(200)',
+  query: 'INSERT INTO books (id, title, author, edition, isbn, cover_image_url, created_at, updated_at)\n' +
+    '      '
+}
+
+stderr | tests/unit/models/book.test.js > Book Model > create > should reject duplicate book (same title, author, edition)
+Database query error: {
+  error: 'duplicate key value violates unique constraint "books_unique_book_idx"',
+  query: 'INSERT INTO books (id, title, author, edition, isbn, cover_image_url, created_at, updated_at)\n' +
+    '      '
+}
+
+stderr | tests/unit/models/book.test.js > Book Model > findById > should reject invalid UUID format
+Database query error: {
+  error: 'invalid input syntax for type uuid: "invalid-uuid"',
+  query: 'SELECT * FROM books WHERE id = $1'
+}
+
+stderr | tests/unit/models/book.test.js > Book Model > update > should reject invalid field values on update
+Database query error: {
+  error: 'value too long for type character varying(500)',
+  query: 'UPDATE books\n' +
+    '       SET title = $1, updated_at = NOW()\n' +
+    '       WHERE id = $2\n' +
+    '       RETURNING *'
+}
+
+ ❯ tests/unit/models/book.test.js  (16 tests | 3 failed) 410ms
+   ❯ tests/unit/models/book.test.js > Book Model > create > should reject title exceeding 500 characters
+     → expected [Function] to throw error matching /title/i but got 'value too long for type character var…'
+   ❯ tests/unit/models/book.test.js > Book Model > create > should reject author exceeding 200 characters
+     → expected [Function] to throw error matching /author/i but got 'value too long for type character var…'
+   ❯ tests/unit/models/book.test.js > Book Model > update > should reject invalid field values on update
+     → expected [Function] to throw error matching /title/i but got 'value too long for type character var…'
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 95 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/contract/progress-notes.test.js > Progress Notes API - Contract Tests > POST /api/reading-entries/{entryId}/progress-notes > should create progress note with valid data
+AssertionError: expected 401 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 401
+
+ ❯ tests/contract/progress-notes.test.js:63:35
+     61|       });
+     62| 
+     63|       expect(response.statusCode).toBe(201);
+       |                                   ^
+     64|       const data = JSON.parse(response.body);
+     65| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/95]⎯
+
+ FAIL  tests/contract/progress-notes.test.js > Progress Notes API - Contract Tests > POST /api/reading-entries/{entryId}/progress-notes > should create progress note without progress marker
+AssertionError: expected 401 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 401
+
+ ❯ tests/contract/progress-notes.test.js:86:35
+     84|       });
+     85| 
+     86|       expect(response.statusCode).toBe(201);
+       |                                   ^
+     87|       const data = JSON.parse(response.body);
+     88| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/95]⎯
+
+ FAIL  tests/contract/progress-notes.test.js > Progress Notes API - Contract Tests > POST /api/reading-entries/{entryId}/progress-notes > should return 404 for non-existent reading entry
+AssertionError: expected 401 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 401
+
+ ❯ tests/contract/progress-notes.test.js:151:35
+    149|       });
+    150| 
+    151|       expect(response.statusCode).toBe(404);
+       |                                   ^
+    152|       const data = JSON.parse(response.body);
+    153|       expect(data.error).toBe('Not Found');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/95]⎯
+
+ FAIL  tests/contract/progress-notes.test.js > Progress Notes API - Contract Tests > POST /api/reading-entries/{entryId}/progress-notes > should include correlation ID in response
+AssertionError: expected { vary: 'Origin', …(5) } to have property "x-correlation-id"
+ ❯ tests/contract/progress-notes.test.js:165:32
+    163|       });
+    164| 
+    165|       expect(response.headers).toHaveProperty('x-correlation-id');
+       |                                ^
+    166|       const data = JSON.parse(response.body);
+    167|       expect(data).toHaveProperty('correlationId');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/95]⎯
+
+ FAIL  tests/contract/progress-notes.test.js > Progress Notes API - Contract Tests > GET /api/reading-entries/{entryId}/progress-notes > should return progress notes in chronological order (newest first)
+AssertionError: expected 401 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 401
+
+ ❯ tests/contract/progress-notes.test.js:206:35
+    204|       });
+    205| 
+    206|       expect(response.statusCode).toBe(200);
+       |                                   ^
+    207|       const data = JSON.parse(response.body);
+    208| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/95]⎯
+
+ FAIL  tests/contract/progress-notes.test.js > Progress Notes API - Contract Tests > GET /api/reading-entries/{entryId}/progress-notes > should return empty array when no notes exist
+AssertionError: expected 401 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 401
+
+ ❯ tests/contract/progress-notes.test.js:232:35
+    230|       });
+    231| 
+    232|       expect(response.statusCode).toBe(200);
+       |                                   ^
+    233|       const data = JSON.parse(response.body);
+    234|       expect(Array.isArray(data)).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/95]⎯
+
+ FAIL  tests/contract/progress-notes.test.js > Progress Notes API - Contract Tests > GET /api/reading-entries/{entryId}/progress-notes > should return 404 for non-existent reading entry
+AssertionError: expected 401 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 401
+
+ ❯ tests/contract/progress-notes.test.js:246:35
+    244|       });
+    245| 
+    246|       expect(response.statusCode).toBe(404);
+       |                                   ^
+    247|     });
+    248| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/95]⎯
+
+ FAIL  tests/contract/progress-notes.test.js > Progress Notes API - Contract Tests > GET /api/reading-entries/{entryId}/progress-notes > should include correlation ID in response
+AssertionError: expected { vary: 'Origin', …(5) } to have property "x-correlation-id"
+ ❯ tests/contract/progress-notes.test.js:255:32
+    253|       });
+    254| 
+    255|       expect(response.headers).toHaveProperty('x-correlation-id');
+       |                                ^
+    256|     });
+    257|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/95]⎯
+
+ FAIL  tests/contract/ratings.test.js > Rating API Contract Tests > PUT /api/reading-entries/:entryId/rating > should set rating and reflection for finished book
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ ❯ tests/contract/ratings.test.js:68:35
+     66|       });
+     67| 
+     68|       expect(response.statusCode).toBe(200);
+       |                                   ^
+     69|       const body = JSON.parse(response.body);
+     70|       expect(body).toHaveProperty('readingEntry');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/95]⎯
+
+ FAIL  tests/contract/ratings.test.js > Rating API Contract Tests > PUT /api/reading-entries/:entryId/rating > should set rating without reflection note
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ ❯ tests/contract/ratings.test.js:85:35
+     83|       });
+     84| 
+     85|       expect(response.statusCode).toBe(200);
+       |                                   ^
+     86|       const body = JSON.parse(response.body);
+     87|       expect(body.readingEntry.rating).toBe(5);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/95]⎯
+
+ FAIL  tests/contract/ratings.test.js > Rating API Contract Tests > PUT /api/reading-entries/:entryId/rating > should reject rating for non-finished book
+error: duplicate key value violates unique constraint "reading_entries_unique_reader_book"
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ Module.query src/db/connection.js:36:20
+     34|   const start = Date.now();
+     35|   try {
+     36|     const result = await pool.query(text, params);
+       |                    ^
+     37|     const duration = Date.now() - start;
+     38| 
+ ❯ tests/contract/ratings.test.js:94:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 327, severity: 'ERROR', code: '23505', detail: 'Key (reader_id, book_id)=(2f1c5e01-650c-41f2-b239-7188134ca779, 452a4c4f-bfd1-4747-863f-d4354a066664) already exists.', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'reading_entries', column: undefined, dataType: undefined, constraint: 'reading_entries_unique_reader_book', file: 'nbtinsert.c', line: '664', routine: '_bt_check_unique' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/95]⎯
+
+ FAIL  tests/contract/ratings.test.js > Rating API Contract Tests > PUT /api/reading-entries/:entryId/rating > should allow updating existing rating
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ ❯ tests/contract/ratings.test.js:167:35
+    165|       });
+    166| 
+    167|       expect(response.statusCode).toBe(200);
+       |                                   ^
+    168|       const body = JSON.parse(response.body);
+    169|       expect(body.readingEntry.rating).toBe(5);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/95]⎯
+
+ FAIL  tests/contract/ratings.test.js > Rating API Contract Tests > DELETE /api/reading-entries/:entryId/rating > should clear rating and reflection note
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ ❯ tests/contract/ratings.test.js:203:35
+    201|       });
+    202| 
+    203|       expect(response.statusCode).toBe(200);
+       |                                   ^
+    204|       const body = JSON.parse(response.body);
+    205|       expect(body.readingEntry.rating).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/95]⎯
+
+ FAIL  tests/contract/ratings.test.js > Rating API Contract Tests > DELETE /api/reading-entries/:entryId/rating > should succeed even if no rating exists
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ ❯ tests/contract/ratings.test.js:232:35
+    230|       });
+    231| 
+    232|       expect(response.statusCode).toBe(200);
+       |                                   ^
+    233|     });
+    234|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/95]⎯
+
+ FAIL  tests/contract/ratings.test.js > Rating API Contract Tests > GET /api/readers/:readerId/reading-entries?topRated=true > should return only books with rating >= 4
+AssertionError: expected 401 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 401
+
+ ❯ tests/contract/ratings.test.js:270:35
+    268|       });
+    269| 
+    270|       expect(response.statusCode).toBe(200);
+       |                                   ^
+    271|       const body = JSON.parse(response.body);
+    272|       expect(body.entries).toBeInstanceOf(Array);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/95]⎯
+
+ FAIL  tests/contract/ratings.test.js > Rating API Contract Tests > GET /api/readers/:readerId/reading-entries?topRated=true > should order top rated books by rating DESC
+AssertionError: expected 401 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 401
+
+ ❯ tests/contract/ratings.test.js:287:35
+    285|       });
+    286| 
+    287|       expect(response.statusCode).toBe(200);
+       |                                   ^
+    288|       const body = JSON.parse(response.body);
+    289| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/95]⎯
+
+ FAIL  tests/contract/ratings.test.js > Rating API Contract Tests > GET /api/readers/:readerId/reading-entries?topRated=true > should return empty array if no top rated books
+AssertionError: expected 401 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 401
+
+ ❯ tests/contract/ratings.test.js:305:35
+    303|       });
+    304| 
+    305|       expect(response.statusCode).toBe(200);
+       |                                   ^
+    306|       const body = JSON.parse(response.body);
+    307|       expect(body.entries).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/95]⎯
+
+ FAIL  tests/contract/ratings.test.js > Rating API Contract Tests > GET /api/readers/:readerId/reading-entries?topRated=true > should support pagination for top rated
+AssertionError: expected 401 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 401
+
+ ❯ tests/contract/ratings.test.js:316:35
+    314|       });
+    315| 
+    316|       expect(response.statusCode).toBe(200);
+       |                                   ^
+    317|       const body = JSON.parse(response.body);
+    318|       expect(body.entries.length).toBe(2);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/95]⎯
+
+ FAIL  tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > POST /api/readers/:readerId/reading-entries (T031) > should create a new reading entry with valid book data
+AssertionError: expected 500 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 500
+
+ ❯ tests/contract/reading-entries.test.js:54:35
+     52|       });
+     53| 
+     54|       expect(response.statusCode).toBe(201);
+       |                                   ^
+     55|       expect(response.json()).toMatchObject({
+     56|         id: expect.any(String),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/95]⎯
+
+ FAIL  tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > POST /api/readers/:readerId/reading-entries (T031) > should reject invalid status value
+AssertionError: expected { statusCode: 400, …(3) } to match object { statusCode: 400, …(3) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  Object {
+-   "correlationId": Any<String>,
+    "error": Any<String>,
+    "message": StringMatching /status/i,
+    "statusCode": 400,
+  }
+
+ ❯ tests/contract/reading-entries.test.js:88:31
+     86| 
+     87|       expect(response.statusCode).toBe(400);
+     88|       expect(response.json()).toMatchObject({
+       |                               ^
+     89|         statusCode: 400,
+     90|         error: expect.any(String),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/95]⎯
+
+ FAIL  tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > POST /api/readers/:readerId/reading-entries (T031) > should detect duplicate books (same title, author, edition)
+AssertionError: expected 500 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 500
+
+ ❯ tests/contract/reading-entries.test.js:130:40
+    128|       });
+    129| 
+    130|       expect(firstResponse.statusCode).toBe(201);
+       |                                        ^
+    131| 
+    132|       // Attempt to create duplicate
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/95]⎯
+
+ FAIL  tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > GET /api/readers/:readerId/reading-entries (T032) > should return all reading entries for a reader
+ FAIL  tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > GET /api/readers/:readerId/reading-entries (T032) > should filter reading entries by status
+ FAIL  tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > GET /api/readers/:readerId/reading-entries (T032) > should support pagination
+ FAIL  tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > GET /api/readers/:readerId/reading-entries (T032) > should require authentication
+ FAIL  tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > GET /api/readers/:readerId/reading-entries (T032) > should enforce reader access control
+Error: Failed to create test book: {"statusCode":500,"code":"23503","error":"Internal Server Error","message":"insert or update on table \"reading_entries\" violates foreign key constraint \"reading_entries_reader_id_fkey\""}
+ ❯ Module.createTestBook tests/helpers/test-data.js:46:11
+     44| 
+     45|   if (response.statusCode !== 201) {
+     46|     throw new Error(`Failed to create test book: ${response.body}`);
+       |           ^
+     47|   }
+     48| 
+ ❯ tests/contract/reading-entries.test.js:169:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/95]⎯
+
+ FAIL  tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > PATCH /api/reading-entries/:entryId (T033) > should update entry status and record transition
+ FAIL  tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > PATCH /api/reading-entries/:entryId (T033) > should handle concurrent edit conflicts (last-write-wins)
+ FAIL  tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > PATCH /api/reading-entries/:entryId (T033) > should reject invalid status transition
+ FAIL  tests/contract/reading-entries.test.js > Reading Entries API - Contract Tests > PATCH /api/reading-entries/:entryId (T033) > should require authentication
+Error: Failed to create test book: {"statusCode":500,"code":"23503","error":"Internal Server Error","message":"insert or update on table \"reading_entries\" violates foreign key constraint \"reading_entries_reader_id_fkey\""}
+ ❯ Module.createTestBook tests/helpers/test-data.js:46:11
+     44| 
+     45|   if (response.statusCode !== 201) {
+     46|     throw new Error(`Failed to create test book: ${response.body}`);
+       |           ^
+     47|   }
+     48| 
+ ❯ tests/contract/reading-entries.test.js:268:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/95]⎯
+
+ FAIL  tests/integration/us1-organize-pipeline.test.js > US1: Organize Reading Pipeline - Integration Test > should complete full reading journey: add → TO_READ → READING → verify transitions
+AssertionError: expected 500 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 500
+
+ ❯ tests/integration/us1-organize-pipeline.test.js:52:36
+     50|     });
+     51| 
+     52|     expect(addResponse.statusCode).toBe(201);
+       |                                    ^
+     53|     const addedEntry = addResponse.json();
+     54|     expect(addedEntry.status).toBe('TO_READ');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/95]⎯
+
+ FAIL  tests/integration/us1-organize-pipeline.test.js > US1: Organize Reading Pipeline - Integration Test > should support filtering books by status
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/integration/us1-organize-pipeline.test.js:178:43
+    176|     });
+    177| 
+    178|     expect(toReadResponse.json().entries).toHaveLength(1);
+       |                                           ^
+    179|     expect(readingResponse.json().entries).toHaveLength(1);
+    180|     expect(finishedResponse.json().entries).toHaveLength(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/95]⎯
+
+ FAIL  tests/integration/us1-organize-pipeline.test.js > US1: Organize Reading Pipeline - Integration Test > should prevent duplicate book entries for same reader
+AssertionError: expected 500 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 500
+
+ ❯ tests/integration/us1-organize-pipeline.test.js:200:38
+    198|     });
+    199| 
+    200|     expect(firstResponse.statusCode).toBe(201);
+       |                                      ^
+    201| 
+    202|     // Attempt to add same book again
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/95]⎯
+
+ FAIL  tests/integration/us1-organize-pipeline.test.js > US1: Organize Reading Pipeline - Integration Test > should handle re-reading scenario (FINISHED → READING)
+AssertionError: expected 400 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 400
+
+ ❯ tests/integration/us1-organize-pipeline.test.js:243:39
+    241|     });
+    242| 
+    243|     expect(reReadResponse.statusCode).toBe(200);
+       |                                       ^
+    244|     expect(reReadResponse.json().status).toBe('READING');
+    245| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/95]⎯
+
+ FAIL  tests/integration/us1-organize-pipeline.test.js > US1: Organize Reading Pipeline - Integration Test > should maintain book metadata across status changes
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/integration/us1-organize-pipeline.test.js:274:43
+    272| 
+    273|     const entryId = addResponse.json().id;
+    274|     const bookId = addResponse.json().book.id;
+       |                                           ^
+    275| 
+    276|     // Change status multiple times
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/95]⎯
+
+ FAIL  tests/integration/us2-track-progress.test.js > US2: Track Active Reading Progress Integration Test > should complete full user journey: add progress note → retrieve chronologically → verify analytics
+ FAIL  tests/integration/us2-track-progress.test.js > US2: Track Active Reading Progress Integration Test > should handle progress notes for books in READING status
+ FAIL  tests/integration/us2-track-progress.test.js > US2: Track Active Reading Progress Integration Test > should validate note length constraints
+ FAIL  tests/integration/us2-track-progress.test.js > US2: Track Active Reading Progress Integration Test > should validate page/chapter marker length constraints
+ FAIL  tests/integration/us2-track-progress.test.js > US2: Track Active Reading Progress Integration Test > should reject empty notes
+ FAIL  tests/integration/us2-track-progress.test.js > US2: Track Active Reading Progress Integration Test > should handle multiple progress notes over time
+ FAIL  tests/integration/us2-track-progress.test.js > US2: Track Active Reading Progress Integration Test > should return empty array when no progress notes exist
+ FAIL  tests/integration/us2-track-progress.test.js > US2: Track Active Reading Progress Integration Test > should isolate progress notes by reading entry
+TypeError: create is not a function
+ ❯ tests/integration/us2-track-progress.test.js:34:29
+     32|   beforeEach(async () => {
+     33|     // Create test book
+     34|     const book = await Book.create({
+       |                             ^
+     35|       title: 'Journey Through Middle-earth',
+     36|       author: 'J.R.R. Tolkien',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/95]⎯
+
+ FAIL  tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Complete Rating Journey > should allow reader to finish book, rate it, and see it in Top Rated filter
+AssertionError: expected 401 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 401
+
+ ❯ tests/integration/us3-rate-reflect.test.js:54:42
+     52|       });
+     53| 
+     54|       expect(addBookResponse.statusCode).toBe(201);
+       |                                          ^
+     55|       const { readingEntry: entry1 } = JSON.parse(addBookResponse.body…
+     56|       const entryId = entry1.id;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/95]⎯
+
+ FAIL  tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Complete Rating Journey > should support rating without reflection note
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/integration/us3-rate-reflect.test.js:139:44
+    137|       const rateResponse = await app.inject({
+    138|         method: 'PUT',
+    139|         url: `/api/reading-entries/${entry.id}/rating`,
+       |                                            ^
+    140|         payload: {
+    141|           rating: 5,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/95]⎯
+
+ FAIL  tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Complete Rating Journey > should allow updating rating and reflection
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/integration/us3-rate-reflect.test.js:177:44
+    175|       await app.inject({
+    176|         method: 'PUT',
+    177|         url: `/api/reading-entries/${entry.id}/rating`,
+       |                                            ^
+    178|         payload: {
+    179|           rating: 3,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/95]⎯
+
+ FAIL  tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Complete Rating Journey > should allow clearing rating (for re-reads)
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/integration/us3-rate-reflect.test.js:226:44
+    224|       await app.inject({
+    225|         method: 'PUT',
+    226|         url: `/api/reading-entries/${entry.id}/rating`,
+       |                                            ^
+    227|         payload: {
+    228|           rating: 4,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/95]⎯
+
+ FAIL  tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Top Rated Filter > should return only books with rating >= 4 in correct order
+ FAIL  tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Top Rated Filter > should include reflection notes in Top Rated list
+ FAIL  tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Top Rated Filter > should support pagination in Top Rated filter
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/integration/us3-rate-reflect.test.js:284:48
+    282|           await app.inject({
+    283|             method: 'PUT',
+    284|             url: `/api/reading-entries/${entry.id}/rating`,
+       |                                                ^
+    285|             payload: {
+    286|               rating: book.rating,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/95]⎯
+
+ FAIL  tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Rating Validations > should reject rating for non-FINISHED book
+ FAIL  tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Rating Validations > should reject invalid ratings
+ FAIL  tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Rating Validations > should reject reflection note exceeding 2000 characters
+ FAIL  tests/integration/us3-rate-reflect.test.js > User Story 3: Rate and Reflect on Finished Books > Rating Validations > should accept reflection note at max length (2000 chars)
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/integration/us3-rate-reflect.test.js:370:23
+    368| 
+    369|       const { readingEntry: entry } = JSON.parse(addResponse.body);
+    370|       entryId = entry.id;
+       |                       ^
+    371|     });
+    372| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/95]⎯
+
+ FAIL  tests/unit/models/book.test.js > Book Model > create > should reject title exceeding 500 characters
+AssertionError: expected [Function] to throw error matching /title/i but got 'value too long for type character var…'
+
+- Expected: 
+/title/i
+
++ Received: 
+"value too long for type character varying(500)"
+
+ ❯ tests/unit/models/book.test.js:62:7
+     60|       };
+     61| 
+     62|       await expect(Book.create(bookData)).rejects.toThrow(/title/i);
+       |       ^
+     63|     });
+     64| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/95]⎯
+
+ FAIL  tests/unit/models/book.test.js > Book Model > create > should reject author exceeding 200 characters
+AssertionError: expected [Function] to throw error matching /author/i but got 'value too long for type character var…'
+
+- Expected: 
+/author/i
+
++ Received: 
+"value too long for type character varying(200)"
+
+ ❯ tests/unit/models/book.test.js:71:7
+     69|       };
+     70| 
+     71|       await expect(Book.create(bookData)).rejects.toThrow(/author/i);
+       |       ^
+     72|     });
+     73| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/95]⎯
+
+ FAIL  tests/unit/models/book.test.js > Book Model > update > should reject invalid field values on update
+AssertionError: expected [Function] to throw error matching /title/i but got 'value too long for type character var…'
+
+- Expected: 
+/title/i
+
++ Received: 
+"value too long for type character varying(500)"
+
+ ❯ tests/unit/models/book.test.js:220:7
+    218|       });
+    219| 
+    220|       await expect(
+       |       ^
+    221|         Book.update(book.id, {
+    222|           title: 'a'.repeat(501),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/95]⎯
+
+ FAIL  tests/unit/models/progress-update.test.js > ProgressUpdate Model > findByEntry > should only return updates for the specified entry
+error: duplicate key value violates unique constraint "reading_entries_unique_reader_book"
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ tests/unit/models/progress-update.test.js:179:32
+    177|     it('should only return updates for the specified entry', async () …
+    178|       // Create another reading entry
+    179|       const otherEntryResult = await pool.query(
+       |                                ^
+    180|         `INSERT INTO reading_entries (reader_id, book_id, status)
+    181|          VALUES ($1, $2, $3)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 327, severity: 'ERROR', code: '23505', detail: 'Key (reader_id, book_id)=(74779681-56be-48d4-bd9a-3ed87e078827, 6927b499-d1a0-4540-b200-97c3dade1485) already exists.', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'reading_entries', column: undefined, dataType: undefined, constraint: 'reading_entries_unique_reader_book', file: 'nbtinsert.c', line: '664', routine: '_bt_check_unique' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/95]⎯
+
+ FAIL  tests/unit/models/reading-entry.test.js > ReadingEntry Model > create > should create a reading entry with valid data
+error: null value in column "book_id" of relation "reading_entries" violates not-null constraint
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ Module.query src/db/connection.js:36:20
+     34|   const start = Date.now();
+     35|   try {
+     36|     const result = await pool.query(text, params);
+       |                    ^
+     37|     const duration = Date.now() - start;
+     38| 
+ ❯ ReadingEntry.create src/models/reading-entry.js:26:20
+ ❯ tests/unit/models/reading-entry.test.js:29:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 375, severity: 'ERROR', code: '23502', detail: 'Failing row contains (78cb62b2-8339-439c-978b-f7b51753acd4, 580b769d-0807-4ef7-947e-28ac5b94da85, null, TO_READ, null, null, 2025-10-29 00:46:26.270084+00, 2025-10-29 00:46:26.270084+00).', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'reading_entries', column: 'book_id', dataType: undefined, constraint: undefined, file: 'execMain.c', line: '1971', routine: 'ExecConstraints' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/95]⎯
+
+ FAIL  tests/unit/models/reading-entry.test.js > ReadingEntry Model > create > should enforce unique constraint on reader_id + book_id
+error: null value in column "book_id" of relation "reading_entries" violates not-null constraint
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ Module.query src/db/connection.js:36:20
+     34|   const start = Date.now();
+     35|   try {
+     36|     const result = await pool.query(text, params);
+       |                    ^
+     37|     const duration = Date.now() - start;
+     38| 
+ ❯ ReadingEntry.create src/models/reading-entry.js:26:20
+ ❯ tests/unit/models/reading-entry.test.js:48:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 375, severity: 'ERROR', code: '23502', detail: 'Failing row contains (95eaa661-6399-4f50-a3e5-071c680168bf, 122fb2ed-1a21-4cd6-a4cc-82b503d95cce, null, TO_READ, null, null, 2025-10-29 00:46:26.299348+00, 2025-10-29 00:46:26.299348+00).', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'reading_entries', column: 'book_id', dataType: undefined, constraint: undefined, file: 'execMain.c', line: '1971', routine: 'ExecConstraints' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/95]⎯
+
+ FAIL  tests/unit/models/reading-entry.test.js > ReadingEntry Model > create > should reject invalid status value
+AssertionError: expected [Function] to throw error matching /status/i but got 'value too long for type character var…'
+
+- Expected: 
+/status/i
+
++ Received: 
+"value too long for type character varying(10)"
+
+ ❯ tests/unit/models/reading-entry.test.js:64:7
+     62| 
+     63|     it('should reject invalid status value', async () => {
+     64|       await expect(
+       |       ^
+     65|         ReadingEntry.create({
+     66|           readerId: testReaderId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/95]⎯
+
+ FAIL  tests/unit/models/reading-entry.test.js > ReadingEntry Model > create > should allow rating with FINISHED status
+error: null value in column "book_id" of relation "reading_entries" violates not-null constraint
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ Module.query src/db/connection.js:36:20
+     34|   const start = Date.now();
+     35|   try {
+     36|     const result = await pool.query(text, params);
+       |                    ^
+     37|     const duration = Date.now() - start;
+     38| 
+ ❯ ReadingEntry.create src/models/reading-entry.js:26:20
+ ❯ tests/unit/models/reading-entry.test.js:85:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 380, severity: 'ERROR', code: '23502', detail: 'Failing row contains (06595e60-e955-4ee9-9132-1ddf3fe6e522, c089fd57-a407-4d6b-9dbe-8b578b70571b, null, FINISHED, 4, Great book!, 2025-10-29 00:46:26.383968+00, 2025-10-29 00:46:26.383968+00).', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'reading_entries', column: 'book_id', dataType: undefined, constraint: undefined, file: 'execMain.c', line: '1971', routine: 'ExecConstraints' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[43/95]⎯
+
+ FAIL  tests/unit/models/reading-entry.test.js > ReadingEntry Model > findById > should find reading entry by ID
+error: null value in column "book_id" of relation "reading_entries" violates not-null constraint
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ Module.query src/db/connection.js:36:20
+     34|   const start = Date.now();
+     35|   try {
+     36|     const result = await pool.query(text, params);
+       |                    ^
+     37|     const duration = Date.now() - start;
+     38| 
+ ❯ ReadingEntry.create src/models/reading-entry.js:26:20
+ ❯ tests/unit/models/reading-entry.test.js:100:23
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 373, severity: 'ERROR', code: '23502', detail: 'Failing row contains (fc5505ad-7c0c-458d-95bb-b4c47bc49e40, c303f981-e15a-4c58-9b01-4e5f18e4b091, null, READING, null, null, 2025-10-29 00:46:26.41008+00, 2025-10-29 00:46:26.41008+00).', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'reading_entries', column: 'book_id', dataType: undefined, constraint: undefined, file: 'execMain.c', line: '1971', routine: 'ExecConstraints' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[44/95]⎯
+
+ FAIL  tests/unit/models/reading-entry.test.js > ReadingEntry Model > findByReader > should find all entries for a reader
+ FAIL  tests/unit/models/reading-entry.test.js > ReadingEntry Model > findByReader > should include book details in results
+ FAIL  tests/unit/models/reading-entry.test.js > ReadingEntry Model > findByReader > should support pagination
+error: null value in column "book_id" of relation "reading_entries" violates not-null constraint
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ Module.query src/db/connection.js:36:20
+     34|   const start = Date.now();
+     35|   try {
+     36|     const result = await pool.query(text, params);
+       |                    ^
+     37|     const duration = Date.now() - start;
+     38| 
+ ❯ ReadingEntry.create src/models/reading-entry.js:26:20
+ ❯ tests/unit/models/reading-entry.test.js:129:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 373, severity: 'ERROR', code: '23502', detail: 'Failing row contains (7fcbdc9c-9602-4ff0-b2a7-ab7da1972ec3, 30c2d947-defe-4997-8f59-52d46d1c5078, null, TO_READ, null, null, 2025-10-29 00:46:26.45866+00, 2025-10-29 00:46:26.45866+00).', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'reading_entries', column: 'book_id', dataType: undefined, constraint: undefined, file: 'execMain.c', line: '1971', routine: 'ExecConstraints' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[45/95]⎯
+
+ FAIL  tests/unit/models/reading-entry.test.js > ReadingEntry Model > findByReaderAndStatus > should filter entries by status
+ FAIL  tests/unit/models/reading-entry.test.js > ReadingEntry Model > findByReaderAndStatus > should return empty array for status with no entries
+error: null value in column "book_id" of relation "reading_entries" violates not-null constraint
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ Module.query src/db/connection.js:36:20
+     34|   const start = Date.now();
+     35|   try {
+     36|     const result = await pool.query(text, params);
+       |                    ^
+     37|     const duration = Date.now() - start;
+     38| 
+ ❯ ReadingEntry.create src/models/reading-entry.js:26:20
+ ❯ tests/unit/models/reading-entry.test.js:180:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 375, severity: 'ERROR', code: '23502', detail: 'Failing row contains (1db68cc4-04ea-4d04-af3e-9d068c614065, 68a91646-509a-4a43-a43b-9969ac956961, null, READING, null, null, 2025-10-29 00:46:26.539276+00, 2025-10-29 00:46:26.539276+00).', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'reading_entries', column: 'book_id', dataType: undefined, constraint: undefined, file: 'execMain.c', line: '1971', routine: 'ExecConstraints' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[46/95]⎯
+
+ FAIL  tests/unit/models/reading-entry.test.js > ReadingEntry Model > updateStatus > should update entry status
+error: null value in column "book_id" of relation "reading_entries" violates not-null constraint
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ Module.query src/db/connection.js:36:20
+     34|   const start = Date.now();
+     35|   try {
+     36|     const result = await pool.query(text, params);
+       |                    ^
+     37|     const duration = Date.now() - start;
+     38| 
+ ❯ ReadingEntry.create src/models/reading-entry.js:26:20
+ ❯ tests/unit/models/reading-entry.test.js:216:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 373, severity: 'ERROR', code: '23502', detail: 'Failing row contains (d064644e-1835-4f77-971d-512da9d22e7f, f7f8fd14-ba2c-4817-b7b3-532f00ace523, null, TO_READ, null, null, 2025-10-29 00:46:26.59289+00, 2025-10-29 00:46:26.59289+00).', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'reading_entries', column: 'book_id', dataType: undefined, constraint: undefined, file: 'execMain.c', line: '1971', routine: 'ExecConstraints' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[47/95]⎯
+
+ FAIL  tests/unit/models/reading-entry.test.js > ReadingEntry Model > updateStatus > should allow updating to any valid status
+error: null value in column "book_id" of relation "reading_entries" violates not-null constraint
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ Module.query src/db/connection.js:36:20
+     34|   const start = Date.now();
+     35|   try {
+     36|     const result = await pool.query(text, params);
+       |                    ^
+     37|     const duration = Date.now() - start;
+     38| 
+ ❯ ReadingEntry.create src/models/reading-entry.js:26:20
+ ❯ tests/unit/models/reading-entry.test.js:229:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 375, severity: 'ERROR', code: '23502', detail: 'Failing row contains (8629d348-0400-4311-a2d4-e05cc5badbe7, 34098948-49d5-41cc-84d3-5e4d4f22bb31, null, READING, null, null, 2025-10-29 00:46:26.618737+00, 2025-10-29 00:46:26.618737+00).', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'reading_entries', column: 'book_id', dataType: undefined, constraint: undefined, file: 'execMain.c', line: '1971', routine: 'ExecConstraints' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[48/95]⎯
+
+ FAIL  tests/unit/models/reading-entry.test.js > ReadingEntry Model > updateStatus > should reject invalid status
+error: null value in column "book_id" of relation "reading_entries" violates not-null constraint
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ Module.query src/db/connection.js:36:20
+     34|   const start = Date.now();
+     35|   try {
+     36|     const result = await pool.query(text, params);
+       |                    ^
+     37|     const duration = Date.now() - start;
+     38| 
+ ❯ ReadingEntry.create src/models/reading-entry.js:26:20
+ ❯ tests/unit/models/reading-entry.test.js:241:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 375, severity: 'ERROR', code: '23502', detail: 'Failing row contains (27bf8ee3-0650-4543-9f4b-122914f790ad, 179a7b9f-f8f5-47df-b3e0-59c4977f8f17, null, TO_READ, null, null, 2025-10-29 00:46:26.643639+00, 2025-10-29 00:46:26.643639+00).', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'reading_entries', column: 'book_id', dataType: undefined, constraint: undefined, file: 'execMain.c', line: '1971', routine: 'ExecConstraints' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[49/95]⎯
+
+ FAIL  tests/unit/models/reading-entry.test.js > ReadingEntry Model > delete > should delete a reading entry
+error: null value in column "book_id" of relation "reading_entries" violates not-null constraint
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ Module.query src/db/connection.js:36:20
+     34|   const start = Date.now();
+     35|   try {
+     36|     const result = await pool.query(text, params);
+       |                    ^
+     37|     const duration = Date.now() - start;
+     38| 
+ ❯ ReadingEntry.create src/models/reading-entry.js:26:20
+ ❯ tests/unit/models/reading-entry.test.js:253:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 373, severity: 'ERROR', code: '23502', detail: 'Failing row contains (6d149d09-5cbb-483e-8bf5-197986d494b2, 171bef9c-4324-44b2-8293-ebc57fb2b954, null, TO_READ, null, null, 2025-10-29 00:46:26.67155+00, 2025-10-29 00:46:26.67155+00).', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'reading_entries', column: 'book_id', dataType: undefined, constraint: undefined, file: 'execMain.c', line: '1971', routine: 'ExecConstraints' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[50/95]⎯
+
+ FAIL  tests/unit/models/status-transition.test.js > StatusTransition Model > create > should create initial transition with null fromStatus
+ FAIL  tests/unit/models/status-transition.test.js > StatusTransition Model > create > should create transition with both statuses
+ FAIL  tests/unit/models/status-transition.test.js > StatusTransition Model > create > should reject invalid fromStatus
+ FAIL  tests/unit/models/status-transition.test.js > StatusTransition Model > create > should reject invalid toStatus
+ FAIL  tests/unit/models/status-transition.test.js > StatusTransition Model > create > should allow all valid status combinations
+ FAIL  tests/unit/models/status-transition.test.js > StatusTransition Model > findByEntry > should return all transitions for an entry
+ FAIL  tests/unit/models/status-transition.test.js > StatusTransition Model > findByEntry > should return transitions in reverse chronological order (newest first)
+ FAIL  tests/unit/models/status-transition.test.js > StatusTransition Model > findByEntry > should return empty array for entry with no transitions
+ FAIL  tests/unit/models/status-transition.test.js > StatusTransition Model > findByEntry > should return empty array for non-existent entry
+ FAIL  tests/unit/models/status-transition.test.js > StatusTransition Model > getLatest > should return the most recent transition for an entry
+ FAIL  tests/unit/models/status-transition.test.js > StatusTransition Model > getLatest > should return null for entry with no transitions
+error: null value in column "book_id" of relation "reading_entries" violates not-null constraint
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ Module.query src/db/connection.js:36:20
+     34|   const start = Date.now();
+     35|   try {
+     36|     const result = await pool.query(text, params);
+       |                    ^
+     37|     const duration = Date.now() - start;
+     38| 
+ ❯ Module.createReadingEntryDirect tests/helpers/test-data.js:100:18
+ ❯ tests/unit/models/status-transition.test.js:28:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 375, severity: 'ERROR', code: '23502', detail: 'Failing row contains (ffac4f4a-cdb4-4580-b3fd-128b870a5206, 82534f0e-9439-4086-b3d6-ccf26efb6803, null, TO_READ, null, null, 2025-10-29 00:46:26.734262+00, 2025-10-29 00:46:26.734262+00).', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'reading_entries', column: 'book_id', dataType: undefined, constraint: undefined, file: 'execMain.c', line: '1971', routine: 'ExecConstraints' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[51/95]⎯
+
+ FAIL  tests/unit/services/reading-service.test.js > ReadingService > addBook (T037 - duplicate detection, unique constraint) > should detect duplicate books by title, author, and edition
+AssertionError: expected [Function] to throw error matching /already exists/i but got 'duplicate key value violates unique c…'
+
+- Expected: 
+/already exists/i
+
++ Received: 
+"duplicate key value violates unique constraint \"reading_entries_unique_reader_book\""
+
+ ❯ tests/unit/services/reading-service.test.js:100:7
+     98| 
+     99|       // Attempt to add same book
+    100|       await expect(
+       |       ^
+    101|         ReadingService.addBook(testReaderId, {
+    102|           title: 'Duplicate Book',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[52/95]⎯
+
+ FAIL  tests/unit/services/reading-service.test.js > ReadingService > addBook (T037 - duplicate detection, unique constraint) > should validate title length (max 500)
+AssertionError: expected [Function] to throw error matching /title/i but got 'value too long for type character var…'
+
+- Expected: 
+/title/i
+
++ Received: 
+"value too long for type character varying(500)"
+
+ ❯ tests/unit/services/reading-service.test.js:150:7
+    148| 
+    149|     it('should validate title length (max 500)', async () => {
+    150|       await expect(
+       |       ^
+    151|         ReadingService.addBook(testReaderId, {
+    152|           title: 'a'.repeat(501),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[53/95]⎯
+
+ FAIL  tests/unit/services/reading-service.test.js > ReadingService > addBook (T037 - duplicate detection, unique constraint) > should validate author length (max 200)
+AssertionError: expected [Function] to throw error matching /author/i but got 'value too long for type character var…'
+
+- Expected: 
+/author/i
+
++ Received: 
+"value too long for type character varying(200)"
+
+ ❯ tests/unit/services/reading-service.test.js:160:7
+    158| 
+    159|     it('should validate author length (max 200)', async () => {
+    160|       await expect(
+       |       ^
+    161|         ReadingService.addBook(testReaderId, {
+    162|           title: 'Valid Title',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[54/95]⎯
+
+ FAIL  tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should update status and record transition
+ FAIL  tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should log analytics event for status change (FR-016)
+ FAIL  tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should validate status transitions
+ FAIL  tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should handle last-write-wins for concurrent edits (FR-010)
+ FAIL  tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should update updatedAt timestamp
+ FAIL  tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should reject invalid status values
+ FAIL  tests/unit/services/reading-service.test.js > ReadingService > updateStatus (T038 - from/to validation, history recording) > should reject updates to non-existent entries
+error: null value in column "book_id" of relation "reading_entries" violates not-null constraint
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ Module.query src/db/connection.js:36:20
+     34|   const start = Date.now();
+     35|   try {
+     36|     const result = await pool.query(text, params);
+       |                    ^
+     37|     const duration = Date.now() - start;
+     38| 
+ ❯ Module.createReadingEntryDirect tests/helpers/test-data.js:100:18
+ ❯ tests/unit/services/reading-service.test.js:235:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 375, severity: 'ERROR', code: '23502', detail: 'Failing row contains (4a00992a-8d0c-4981-899c-506361a72223, a891c8c9-964c-4480-b0a3-785d011f9f03, null, TO_READ, null, null, 2025-10-29 00:46:24.178295+00, 2025-10-29 00:46:24.178295+00).', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'reading_entries', column: 'book_id', dataType: undefined, constraint: undefined, file: 'execMain.c', line: '1971', routine: 'ExecConstraints' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[55/95]⎯
+
+ FAIL  tests/unit/services/reading-service.test.js > ReadingService > addProgressNote (T071 - note length validation, timestamp handling) > should reject note exceeding 1000 characters
+AssertionError: expected [Function] to throw error matching /length/i but got 'Note content must not exceed 1000 cha…'
+
+- Expected: 
+/length/i
+
++ Received: 
+"Note content must not exceed 1000 characters"
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[56/95]⎯
+
+ FAIL  tests/unit/services/reading-service.test.js > ReadingService > addProgressNote (T071 - note length validation, timestamp handling) > should reject progress marker exceeding 50 characters
+AssertionError: expected [Function] to throw error matching /length/i but got 'Progress marker must not exceed 50 ch…'
+
+- Expected: 
+/length/i
+
++ Received: 
+"Progress marker must not exceed 50 characters"
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[57/95]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 6 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+Error: Cannot write headers after they are sent to the client
+ ❯ Response.writeHead node:_http_server:354:11
+ ❯ Response.writeHead node_modules/light-my-request/lib/response.js:63:58
+ ❯ safeWriteHead node_modules/fastify/lib/reply.js:578:9
+ ❯ onSendEnd node_modules/fastify/lib/reply.js:643:5
+ ❯ wrapOnSendEnd node_modules/fastify/lib/reply.js:571:5
+ ❯ next node_modules/fastify/lib/hooks.js:289:7
+ ❯ node_modules/@fastify/session/lib/fastifySession.js:202:9
+ ❯ node_modules/@fastify/session/lib/session.js:180:11
+ ❯ node_modules/connect-pg-simple/index.js:394:24
+ ❯ processTicksAndRejections node:internal/process/task_queues:90:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'ERR_HTTP_HEADERS_SENT' }
+This error originated in "tests/contract/reading-entries.test.js" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "should create a new reading entry with valid book data". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: process.exit unexpectedly called with "1"
+ ❯ process.exit node_modules/vitest/dist/vendor/execute.fL3szUAI.js:401:11
+ ❯ start src/server.js:90:13
+     88|   } catch (err) {
+     89|     logger.error(err, 'Failed to start server');
+     90|     process.exit(1);
+       |             ^
+     91|   }
+     92| }
+ ❯ processTicksAndRejections node:internal/process/task_queues:105:5
+
+This error originated in "tests/contract/ratings.test.js" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "should set rating and reflection for finished book". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+Error: Cannot write headers after they are sent to the client
+ ❯ Response.writeHead node:_http_server:354:11
+ ❯ Response.writeHead node_modules/light-my-request/lib/response.js:63:58
+ ❯ safeWriteHead node_modules/fastify/lib/reply.js:578:9
+ ❯ onSendEnd node_modules/fastify/lib/reply.js:643:5
+ ❯ wrapOnSendEnd node_modules/fastify/lib/reply.js:571:5
+ ❯ next node_modules/fastify/lib/hooks.js:289:7
+ ❯ node_modules/@fastify/session/lib/fastifySession.js:202:9
+ ❯ node_modules/@fastify/session/lib/session.js:180:11
+ ❯ node_modules/connect-pg-simple/index.js:394:24
+ ❯ processTicksAndRejections node:internal/process/task_queues:90:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'ERR_HTTP_HEADERS_SENT' }
+This error originated in "tests/integration/us1-organize-pipeline.test.js" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "should complete full reading journey: add → TO_READ → READING → verify transitions". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+Error: Cannot write headers after they are sent to the client
+ ❯ Response.writeHead node:_http_server:354:11
+ ❯ Response.writeHead node_modules/light-my-request/lib/response.js:63:58
+ ❯ safeWriteHead node_modules/fastify/lib/reply.js:578:9
+ ❯ onSendEnd node_modules/fastify/lib/reply.js:643:5
+ ❯ wrapOnSendEnd node_modules/fastify/lib/reply.js:571:5
+ ❯ next node_modules/fastify/lib/hooks.js:289:7
+ ❯ node_modules/@fastify/session/lib/fastifySession.js:202:9
+ ❯ node_modules/@fastify/session/lib/session.js:180:11
+ ❯ node_modules/connect-pg-simple/index.js:394:24
+ ❯ processTicksAndRejections node:internal/process/task_queues:90:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'ERR_HTTP_HEADERS_SENT' }
+This error originated in "tests/integration/us1-organize-pipeline.test.js" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "should prevent duplicate book entries for same reader". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+Error: Cannot write headers after they are sent to the client
+ ❯ Response.writeHead node:_http_server:354:11
+ ❯ Response.writeHead node_modules/light-my-request/lib/response.js:63:58
+ ❯ safeWriteHead node_modules/fastify/lib/reply.js:578:9
+ ❯ onSendEnd node_modules/fastify/lib/reply.js:643:5
+ ❯ wrapOnSendEnd node_modules/fastify/lib/reply.js:571:5
+ ❯ next node_modules/fastify/lib/hooks.js:289:7
+ ❯ node_modules/@fastify/session/lib/fastifySession.js:202:9
+ ❯ node_modules/@fastify/session/lib/session.js:180:11
+ ❯ node_modules/connect-pg-simple/index.js:394:24
+ ❯ processTicksAndRejections node:internal/process/task_queues:90:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'ERR_HTTP_HEADERS_SENT' }
+This error originated in "tests/integration/us1-organize-pipeline.test.js" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "should prevent duplicate book entries for same reader". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+Error: Cannot write headers after they are sent to the client
+ ❯ Response.writeHead node:_http_server:354:11
+ ❯ Response.writeHead node_modules/light-my-request/lib/response.js:63:58
+ ❯ safeWriteHead node_modules/fastify/lib/reply.js:578:9
+ ❯ onSendEnd node_modules/fastify/lib/reply.js:643:5
+ ❯ wrapOnSendEnd node_modules/fastify/lib/reply.js:571:5
+ ❯ next node_modules/fastify/lib/hooks.js:289:7
+ ❯ node_modules/@fastify/session/lib/fastifySession.js:202:9
+ ❯ node_modules/@fastify/session/lib/session.js:180:11
+ ❯ node_modules/connect-pg-simple/index.js:394:24
+ ❯ processTicksAndRejections node:internal/process/task_queues:90:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'ERR_HTTP_HEADERS_SENT' }
+This error originated in "tests/integration/us1-organize-pipeline.test.js" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "should prevent duplicate book entries for same reader". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ Test Files  11 failed (11)
+      Tests  95 failed | 80 passed (175)
+     Errors  6 errors
+   Start at  20:46:23
+   Duration  3.81s (transform 72ms, setup 0ms, collect 227ms, tests 3.48s, environment 0ms, prepare 24ms)
+

@@ -174,9 +174,9 @@ describe('ReadingService', () => {
       const book2 = await createBookDirect({ title: 'Reading 1', author: 'Author B' });
       const book3 = await createBookDirect({ title: 'Finished 1', author: 'Author C' });
 
-      await createReadingEntryDirect(testReaderId, book1.id, 'TO_READ');
-      await createReadingEntryDirect(testReaderId, book2.id, 'READING');
-      await createReadingEntryDirect(testReaderId, book3.id, 'FINISHED');
+      await createReadingEntryDirect(testReaderId, book1, 'TO_READ');
+      await createReadingEntryDirect(testReaderId, book2, 'READING');
+      await createReadingEntryDirect(testReaderId, book3, 'FINISHED');
     });
 
     it('should get all reading entries for a reader', async () => {
@@ -360,7 +360,7 @@ describe('ReadingService', () => {
 
     beforeEach(async () => {
       // Create a book and reading entry for progress notes
-      testBookId = await createBookDirect('Progress Test Book', 'Progress Author');
+      testBookId = await createBookDirect({ title: 'Progress Test Book', author: 'Progress Author' });
       testEntryId = await createReadingEntryDirect(testReaderId, testBookId, 'READING');
     });
 
@@ -448,7 +448,7 @@ describe('ReadingService', () => {
     let testEntryId;
 
     beforeEach(async () => {
-      testBookId = await createBookDirect('Progress Book', 'Author');
+      testBookId = await createBookDirect({ title: 'Progress Book', author: 'Author' });
       testEntryId = await createReadingEntryDirect(testReaderId, testBookId, 'READING');
 
       // Add multiple progress notes
@@ -492,7 +492,7 @@ describe('ReadingService', () => {
 
     it('should return empty array when no notes exist', async () => {
       // Create new entry without notes
-      const newBookId = await createBookDirect('New Book', 'New Author');
+      const newBookId = await createBookDirect({ title: 'New Book', author: 'New Author' });
       const newEntryId = await createReadingEntryDirect(testReaderId, newBookId, 'READING');
 
       const notes = await ReadingService.getProgressNotes(newEntryId);
@@ -513,7 +513,7 @@ describe('ReadingService', () => {
 
     beforeEach(async () => {
       // Create finished book entry
-      testBookId = await createBookDirect('Finished Book', 'Author');
+      testBookId = await createBookDirect({ title: 'Finished Book', author: 'Author' });
       testEntryId = await createReadingEntryDirect(testReaderId, testBookId, 'FINISHED');
     });
 
@@ -578,7 +578,7 @@ describe('ReadingService', () => {
     });
 
     it('should reject rating for non-FINISHED book', async () => {
-      const readingBookId = await createBookDirect('Reading Book', 'Author');
+      const readingBookId = await createBookDirect({ title: 'Reading Book', author: 'Author' });
       const readingEntryId = await createReadingEntryDirect(testReaderId, readingBookId, 'READING');
 
       await expect(
@@ -654,7 +654,7 @@ describe('ReadingService', () => {
     let testEntryId;
 
     beforeEach(async () => {
-      testBookId = await createBookDirect('Rated Book', 'Author');
+      testBookId = await createBookDirect({ title: 'Rated Book', author: 'Author' });
       testEntryId = await createReadingEntryDirect(testReaderId, testBookId, 'FINISHED');
 
       // Set a rating
@@ -727,7 +727,7 @@ describe('ReadingService', () => {
       ];
 
       for (const book of books) {
-        const bookId = await createBookDirect(book.title, book.author);
+        const bookId = await createBookDirect({ title: book.title, author: book.author });
         const entryId = await createReadingEntryDirect(testReaderId, bookId, 'FINISHED');
 
         if (book.rating !== null) {

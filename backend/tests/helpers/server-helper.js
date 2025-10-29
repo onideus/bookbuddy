@@ -5,6 +5,7 @@
 
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import fastifyCookie from '@fastify/cookie';
 import { config } from '../../src/lib/config.js';
 import logger from '../../src/lib/logger.js';
 import correlationIdPlugin from '../../src/api/middleware/correlation-id.js';
@@ -30,6 +31,10 @@ export async function build(opts = {}) {
   });
 
   await fastify.register(correlationIdPlugin);
+
+  // Register cookie support (required by @fastify/session)
+  await fastify.register(fastifyCookie);
+
   await configureSession(fastify);
 
   // Disable rate limiting in tests or use lenient limits

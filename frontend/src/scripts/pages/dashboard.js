@@ -6,6 +6,7 @@
 import { BookStore } from '../services/book-store.js';
 import { BookList } from '../components/book-list.js';
 import { AddBookForm } from '../components/add-book-form.js';
+import { EditBookForm } from '../components/edit-book-form.js';
 import { StatusFilter } from '../components/status-filter.js';
 import * as readingEntriesApi from '../api/reading-entries-api.js';
 import { getTopRatedBooks } from '../api/ratings-api.js';
@@ -19,6 +20,7 @@ const READER_ID = '00000000-0000-0000-0000-000000000001';
 // Component instances
 let toReadList, readingList, finishedList;
 let addBookForm;
+let editBookForm;
 let statusFilter;
 
 /**
@@ -49,6 +51,8 @@ function initComponents() {
     books: [],
     onBookClick: handleBookClick,
     onStatusChange: handleStatusChange,
+    onEdit: handleEdit,
+    onDelete: handleDelete,
   });
 
   readingList = new BookList({
@@ -57,6 +61,8 @@ function initComponents() {
     books: [],
     onBookClick: handleBookClick,
     onStatusChange: handleStatusChange,
+    onEdit: handleEdit,
+    onDelete: handleDelete,
   });
 
   finishedList = new BookList({
@@ -65,6 +71,8 @@ function initComponents() {
     books: [],
     onBookClick: handleBookClick,
     onStatusChange: handleStatusChange,
+    onEdit: handleEdit,
+    onDelete: handleDelete,
   });
 
   // Initialize add book form
@@ -235,6 +243,86 @@ async function handleStatusChange(entryId, newStatus) {
     updateLists();
 
     showError(error.message || 'Failed to update book status. Please try again.');
+  }
+}
+
+/**
+ * Handle editing a book's metadata
+ * @param {Object} entry - Reading entry to edit
+ */
+function handleEdit(entry) {
+  // Create edit form container if it doesn't exist
+  let editFormContainer = document.getElementById('edit-book-form-container');
+
+  if (!editFormContainer) {
+    editFormContainer = document.createElement('div');
+    editFormContainer.id = 'edit-book-form-container';
+    editFormContainer.style.display = 'none';
+    document.querySelector('.container').appendChild(editFormContainer);
+  }
+
+  // Initialize edit form
+  editBookForm = new EditBookForm({
+    container: editFormContainer,
+    entry: entry,
+    onSubmit: async (bookUpdates) => {
+      try {
+        // Make API call
+        const updatedEntry = await readingEntriesApi.updateBookMetadata(
+          entry.id,
+          bookUpdates
+        );
+
+        // Update store
+        bookStore.updateEntry(entry.id, updatedEntry);
+        updateLists();
+
+        // Hide form
+        editFormContainer.style.display = 'none';
+      } catch (error) {
+        console.error('Failed to update book:', error);
+        showError(error.message || 'Failed to update book. Please try again.');
+      }
+    },
+    onCancel: () => {
+      editFormContainer.style.display = 'none';
+    },
+  });
+
+  // Show form
+  editFormContainer.style.display = 'block';
+  editBookForm.render();
+
+  // Focus first input
+  setTimeout(() => {
+    document.getElementById('edit-book-title')?.focus();
+  }, 100);
+}
+
+/**
+ * Handle deleting a book
+ * @param {string} entryId - Entry ID to delete
+ */
+async function handleDelete(entryId) {
+  try {
+    // Optimistic UI update
+    const entry = bookStore.entries.find((e) => e.id === entryId);
+    if (!entry) {
+      return;
+    }
+
+    bookStore.removeEntry(entryId);
+    updateLists();
+
+    // Make API call
+    await readingEntriesApi.deleteEntry(entryId);
+  } catch (error) {
+    console.error('Failed to delete book:', error);
+
+    // Revert on error - reload the books
+    await loadBooks();
+
+    showError(error.message || 'Failed to delete book. Please try again.');
   }
 }
 

@@ -10,6 +10,8 @@ export class BookList {
     this.status = options.status;
     this.onBookClick = options.onBookClick || (() => {});
     this.onStatusChange = options.onStatusChange || (() => {});
+    this.onEdit = options.onEdit || (() => {});
+    this.onDelete = options.onDelete || (() => {});
   }
 
   /**
@@ -67,6 +69,26 @@ export class BookList {
 
         <div class="book-actions">
           ${this.renderStatusButtons(entry)}
+          <button
+            type="button"
+            class="btn btn-small btn-secondary"
+            data-action="edit"
+            data-entry-id="${id}"
+            aria-label="Edit book details"
+            title="Edit book details"
+          >
+            ✏️ Edit
+          </button>
+          <button
+            type="button"
+            class="btn btn-small btn-danger"
+            data-action="delete"
+            data-entry-id="${id}"
+            aria-label="Delete book"
+            title="Delete book"
+          >
+            🗑️ Delete
+          </button>
         </div>
       </article>
     `;
@@ -202,6 +224,39 @@ export class BookList {
         const newStatus = button.getAttribute('data-new-status');
 
         await this.onStatusChange(entryId, newStatus);
+      });
+    });
+
+    // Edit buttons
+    const editButtons = this.container.querySelectorAll('[data-action="edit"]');
+
+    editButtons.forEach((button) => {
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const entryId = button.getAttribute('data-entry-id');
+        const entry = this.books.find((b) => b.id === entryId);
+
+        this.onEdit(entry);
+      });
+    });
+
+    // Delete buttons
+    const deleteButtons = this.container.querySelectorAll('[data-action="delete"]');
+
+    deleteButtons.forEach((button) => {
+      button.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const entryId = button.getAttribute('data-entry-id');
+        const entry = this.books.find((b) => b.id === entryId);
+
+        // Confirm deletion
+        const confirmDelete = confirm(
+          `Are you sure you want to delete "${entry.book.title}"? This will remove all progress notes and ratings.`
+        );
+
+        if (confirmDelete) {
+          await this.onDelete(entryId);
+        }
       });
     });
   }

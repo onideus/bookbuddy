@@ -34,8 +34,8 @@ describe('Rating API Contract Tests', () => {
     // Create test reader
     readerId = uuidv4();
     await query(
-      'INSERT INTO reader_profiles (id, display_name) VALUES ($1, $2)',
-      [readerId, 'Test Reader']
+      'INSERT INTO reader_profiles (id) VALUES ($1)',
+      [readerId]
     );
 
     // Create test book

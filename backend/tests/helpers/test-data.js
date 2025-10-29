@@ -84,7 +84,7 @@ export async function createBookDirect(bookData) {
     [bookId, title, author, edition, isbn]
   );
 
-  return result.rows[0];
+  return result.rows[0].id;
 }
 
 /**
@@ -104,7 +104,7 @@ export async function createReadingEntryDirect(readerId, bookId, status = 'TO_RE
     [entryId, readerId, bookId, status]
   );
 
-  return result.rows[0];
+  return result.rows[0].id;
 }
 
 /**

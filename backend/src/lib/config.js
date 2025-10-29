@@ -10,12 +10,22 @@ import { existsSync } from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Load .env file if it exists
-const envPath = join(__dirname, '../../.env');
-if (existsSync(envPath)) {
-  // Dynamic import of dotenv for ES modules
-  const dotenv = await import('dotenv');
-  dotenv.config({ path: envPath });
+// Load environment-specific .env file
+// Priority: .env.test (if NODE_ENV=test) > .env.local > .env
+const nodeEnv = process.env.NODE_ENV || 'development';
+const envFiles = [
+  join(__dirname, `../../.env.${nodeEnv}`),
+  join(__dirname, '../../.env.local'),
+  join(__dirname, '../../.env'),
+];
+
+// Load the first env file that exists
+for (const envPath of envFiles) {
+  if (existsSync(envPath)) {
+    const dotenv = await import('dotenv');
+    dotenv.config({ path: envPath });
+    break;
+  }
 }
 
 // Configuration object with defaults

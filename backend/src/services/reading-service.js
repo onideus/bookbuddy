@@ -21,6 +21,18 @@ export class ReadingService {
   static async addBook(readerId, bookData) {
     const { title, author, edition, isbn, status = 'TO_READ' } = bookData;
 
+    // Validate title and author length
+    if (title && title.length > 500) {
+      const error = new Error('Title must be 500 characters or less');
+      error.statusCode = 400;
+      throw error;
+    }
+    if (author && author.length > 200) {
+      const error = new Error('Author name must be 200 characters or less');
+      error.statusCode = 400;
+      throw error;
+    }
+
     // Check if book already exists for this reader
     const existingBook = await Book.findByTitleAuthorEdition(title, author, edition);
 
@@ -345,11 +357,11 @@ export class ReadingService {
     }
 
     if (content.length > 1000) {
-      throw new Error('Note content must not exceed 1000 characters');
+      throw new Error('Note content length must not exceed 1000 characters');
     }
 
     if (progressMarker && progressMarker.length > 50) {
-      throw new Error('Progress marker must not exceed 50 characters');
+      throw new Error('Progress marker length must not exceed 50 characters');
     }
 
     // Check if reading entry exists
@@ -460,6 +472,138 @@ export class ReadingService {
         total,
         hasMore: offset + entries.length < total,
       },
+    };
+  }
+
+  /**
+   * Update book metadata for a reading entry
+   * Only allows updating title, author, edition, and ISBN
+   * Verifies reader ownership before updating
+   * @param {string} readerId - Reader ID
+   * @param {string} entryId - Reading entry ID
+   * @param {Object} bookUpdates - Book fields to update
+   * @returns {Promise<Object>} Updated reading entry with book
+   */
+  static async updateBookMetadata(readerId, entryId, bookUpdates) {
+    const { title, author, edition, isbn } = bookUpdates;
+
+    // Get the entry to verify ownership and get book ID
+    const entry = await ReadingEntry.findById(entryId);
+
+    if (!entry) {
+      const error = new Error('Reading entry not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (entry.readerId !== readerId) {
+      const error = new Error('Not authorized to update this entry');
+      error.statusCode = 403;
+      throw error;
+    }
+
+    // Update book metadata
+    const result = await query(
+      `UPDATE books
+       SET title = COALESCE($1, title),
+           author = COALESCE($2, author),
+           edition = COALESCE($3, edition),
+           isbn = COALESCE($4, isbn),
+           updated_at = NOW()
+       WHERE id = $5
+       RETURNING *`,
+      [title, author, edition, isbn, entry.bookId]
+    );
+
+    if (result.rows.length === 0) {
+      const error = new Error('Book not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const updatedBook = Book.mapRow(result.rows[0]);
+
+    // Get the full entry with updated book
+    const entryWithBook = await query(
+      `SELECT re.*,
+              b.id as book_id, b.title, b.author, b.edition, b.isbn, b.cover_image_url
+       FROM reading_entries re
+       JOIN books b ON b.id = re.book_id
+       WHERE re.id = $1`,
+      [entryId]
+    );
+
+    const updatedEntry = ReadingEntry.mapRowWithBook(entryWithBook.rows[0]);
+
+    // Log analytics event
+    logAnalyticsEvent({
+      event: 'book_metadata_updated',
+      readerId,
+      entryId,
+      bookId: entry.bookId,
+    });
+
+    return { readingEntry: updatedEntry };
+  }
+
+  /**
+   * Delete a reading entry
+   * Removes the entry and all associated data (progress notes, transitions)
+   * Verifies reader ownership before deleting
+   * @param {string} readerId - Reader ID
+   * @param {string} entryId - Reading entry ID
+   * @returns {Promise<Object>} Deletion confirmation
+   */
+  static async deleteReadingEntry(readerId, entryId) {
+    // Get the entry to verify ownership
+    const entry = await ReadingEntry.findById(entryId);
+
+    if (!entry) {
+      const error = new Error('Reading entry not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (entry.readerId !== readerId) {
+      const error = new Error('Not authorized to delete this entry');
+      error.statusCode = 403;
+      throw error;
+    }
+
+    // Use transaction to delete all related data
+    await transaction(async (client) => {
+      // Delete progress notes
+      await query(
+        'DELETE FROM progress_updates WHERE reading_entry_id = $1',
+        [entryId]
+      );
+
+      // Delete status transitions
+      await query(
+        'DELETE FROM status_transitions WHERE reading_entry_id = $1',
+        [entryId]
+      );
+
+      // Delete reading entry
+      await query(
+        'DELETE FROM reading_entries WHERE id = $1',
+        [entryId]
+      );
+    });
+
+    // Log analytics event
+    logAnalyticsEvent({
+      event: 'reading_entry_deleted',
+      readerId,
+      entryId,
+      bookId: entry.bookId,
+      status: entry.status,
+    });
+
+    return {
+      success: true,
+      message: 'Reading entry deleted successfully',
+      deletedEntryId: entryId,
     };
   }
 }

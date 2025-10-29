@@ -147,4 +147,159 @@ export default async function readingEntriesRoutes(fastify, options) {
 
     reply.send(transitions);
   });
+
+  /**
+   * PUT /api/reading-entries/:entryId/book
+   * Update book metadata for a reading entry
+   */
+  fastify.put(
+    '/reading-entries/:entryId/book',
+    {
+      preHandler: [requireReaderAccess],
+      schema: {
+        params: {
+          type: 'object',
+          properties: {
+            entryId: { type: 'string', format: 'uuid' },
+          },
+          required: ['entryId'],
+        },
+        body: {
+          type: 'object',
+          properties: {
+            title: { type: 'string', maxLength: 500 },
+            author: { type: 'string', maxLength: 200 },
+            edition: { type: 'string', maxLength: 100 },
+            isbn: { type: 'string', maxLength: 17 },
+          },
+          additionalProperties: false,
+        },
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              readerId: { type: 'string' },
+              bookId: { type: 'string' },
+              status: { type: 'string' },
+              rating: { type: ['number', 'null'] },
+              reflectionNote: { type: ['string', 'null'] },
+              createdAt: { type: 'string' },
+              updatedAt: { type: 'string' },
+              book: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  title: { type: 'string' },
+                  author: { type: 'string' },
+                  edition: { type: ['string', 'null'] },
+                  isbn: { type: ['string', 'null'] },
+                  coverImageUrl: { type: ['string', 'null'] },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      const { entryId } = request.params;
+      const bookUpdates = request.body;
+      const readerId = request.readerId;
+
+      try {
+        const result = await ReadingService.updateBookMetadata(
+          readerId,
+          entryId,
+          bookUpdates
+        );
+
+        reply.send(result.readingEntry);
+      } catch (error) {
+        request.log.error({ err: error, entryId }, 'Failed to update book metadata');
+
+        if (error.statusCode === 404) {
+          return reply.code(404).send({
+            statusCode: 404,
+            error: 'Not Found',
+            message: error.message,
+            correlationId: request.correlationId,
+          });
+        }
+
+        if (error.statusCode === 403) {
+          return reply.code(403).send({
+            statusCode: 403,
+            error: 'Forbidden',
+            message: error.message,
+            correlationId: request.correlationId,
+          });
+        }
+
+        throw error;
+      }
+    }
+  );
+
+  /**
+   * DELETE /api/reading-entries/:entryId
+   * Delete a reading entry
+   */
+  fastify.delete(
+    '/reading-entries/:entryId',
+    {
+      preHandler: [requireReaderAccess],
+      schema: {
+        params: {
+          type: 'object',
+          properties: {
+            entryId: { type: 'string', format: 'uuid' },
+          },
+          required: ['entryId'],
+        },
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              message: { type: 'string' },
+              deletedEntryId: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      const { entryId } = request.params;
+      const readerId = request.readerId;
+
+      try {
+        const result = await ReadingService.deleteReadingEntry(readerId, entryId);
+
+        reply.send(result);
+      } catch (error) {
+        request.log.error({ err: error, entryId }, 'Failed to delete reading entry');
+
+        if (error.statusCode === 404) {
+          return reply.code(404).send({
+            statusCode: 404,
+            error: 'Not Found',
+            message: error.message,
+            correlationId: request.correlationId,
+          });
+        }
+
+        if (error.statusCode === 403) {
+          return reply.code(403).send({
+            statusCode: 403,
+            error: 'Forbidden',
+            message: error.message,
+            correlationId: request.correlationId,
+          });
+        }
+
+        throw error;
+      }
+    }
+  );
 }
