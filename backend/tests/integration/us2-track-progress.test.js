@@ -7,9 +7,9 @@
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
 import { pool } from '../../src/db/connection.js';
-import * as ReadingService from '../../src/services/reading-service.js';
-import * as Book from '../../src/models/book.js';
-import * as ReadingEntry from '../../src/models/reading-entry.js';
+import { ReadingService } from '../../src/services/reading-service.js';
+import { Book } from '../../src/models/book.js';
+import { ReadingEntry } from '../../src/models/reading-entry.js';
 
 describe('US2: Track Active Reading Progress Integration Test', () => {
   let testReaderId;
@@ -39,14 +39,13 @@ describe('US2: Track Active Reading Progress Integration Test', () => {
     testBookId = book.id;
 
     // Add book to reading list with READING status
-    const entry = await ReadingService.addBook({
-      readerId: testReaderId,
+    const result = await ReadingService.addBook(testReaderId, {
       title: 'Journey Through Middle-earth',
       author: 'J.R.R. Tolkien',
       edition: 'Deluxe Edition',
       status: 'READING'
     });
-    testEntryId = entry.id;
+    testEntryId = result.readingEntry.id;
   });
 
   afterEach(async () => {

@@ -69,6 +69,17 @@ export async function cleanupTestData(readerId = null) {
 }
 
 /**
+ * Clean up reading entries for a specific reader (keeps reader profile)
+ * @param {string} readerId - Reader ID to clean up entries for
+ */
+export async function cleanupReaderEntries(readerId) {
+  // Delete reading entries and related data, but keep the reader profile
+  await query('DELETE FROM progress_updates WHERE reading_entry_id IN (SELECT id FROM reading_entries WHERE reader_id = $1)', [readerId]);
+  await query('DELETE FROM status_transitions WHERE reading_entry_id IN (SELECT id FROM reading_entries WHERE reader_id = $1)', [readerId]);
+  await query('DELETE FROM reading_entries WHERE reader_id = $1', [readerId]);
+}
+
+/**
  * Create a test book directly in database (bypassing API)
  * @param {string} bookData - Book data
  * @returns {Promise<Object>} Created book
@@ -131,6 +142,7 @@ export default {
   createTestReader,
   createTestBook,
   cleanupTestData,
+  cleanupReaderEntries,
   createBookDirect,
   createReadingEntryDirect,
   createStatusTransitionDirect,

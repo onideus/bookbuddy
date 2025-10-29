@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { build } from '../helpers/server-helper.js';
-import { createTestReader, createTestBook, cleanupTestData } from '../helpers/test-data.js';
+import { createTestReader, createTestBook, cleanupTestData, cleanupReaderEntries } from '../helpers/test-data.js';
 
 describe('Reading Entries API - Contract Tests', () => {
   let app;
@@ -32,7 +32,7 @@ describe('Reading Entries API - Contract Tests', () => {
   });
 
   beforeEach(async () => {
-    await cleanupTestData(testReaderId);
+    await cleanupReaderEntries(testReaderId);
   });
 
   describe('POST /api/readers/:readerId/reading-entries (T031)', () => {

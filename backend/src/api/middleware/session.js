@@ -17,7 +17,7 @@ export async function configureSession(fastify) {
   const SESSION_SECRET = process.env.SESSION_SECRET || 'development-secret-change-in-production';
   const NODE_ENV = process.env.NODE_ENV || 'development';
 
-  await fastify.register(fastifySession, {
+  const sessionConfig = {
     secret: SESSION_SECRET,
     cookie: {
       secure: NODE_ENV === 'production', // HTTPS only in production
@@ -25,14 +25,20 @@ export async function configureSession(fastify) {
       sameSite: 'lax', // CSRF protection
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     },
-    store: new PgSession({
+    saveUninitialized: false,
+    rolling: true, // Sliding expiration
+  };
+
+  // Use memory store for tests to avoid async timing issues
+  if (NODE_ENV !== 'test') {
+    sessionConfig.store = new PgSession({
       pool: pool,
       tableName: 'sessions',
       createTableIfMissing: false, // We create via migrations
-    }),
-    saveUninitialized: false,
-    rolling: true, // Sliding expiration
-  });
+    });
+  }
+
+  await fastify.register(fastifySession, sessionConfig);
 }
 
 export default configureSession;
