@@ -1,0 +1,10 @@
+{
+  "allow": [
+    "Bash(codex *)",
+    "SlashCommand(/ask-codex:*)",
+    "Bash(cat *)",
+    "Bash(echo *)",
+    "File(write:/tmp/codex-*.md)",
+    "File(read:/tmp/codex-*.md)"
+  ]
+}
