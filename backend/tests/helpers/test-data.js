@@ -103,7 +103,7 @@ export async function createBookDirect(bookData) {
  * @param {string} readerId - Reader ID
  * @param {string} bookId - Book ID
  * @param {string} status - Reading status
- * @returns {Promise<Object>} Created reading entry
+ * @returns {Promise<string>} Created entry ID
  */
 export async function createReadingEntryDirect(readerId, bookId, status = 'TO_READ') {
   const entryId = uuidv4();

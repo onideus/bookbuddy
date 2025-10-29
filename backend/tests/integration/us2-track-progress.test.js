@@ -58,38 +58,38 @@ describe('US2: Track Active Reading Progress Integration Test', () => {
   it('should complete full user journey: add progress note → retrieve chronologically → verify analytics', async () => {
     // Step 1: Add first progress note
     const note1 = await ReadingService.addProgressNote(testEntryId, {
-      note: 'Started reading. The prologue sets an interesting tone.',
-      pageOrChapter: 'Prologue'
+      content: 'Started reading. The prologue sets an interesting tone.',
+      progressMarker: 'Prologue'
     });
 
     expect(note1).toBeDefined();
-    expect(note1.id).toBeDefined();
-    expect(note1.note).toBe('Started reading. The prologue sets an interesting tone.');
-    expect(note1.page_or_chapter).toBe('Prologue');
-    expect(note1.created_at).toBeInstanceOf(Date);
+    expect(note1.noteId).toBeDefined();
+    expect(note1.content).toBe('Started reading. The prologue sets an interesting tone.');
+    expect(note1.progressMarker).toBe('Prologue');
+    expect(note1.recordedAt).toBeDefined();
 
     // Small delay to ensure different timestamps
     await new Promise(resolve => setTimeout(resolve, 10));
 
     // Step 2: Add second progress note
     const note2 = await ReadingService.addProgressNote(testEntryId, {
-      note: 'The plot is picking up. Characters are well-developed.',
-      pageOrChapter: 'Chapter 5'
+      content: 'The plot is picking up. Characters are well-developed.',
+      progressMarker: 'Chapter 5'
     });
 
-    expect(note2.id).toBeDefined();
-    expect(note2.page_or_chapter).toBe('Chapter 5');
+    expect(note2.noteId).toBeDefined();
+    expect(note2.progressMarker).toBe('Chapter 5');
 
     // Small delay
     await new Promise(resolve => setTimeout(resolve, 10));
 
     // Step 3: Add third progress note (no page marker)
     const note3 = await ReadingService.addProgressNote(testEntryId, {
-      note: 'Incredible plot twist! Did not see that coming.'
+      content: 'Incredible plot twist! Did not see that coming.'
     });
 
-    expect(note3.id).toBeDefined();
-    expect(note3.page_or_chapter).toBeNull();
+    expect(note3.noteId).toBeDefined();
+    expect(note3.progressMarker).toBeNull();
 
     // Step 4: Retrieve notes chronologically (newest first)
     const notes = await ReadingService.getProgressNotes(testEntryId);
@@ -97,9 +97,9 @@ describe('US2: Track Active Reading Progress Integration Test', () => {
     expect(notes).toHaveLength(3);
     
     // Verify chronological ordering (DESC - newest first)
-    expect(notes[0].note).toBe('Incredible plot twist! Did not see that coming.');
-    expect(notes[1].note).toBe('The plot is picking up. Characters are well-developed.');
-    expect(notes[2].note).toBe('Started reading. The prologue sets an interesting tone.');
+    expect(notes[0].content).toBe('Incredible plot twist! Did not see that coming.');
+    expect(notes[1].content).toBe('The plot is picking up. Characters are well-developed.');
+    expect(notes[2].content).toBe('Started reading. The prologue sets an interesting tone.');
 
     // Verify timestamps are in descending order
     expect(notes[0].created_at.getTime()).toBeGreaterThanOrEqual(notes[1].created_at.getTime());
@@ -131,8 +131,8 @@ describe('US2: Track Active Reading Progress Integration Test', () => {
 
     // Add progress note
     const note = await ReadingService.addProgressNote(testEntryId, {
-      note: 'Making good progress',
-      pageOrChapter: 'Page 150'
+      content: 'Making good progress',
+      progressMarker: 'Page 150'
     });
 
     expect(note).toBeDefined();
@@ -140,22 +140,22 @@ describe('US2: Track Active Reading Progress Integration Test', () => {
     // Retrieve notes
     const notes = await ReadingService.getProgressNotes(testEntryId);
     expect(notes).toHaveLength(1);
-    expect(notes[0].note).toBe('Making good progress');
+    expect(notes[0].content).toBe('Making good progress');
   });
 
   it('should validate note length constraints', async () => {
     // Test max length (1000 characters) - should succeed
     const validNote = 'a'.repeat(1000);
     const result = await ReadingService.addProgressNote(testEntryId, {
-      note: validNote
+      content: validNote
     });
-    expect(result.note).toBe(validNote);
+    expect(result.content).toBe(validNote);
 
     // Test exceeding max length (1001 characters) - should fail
     const invalidNote = 'a'.repeat(1001);
     await expect(
       ReadingService.addProgressNote(testEntryId, {
-        note: invalidNote
+        content: invalidNote
       })
     ).rejects.toThrow();
   });
@@ -164,17 +164,17 @@ describe('US2: Track Active Reading Progress Integration Test', () => {
     // Test max length (50 characters) - should succeed
     const validMarker = 'a'.repeat(50);
     const result = await ReadingService.addProgressNote(testEntryId, {
-      note: 'Test note',
-      pageOrChapter: validMarker
+      content: 'Test note',
+      progressMarker: validMarker
     });
-    expect(result.page_or_chapter).toBe(validMarker);
+    expect(result.progressMarker).toBe(validMarker);
 
     // Test exceeding max length (51 characters) - should fail
     const invalidMarker = 'a'.repeat(51);
     await expect(
       ReadingService.addProgressNote(testEntryId, {
-        note: 'Test note',
-        pageOrChapter: invalidMarker
+        content: 'Test note',
+        progressMarker: invalidMarker
       })
     ).rejects.toThrow();
   });
@@ -182,13 +182,13 @@ describe('US2: Track Active Reading Progress Integration Test', () => {
   it('should reject empty notes', async () => {
     await expect(
       ReadingService.addProgressNote(testEntryId, {
-        note: ''
+        content: ''
       })
     ).rejects.toThrow();
 
     await expect(
       ReadingService.addProgressNote(testEntryId, {
-        note: '   '
+        content: '   '
       })
     ).rejects.toThrow();
   });
@@ -196,11 +196,11 @@ describe('US2: Track Active Reading Progress Integration Test', () => {
   it('should handle multiple progress notes over time', async () => {
     // Simulate a realistic reading journey with multiple updates
     const updates = [
-      { note: 'Starting chapter 1', pageOrChapter: 'Chapter 1' },
-      { note: 'Interesting character introduction', pageOrChapter: 'Chapter 2' },
-      { note: 'Plot thickening', pageOrChapter: 'Chapter 3' },
-      { note: 'Unexpected revelation', pageOrChapter: 'Chapter 4' },
-      { note: 'Nearing the climax', pageOrChapter: 'Chapter 5' }
+      { content: 'Starting chapter 1', progressMarker: 'Chapter 1' },
+      { content: 'Interesting character introduction', progressMarker: 'Chapter 2' },
+      { content: 'Plot thickening', progressMarker: 'Chapter 3' },
+      { content: 'Unexpected revelation', progressMarker: 'Chapter 4' },
+      { content: 'Nearing the climax', progressMarker: 'Chapter 5' }
     ];
 
     // Add notes with small delays
@@ -215,11 +215,11 @@ describe('US2: Track Active Reading Progress Integration Test', () => {
     expect(notes).toHaveLength(5);
     
     // Verify reverse chronological order
-    expect(notes[0].page_or_chapter).toBe('Chapter 5');
-    expect(notes[1].page_or_chapter).toBe('Chapter 4');
-    expect(notes[2].page_or_chapter).toBe('Chapter 3');
-    expect(notes[3].page_or_chapter).toBe('Chapter 2');
-    expect(notes[4].page_or_chapter).toBe('Chapter 1');
+    expect(notes[0].progressMarker).toBe('Chapter 5');
+    expect(notes[1].progressMarker).toBe('Chapter 4');
+    expect(notes[2].progressMarker).toBe('Chapter 3');
+    expect(notes[3].progressMarker).toBe('Chapter 2');
+    expect(notes[4].progressMarker).toBe('Chapter 1');
   });
 
   it('should return empty array when no progress notes exist', async () => {
@@ -243,22 +243,22 @@ describe('US2: Track Active Reading Progress Integration Test', () => {
 
     // Add progress notes to both entries
     await ReadingService.addProgressNote(testEntryId, {
-      note: 'Note for first book'
+      content: 'Note for first book'
     });
 
     await ReadingService.addProgressNote(entry2.id, {
-      note: 'Note for second book'
+      content: 'Note for second book'
     });
 
     // Retrieve notes for first entry
     const notes1 = await ReadingService.getProgressNotes(testEntryId);
     expect(notes1).toHaveLength(1);
-    expect(notes1[0].note).toBe('Note for first book');
+    expect(notes1[0].content).toBe('Note for first book');
 
     // Retrieve notes for second entry
     const notes2 = await ReadingService.getProgressNotes(entry2.id);
     expect(notes2).toHaveLength(1);
-    expect(notes2[0].note).toBe('Note for second book');
+    expect(notes2[0].content).toBe('Note for second book');
 
     // Clean up
     await pool.query('DELETE FROM progress_updates WHERE reading_entry_id = $1', [entry2.id]);

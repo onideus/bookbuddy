@@ -19,14 +19,12 @@ describe('StatusTransition Model', () => {
 
   beforeEach(async () => {
     testReaderId = await createTestReader();
-    const book = await createBookDirect({
+    testBookId = await createBookDirect({
       title: 'Transition Test Book',
       author: 'Test Author',
     });
-    testBookId = book.id;
 
-    const entry = await createReadingEntryDirect(testReaderId, testBookId, 'TO_READ');
-    testEntryId = entry.id;
+    testEntryId = await createReadingEntryDirect(testReaderId, testBookId, 'TO_READ');
   });
 
   afterEach(async () => {
@@ -161,11 +159,11 @@ describe('StatusTransition Model', () => {
       });
       const anotherEntry = await createReadingEntryDirect(
         testReaderId,
-        anotherBook.id,
+        anotherBook,
         'TO_READ'
       );
 
-      const transitions = await StatusTransition.findByEntry(anotherEntry.id);
+      const transitions = await StatusTransition.findByEntry(anotherEntry);
 
       expect(transitions).toHaveLength(0);
     });
@@ -210,11 +208,11 @@ describe('StatusTransition Model', () => {
       });
       const anotherEntry = await createReadingEntryDirect(
         testReaderId,
-        anotherBook.id,
+        anotherBook,
         'TO_READ'
       );
 
-      const latest = await StatusTransition.getLatest(anotherEntry.id);
+      const latest = await StatusTransition.getLatest(anotherEntry);
 
       expect(latest).toBeNull();
     });

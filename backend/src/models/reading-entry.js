@@ -119,6 +119,29 @@ export class ReadingEntry {
   }
 
   /**
+   * Find reading entry by reader and book
+   * @param {string} readerId - Reader ID
+   * @param {string} bookId - Book ID
+   * @returns {Promise<Object|null>} Entry or null
+   */
+  static async findByReaderAndBook(readerId, bookId) {
+    const result = await query(
+      `SELECT re.*,
+              b.id as book_id, b.title, b.author, b.edition, b.isbn, b.cover_image_url
+       FROM reading_entries re
+       JOIN books b ON b.id = re.book_id
+       WHERE re.reader_id = $1 AND re.book_id = $2`,
+      [readerId, bookId]
+    );
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    return this.mapRowWithBook(result.rows[0]);
+  }
+
+  /**
    * Update entry status
    * @param {string} id - Entry ID
    * @param {string} newStatus - New status
@@ -178,6 +201,7 @@ export class ReadingEntry {
     return {
       id: row.id,
       readerId: row.reader_id,
+      bookId: row.book_id,
       status: row.status,
       rating: row.rating,
       reflectionNote: row.reflection_note,

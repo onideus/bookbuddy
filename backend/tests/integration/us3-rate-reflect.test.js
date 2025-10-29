@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 describe('User Story 3: Rate and Reflect on Finished Books', () => {
   let app;
   let readerId;
+  let sessionCookie;
 
   beforeAll(async () => {
     app = await build();
@@ -35,12 +36,21 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
       'INSERT INTO reader_profiles (id) VALUES ($1)',
       [readerId]
     );
+
+    // Authenticate
+    const loginResponse = await app.inject({
+      method: 'POST',
+      url: '/api/auth/session',
+      payload: { readerId: readerId },
+    });
+    sessionCookie = loginResponse.headers['set-cookie'];
   });
 
   describe('Complete Rating Journey', () => {
     it('should allow reader to finish book, rate it, and see it in Top Rated filter', async () => {
       // Step 1: Add a new book to TO_READ
       const addBookResponse = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'POST',
         url: `/api/readers/${readerId}/reading-entries`,
         payload: {
@@ -52,11 +62,12 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
       });
 
       expect(addBookResponse.statusCode).toBe(201);
-      const { readingEntry: entry1 } = JSON.parse(addBookResponse.body);
+      const entry1 = JSON.parse(addBookResponse.body);
       const entryId = entry1.id;
 
       // Step 2: Move book to READING
       const moveToReadingResponse = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'PUT',
         url: `/api/reading-entries/${entryId}/status`,
         payload: {
@@ -68,6 +79,7 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
 
       // Step 3: Move book to FINISHED
       const moveToFinishedResponse = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'PUT',
         url: `/api/reading-entries/${entryId}/status`,
         payload: {
@@ -76,11 +88,12 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
       });
 
       expect(moveToFinishedResponse.statusCode).toBe(200);
-      const { readingEntry: finishedEntry } = JSON.parse(moveToFinishedResponse.body);
+      const finishedEntry = JSON.parse(moveToFinishedResponse.body);
       expect(finishedEntry.status).toBe('FINISHED');
 
       // Step 4: Rate the finished book with 4 stars and reflection
       const rateResponse = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'PUT',
         url: `/api/reading-entries/${entryId}/rating`,
         payload: {
@@ -90,12 +103,13 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
       });
 
       expect(rateResponse.statusCode).toBe(200);
-      const { readingEntry: ratedEntry } = JSON.parse(rateResponse.body);
+      const ratedEntry = JSON.parse(rateResponse.body);
       expect(ratedEntry.rating).toBe(4);
       expect(ratedEntry.reflectionNote).toContain('captivating portrayal');
 
       // Step 5: Verify book appears in Top Rated filter
       const topRatedResponse = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'GET',
         url: `/api/readers/${readerId}/reading-entries?topRated=true`,
       });
@@ -109,6 +123,7 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
 
       // Step 6: Verify it also appears in regular FINISHED list
       const finishedResponse = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'GET',
         url: `/api/readers/${readerId}/reading-entries?status=FINISHED`,
       });
@@ -122,6 +137,7 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
     it('should support rating without reflection note', async () => {
       // Add and finish book
       const addResponse = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'POST',
         url: `/api/readers/${readerId}/reading-entries`,
         payload: {
@@ -131,10 +147,11 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
         },
       });
 
-      const { readingEntry: entry } = JSON.parse(addResponse.body);
+      const entry = JSON.parse(addResponse.body);
 
       // Rate without reflection
       const rateResponse = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'PUT',
         url: `/api/reading-entries/${entry.id}/rating`,
         payload: {
@@ -143,12 +160,13 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
       });
 
       expect(rateResponse.statusCode).toBe(200);
-      const { readingEntry: rated } = JSON.parse(rateResponse.body);
+      const rated = JSON.parse(rateResponse.body);
       expect(rated.rating).toBe(5);
       expect(rated.reflectionNote).toBeNull();
 
       // Verify in Top Rated
       const topRatedResponse = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'GET',
         url: `/api/readers/${readerId}/reading-entries?topRated=true`,
       });
@@ -160,6 +178,7 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
     it('should allow updating rating and reflection', async () => {
       // Add finished book
       const addResponse = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'POST',
         url: `/api/readers/${readerId}/reading-entries`,
         payload: {
@@ -169,10 +188,11 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
         },
       });
 
-      const { readingEntry: entry } = JSON.parse(addResponse.body);
+      const entry = JSON.parse(addResponse.body);
 
       // Initial rating
       await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'PUT',
         url: `/api/reading-entries/${entry.id}/rating`,
         payload: {
@@ -183,6 +203,7 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
 
       // Update rating to 5
       const updateResponse = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'PUT',
         url: `/api/reading-entries/${entry.id}/rating`,
         payload: {
@@ -192,12 +213,13 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
       });
 
       expect(updateResponse.statusCode).toBe(200);
-      const { readingEntry: updated } = JSON.parse(updateResponse.body);
+      const updated = JSON.parse(updateResponse.body);
       expect(updated.rating).toBe(5);
       expect(updated.reflectionNote).toBe('Actually, after reflection, this is brilliant!');
 
       // Should now appear in Top Rated (rating >= 4)
       const topRatedResponse = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'GET',
         url: `/api/readers/${readerId}/reading-entries?topRated=true`,
       });
@@ -210,6 +232,7 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
     it('should allow clearing rating (for re-reads)', async () => {
       // Add and rate book
       const addResponse = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'POST',
         url: `/api/readers/${readerId}/reading-entries`,
         payload: {
@@ -219,9 +242,10 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
         },
       });
 
-      const { readingEntry: entry } = JSON.parse(addResponse.body);
+      const entry = JSON.parse(addResponse.body);
 
       await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'PUT',
         url: `/api/reading-entries/${entry.id}/rating`,
         payload: {
@@ -232,17 +256,19 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
 
       // Clear rating
       const clearResponse = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'DELETE',
         url: `/api/reading-entries/${entry.id}/rating`,
       });
 
       expect(clearResponse.statusCode).toBe(200);
-      const { readingEntry: cleared } = JSON.parse(clearResponse.body);
+      const cleared = JSON.parse(clearResponse.body);
       expect(cleared.rating).toBeNull();
       expect(cleared.reflectionNote).toBeNull();
 
       // Should no longer appear in Top Rated
       const topRatedResponse = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'GET',
         url: `/api/readers/${readerId}/reading-entries?topRated=true`,
       });
@@ -267,7 +293,8 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
 
       for (const book of books) {
         const addResponse = await app.inject({
-          method: 'POST',
+          headers: { cookie: sessionCookie },
+        method: 'POST',
           url: `/api/readers/${readerId}/reading-entries`,
           payload: {
             title: book.title,
@@ -276,11 +303,12 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
           },
         });
 
-        const { readingEntry: entry } = JSON.parse(addResponse.body);
+        const entry = JSON.parse(addResponse.body);
 
         if (book.rating !== null) {
           await app.inject({
-            method: 'PUT',
+            headers: { cookie: sessionCookie },
+        method: 'PUT',
             url: `/api/reading-entries/${entry.id}/rating`,
             payload: {
               rating: book.rating,
@@ -293,6 +321,7 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
 
     it('should return only books with rating >= 4 in correct order', async () => {
       const response = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'GET',
         url: `/api/readers/${readerId}/reading-entries?topRated=true`,
       });
@@ -318,6 +347,7 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
 
     it('should include reflection notes in Top Rated list', async () => {
       const response = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'GET',
         url: `/api/readers/${readerId}/reading-entries?topRated=true`,
       });
@@ -332,6 +362,7 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
 
     it('should support pagination in Top Rated filter', async () => {
       const page1Response = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'GET',
         url: `/api/readers/${readerId}/reading-entries?topRated=true&page=1&pageSize=2`,
       });
@@ -342,6 +373,7 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
       expect(page1.pagination.hasMore).toBe(true);
 
       const page2Response = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'GET',
         url: `/api/readers/${readerId}/reading-entries?topRated=true&page=2&pageSize=2`,
       });
@@ -357,6 +389,7 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
 
     beforeEach(async () => {
       const addResponse = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'POST',
         url: `/api/readers/${readerId}/reading-entries`,
         payload: {
@@ -366,13 +399,14 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
         },
       });
 
-      const { readingEntry: entry } = JSON.parse(addResponse.body);
+      const entry = JSON.parse(addResponse.body);
       entryId = entry.id;
     });
 
     it('should reject rating for non-FINISHED book', async () => {
       // Create READING book
       const readingResponse = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'POST',
         url: `/api/readers/${readerId}/reading-entries`,
         payload: {
@@ -382,9 +416,10 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
         },
       });
 
-      const { readingEntry: reading } = JSON.parse(readingResponse.body);
+      const reading = JSON.parse(readingResponse.body);
 
       const rateResponse = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'PUT',
         url: `/api/reading-entries/${reading.id}/rating`,
         payload: {
@@ -400,7 +435,8 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
 
       for (const rating of invalidRatings) {
         const response = await app.inject({
-          method: 'PUT',
+          headers: { cookie: sessionCookie },
+        method: 'PUT',
           url: `/api/reading-entries/${entryId}/rating`,
           payload: { rating },
         });
@@ -413,6 +449,7 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
       const longNote = 'a'.repeat(2001);
 
       const response = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'PUT',
         url: `/api/reading-entries/${entryId}/rating`,
         payload: {
@@ -428,6 +465,7 @@ describe('User Story 3: Rate and Reflect on Finished Books', () => {
       const maxNote = 'a'.repeat(2000);
 
       const response = await app.inject({
+        headers: { cookie: sessionCookie },
         method: 'PUT',
         url: `/api/reading-entries/${entryId}/rating`,
         payload: {

@@ -226,14 +226,12 @@ describe('ReadingService', () => {
     let testBookId;
 
     beforeEach(async () => {
-      const book = await createBookDirect({
+      testBookId = await createBookDirect({
         title: 'Status Update Test',
         author: 'Test Author',
       });
-      testBookId = book.id;
 
-      const entry = await createReadingEntryDirect(testReaderId, testBookId, 'TO_READ');
-      testEntryId = entry.id;
+      testEntryId = await createReadingEntryDirect(testReaderId, testBookId, 'TO_READ');
 
       // Create initial transition
       await createStatusTransitionDirect(testEntryId, null, 'TO_READ');
@@ -282,17 +280,17 @@ describe('ReadingService', () => {
       ];
 
       for (const transition of validTransitions) {
-        const book = await createBookDirect({
+        const bookId = await createBookDirect({
           title: `Transition ${transition.from}-${transition.to}`,
           author: 'Test',
         });
-        const entry = await createReadingEntryDirect(
+        const entryId = await createReadingEntryDirect(
           testReaderId,
-          book.id,
+          bookId,
           transition.from
         );
 
-        const result = await ReadingService.updateStatus(testReaderId, entry.id, {
+        const result = await ReadingService.updateStatus(testReaderId, entryId, {
           newStatus: transition.to,
         });
 

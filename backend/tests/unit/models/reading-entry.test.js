@@ -13,11 +13,10 @@ describe('ReadingEntry Model', () => {
 
   beforeEach(async () => {
     testReaderId = await createTestReader();
-    const book = await createBookDirect({
+    testBookId = await createBookDirect({
       title: 'Test Book',
       author: 'Test Author',
     });
-    testBookId = book.id;
   });
 
   afterEach(async () => {
@@ -128,31 +127,31 @@ describe('ReadingEntry Model', () => {
 
       await ReadingEntry.create({
         readerId: testReaderId,
-        bookId: book1.id,
+        bookId: book1,
         status: 'TO_READ',
       });
       await ReadingEntry.create({
         readerId: testReaderId,
-        bookId: book2.id,
+        bookId: book2,
         status: 'READING',
       });
       await ReadingEntry.create({
         readerId: testReaderId,
-        bookId: book3.id,
+        bookId: book3,
         status: 'FINISHED',
       });
     });
 
     it('should find all entries for a reader', async () => {
-      const entries = await ReadingEntry.findByReader(testReaderId);
+      const result = await ReadingEntry.findByReader(testReaderId);
 
-      expect(entries).toHaveLength(3);
+      expect(result.entries).toHaveLength(3);
     });
 
     it('should include book details in results', async () => {
-      const entries = await ReadingEntry.findByReader(testReaderId);
+      const result = await ReadingEntry.findByReader(testReaderId);
 
-      expect(entries[0].book).toMatchObject({
+      expect(result.entries[0].book).toMatchObject({
         id: expect.any(String),
         title: expect.any(String),
         author: expect.any(String),
@@ -179,17 +178,17 @@ describe('ReadingEntry Model', () => {
 
       await ReadingEntry.create({
         readerId: testReaderId,
-        bookId: book1.id,
+        bookId: book1,
         status: 'READING',
       });
       await ReadingEntry.create({
         readerId: testReaderId,
-        bookId: book2.id,
+        bookId: book2,
         status: 'READING',
       });
       await ReadingEntry.create({
         readerId: testReaderId,
-        bookId: book3.id,
+        bookId: book3,
         status: 'FINISHED',
       });
     });

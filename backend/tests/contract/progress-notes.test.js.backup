@@ -101,9 +101,6 @@ describe('Progress Notes API - Contract Tests', () => {
 
     it('should create progress note without progress marker', async () => {
       const response = await app.inject({
-        headers: {
-          cookie: sessionCookie,
-        },
         method: 'POST',
         url: `/api/reading-entries/${testEntryId}/progress-notes`,
         payload: {
@@ -120,9 +117,6 @@ describe('Progress Notes API - Contract Tests', () => {
 
     it('should reject progress note with empty content', async () => {
       const response = await app.inject({
-        headers: {
-          cookie: sessionCookie,
-        },
         method: 'POST',
         url: `/api/reading-entries/${testEntryId}/progress-notes`,
         payload: {
@@ -139,9 +133,6 @@ describe('Progress Notes API - Contract Tests', () => {
       const longContent = 'a'.repeat(1001);
 
       const response = await app.inject({
-        headers: {
-          cookie: sessionCookie,
-        },
         method: 'POST',
         url: `/api/reading-entries/${testEntryId}/progress-notes`,
         payload: {
@@ -158,9 +149,6 @@ describe('Progress Notes API - Contract Tests', () => {
       const longMarker = 'a'.repeat(51);
 
       const response = await app.inject({
-        headers: {
-          cookie: sessionCookie,
-        },
         method: 'POST',
         url: `/api/reading-entries/${testEntryId}/progress-notes`,
         payload: {
@@ -178,9 +166,6 @@ describe('Progress Notes API - Contract Tests', () => {
       const fakeEntryId = '00000000-0000-0000-0000-000000000000';
 
       const response = await app.inject({
-        headers: {
-          cookie: sessionCookie,
-        },
         method: 'POST',
         url: `/api/reading-entries/${fakeEntryId}/progress-notes`,
         payload: {
@@ -195,9 +180,6 @@ describe('Progress Notes API - Contract Tests', () => {
 
     it('should include correlation ID in response', async () => {
       const response = await app.inject({
-        headers: {
-          cookie: sessionCookie,
-        },
         method: 'POST',
         url: `/api/reading-entries/${testEntryId}/progress-notes`,
         payload: {
@@ -242,9 +224,6 @@ describe('Progress Notes API - Contract Tests', () => {
 
     it('should return progress notes in chronological order (newest first)', async () => {
       const response = await app.inject({
-        headers: {
-          cookie: sessionCookie,
-        },
         method: 'GET',
         url: `/api/reading-entries/${testEntryId}/progress-notes`,
       });
@@ -271,9 +250,6 @@ describe('Progress Notes API - Contract Tests', () => {
       await pool.query('DELETE FROM progress_updates WHERE reading_entry_id = $1', [testEntryId]);
 
       const response = await app.inject({
-        headers: {
-          cookie: sessionCookie,
-        },
         method: 'GET',
         url: `/api/reading-entries/${testEntryId}/progress-notes`,
       });
@@ -288,9 +264,6 @@ describe('Progress Notes API - Contract Tests', () => {
       const fakeEntryId = '00000000-0000-0000-0000-000000000000';
 
       const response = await app.inject({
-        headers: {
-          cookie: sessionCookie,
-        },
         method: 'GET',
         url: `/api/reading-entries/${fakeEntryId}/progress-notes`,
       });
@@ -300,9 +273,6 @@ describe('Progress Notes API - Contract Tests', () => {
 
     it('should include correlation ID in response', async () => {
       const response = await app.inject({
-        headers: {
-          cookie: sessionCookie,
-        },
         method: 'GET',
         url: `/api/reading-entries/${testEntryId}/progress-notes`,
       });

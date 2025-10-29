@@ -5,6 +5,7 @@
 
 import { ReadingService } from '../../services/reading-service.js';
 import { setRatingSchema, clearRatingSchema } from '../validators/rating-schemas.js';
+import { requireReaderAccess } from '../middleware/auth.js';
 
 /**
  * Register rating routes
@@ -17,14 +18,16 @@ export default async function ratingRoutes(fastify) {
    */
   fastify.put(
     '/reading-entries/:entryId/rating',
-    { schema: setRatingSchema },
+    {
+      schema: setRatingSchema,
+      preHandler: [requireReaderAccess]
+    },
     async (request, reply) => {
       const { entryId } = request.params;
       const { rating, reflectionNote } = request.body;
 
-      // In production, extract readerId from authenticated session
-      // For now, use mock reader ID from session storage
-      const readerId = request.headers['x-reader-id'] || '00000000-0000-0000-0000-000000000001';
+      // readerId comes from requireReaderAccess middleware
+      const readerId = request.readerId;
 
       try {
         const result = await ReadingService.setRating(readerId, entryId, {
@@ -32,7 +35,10 @@ export default async function ratingRoutes(fastify) {
           reflectionNote,
         });
 
-        return reply.code(200).send(result);
+        return reply.code(200).send({
+          ...result,
+          correlationId: request.correlationId,
+        });
       } catch (error) {
         if (error.statusCode === 404) {
           return reply.code(404).send({
@@ -76,17 +82,23 @@ export default async function ratingRoutes(fastify) {
    */
   fastify.delete(
     '/reading-entries/:entryId/rating',
-    { schema: clearRatingSchema },
+    {
+      schema: clearRatingSchema,
+      preHandler: [requireReaderAccess]
+    },
     async (request, reply) => {
       const { entryId } = request.params;
 
-      // In production, extract readerId from authenticated session
-      const readerId = request.headers['x-reader-id'] || '00000000-0000-0000-0000-000000000001';
+      // readerId comes from requireReaderAccess middleware
+      const readerId = request.readerId;
 
       try {
         const result = await ReadingService.clearRating(readerId, entryId);
 
-        return reply.code(200).send(result);
+        return reply.code(200).send({
+          ...result,
+          correlationId: request.correlationId,
+        });
       } catch (error) {
         if (error.statusCode === 404) {
           return reply.code(404).send({

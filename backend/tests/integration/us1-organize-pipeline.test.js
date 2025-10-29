@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { build } from '../helpers/server-helper.js';
-import { createTestReader, cleanupTestData } from '../helpers/test-data.js';
+import { createTestReader, cleanupTestData, cleanupReaderEntries } from '../helpers/test-data.js';
 import { query } from '../../src/db/connection.js';
 
 describe('US1: Organize Reading Pipeline - Integration Test', () => {
@@ -32,7 +32,7 @@ describe('US1: Organize Reading Pipeline - Integration Test', () => {
   });
 
   beforeEach(async () => {
-    await cleanupTestData(testReaderId);
+    await cleanupReaderEntries(testReaderId);
   });
 
   it('should complete full reading journey: add → TO_READ → READING → verify transitions', async () => {

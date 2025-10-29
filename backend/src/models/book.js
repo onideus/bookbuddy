@@ -15,6 +15,20 @@ export class Book {
   static async create(bookData) {
     const { title, author, edition = null, isbn = null, coverImageUrl = null } = bookData;
 
+    // Validate field lengths
+    if (title && title.length > 500) {
+      throw new Error('Title must not exceed 500 characters');
+    }
+    if (author && author.length > 200) {
+      throw new Error('Author must not exceed 200 characters');
+    }
+    if (edition && edition.length > 100) {
+      throw new Error('Edition must not exceed 100 characters');
+    }
+    if (isbn && isbn.length > 20) {
+      throw new Error('ISBN must not exceed 20 characters');
+    }
+
     const id = uuidv4();
 
     const result = await query(
@@ -72,6 +86,20 @@ export class Book {
    * @returns {Promise<Object|null>} Updated book or null
    */
   static async update(id, updates) {
+    // Validate field lengths
+    if (updates.title && updates.title.length > 500) {
+      throw new Error('Title must not exceed 500 characters');
+    }
+    if (updates.author && updates.author.length > 200) {
+      throw new Error('Author must not exceed 200 characters');
+    }
+    if (updates.edition && updates.edition.length > 100) {
+      throw new Error('Edition must not exceed 100 characters');
+    }
+    if (updates.isbn && updates.isbn.length > 20) {
+      throw new Error('ISBN must not exceed 20 characters');
+    }
+
     const allowedFields = ['title', 'author', 'edition', 'isbn', 'cover_image_url'];
     const setClause = [];
     const values = [];

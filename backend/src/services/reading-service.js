@@ -37,11 +37,10 @@ export class ReadingService {
     const existingBook = await Book.findByTitleAuthorEdition(title, author, edition);
 
     if (existingBook) {
-      // Check if reader already has this book
-      const entries = await ReadingEntry.findByReaderAndStatus(readerId, status);
-      const duplicate = entries.find((e) => e.book.id === existingBook.id);
+      // Check if reader already has this book (regardless of status)
+      const existingEntry = await ReadingEntry.findByReaderAndBook(readerId, existingBook.id);
 
-      if (duplicate) {
+      if (existingEntry) {
         const error = new Error(
           `Book "${title}" by ${author}${edition ? ` (${edition})` : ''} already exists in your library`
         );

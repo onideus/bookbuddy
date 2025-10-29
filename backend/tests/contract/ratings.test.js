@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 describe('Rating API Contract Tests', () => {
   let app;
   let readerId;
+  let sessionCookie;
   let bookId;
   let entryId;
 
@@ -38,6 +39,14 @@ describe('Rating API Contract Tests', () => {
       [readerId]
     );
 
+    // Authenticate
+    const loginResponse = await app.inject({
+      method: 'POST',
+      url: '/api/auth/session',
+      payload: { readerId: readerId },
+    });
+    sessionCookie = loginResponse.headers['set-cookie'];
+
     // Create test book
     bookId = uuidv4();
     await query(
@@ -57,6 +66,9 @@ describe('Rating API Contract Tests', () => {
   describe('PUT /api/reading-entries/:entryId/rating', () => {
     it('should set rating and reflection for finished book', async () => {
       const response = await app.inject({
+        headers: {
+          cookie: sessionCookie,
+        },
         method: 'PUT',
         url: `/api/reading-entries/${entryId}/rating`,
         payload: {
@@ -75,6 +87,9 @@ describe('Rating API Contract Tests', () => {
 
     it('should set rating without reflection note', async () => {
       const response = await app.inject({
+        headers: {
+          cookie: sessionCookie,
+        },
         method: 'PUT',
         url: `/api/reading-entries/${entryId}/rating`,
         payload: {
@@ -98,6 +113,9 @@ describe('Rating API Contract Tests', () => {
       );
 
       const response = await app.inject({
+        headers: {
+          cookie: sessionCookie,
+        },
         method: 'PUT',
         url: `/api/reading-entries/${readingEntryId}/rating`,
         payload: {
@@ -115,6 +133,9 @@ describe('Rating API Contract Tests', () => {
 
       for (const rating of invalidRatings) {
         const response = await app.inject({
+          headers: {
+            cookie: sessionCookie,
+          },
           method: 'PUT',
           url: `/api/reading-entries/${entryId}/rating`,
           payload: {
@@ -130,6 +151,9 @@ describe('Rating API Contract Tests', () => {
       const longNote = 'a'.repeat(2001);
 
       const response = await app.inject({
+        headers: {
+          cookie: sessionCookie,
+        },
         method: 'PUT',
         url: `/api/reading-entries/${entryId}/rating`,
         payload: {
@@ -146,6 +170,9 @@ describe('Rating API Contract Tests', () => {
     it('should allow updating existing rating', async () => {
       // Set initial rating
       await app.inject({
+        headers: {
+          cookie: sessionCookie,
+        },
         method: 'PUT',
         url: `/api/reading-entries/${entryId}/rating`,
         payload: {
@@ -156,6 +183,9 @@ describe('Rating API Contract Tests', () => {
 
       // Update rating
       const response = await app.inject({
+        headers: {
+          cookie: sessionCookie,
+        },
         method: 'PUT',
         url: `/api/reading-entries/${entryId}/rating`,
         payload: {
@@ -174,6 +204,9 @@ describe('Rating API Contract Tests', () => {
       const fakeId = uuidv4();
 
       const response = await app.inject({
+        headers: {
+          cookie: sessionCookie,
+        },
         method: 'PUT',
         url: `/api/reading-entries/${fakeId}/rating`,
         payload: {
@@ -196,6 +229,9 @@ describe('Rating API Contract Tests', () => {
 
     it('should clear rating and reflection note', async () => {
       const response = await app.inject({
+        headers: {
+          cookie: sessionCookie,
+        },
         method: 'DELETE',
         url: `/api/reading-entries/${entryId}/rating`,
       });
@@ -210,6 +246,9 @@ describe('Rating API Contract Tests', () => {
       const fakeId = uuidv4();
 
       const response = await app.inject({
+        headers: {
+          cookie: sessionCookie,
+        },
         method: 'DELETE',
         url: `/api/reading-entries/${fakeId}/rating`,
       });
@@ -225,6 +264,9 @@ describe('Rating API Contract Tests', () => {
       );
 
       const response = await app.inject({
+        headers: {
+          cookie: sessionCookie,
+        },
         method: 'DELETE',
         url: `/api/reading-entries/${entryId}/rating`,
       });
@@ -263,6 +305,9 @@ describe('Rating API Contract Tests', () => {
 
     it('should return only books with rating >= 4', async () => {
       const response = await app.inject({
+        headers: {
+          cookie: sessionCookie,
+        },
         method: 'GET',
         url: `/api/readers/${readerId}/reading-entries?topRated=true`,
       });
@@ -280,6 +325,9 @@ describe('Rating API Contract Tests', () => {
 
     it('should order top rated books by rating DESC', async () => {
       const response = await app.inject({
+        headers: {
+          cookie: sessionCookie,
+        },
         method: 'GET',
         url: `/api/readers/${readerId}/reading-entries?topRated=true`,
       });
@@ -298,6 +346,9 @@ describe('Rating API Contract Tests', () => {
       await query('DELETE FROM reading_entries WHERE reader_id = $1', [readerId]);
 
       const response = await app.inject({
+        headers: {
+          cookie: sessionCookie,
+        },
         method: 'GET',
         url: `/api/readers/${readerId}/reading-entries?topRated=true`,
       });
@@ -309,6 +360,9 @@ describe('Rating API Contract Tests', () => {
 
     it('should support pagination for top rated', async () => {
       const response = await app.inject({
+        headers: {
+          cookie: sessionCookie,
+        },
         method: 'GET',
         url: `/api/readers/${readerId}/reading-entries?topRated=true&page=1&pageSize=2`,
       });
