@@ -44,3 +44,9 @@ See `specs/003-reading-goals/tasks.md` for detailed task breakdown.
 *Implementors: Append updates here*
 
 ---
+
+**Update 2025-10-30 18:54**: 4c288e1
+- [orchestration] Add multi-agent automation system
+
+**Update 2025-10-30 18:55**: dd30ed3
+- [orchestration] Improve spec ID detection in auto-status-sync
