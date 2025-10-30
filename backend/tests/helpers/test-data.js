@@ -55,10 +55,12 @@ export async function createTestBook(app, readerId, sessionCookie, bookData) {
  */
 export async function cleanupTestData(readerId = null) {
   if (readerId) {
-    // Delete reader-specific data (cascades to reading entries, progress, transitions)
+    // Delete reader-specific data (cascades to reading entries, progress, transitions, goals)
     await query('DELETE FROM reader_profiles WHERE id = $1', [readerId]);
   } else {
-    // Clean up all test data
+    // Clean up all test data (order matters for foreign key constraints)
+    await query('TRUNCATE TABLE reading_goal_progress CASCADE');
+    await query('TRUNCATE TABLE reading_goals CASCADE');
     await query('TRUNCATE TABLE status_transitions CASCADE');
     await query('TRUNCATE TABLE progress_updates CASCADE');
     await query('TRUNCATE TABLE reading_entries CASCADE');

@@ -8,16 +8,17 @@
 
 | Phase | Owner | Status | Progress |
 |-------|-------|--------|----------|
-| Setup (T001-T004) | Implementor-A | 🟢 complete | 4/4 |
-| Foundational (T005-T009) | All | 🟡 in progress | 3/5 |
-| US1 Models (T010-T019) | Implementor-A | 🔵 pending | 0/10 |
-| US1 Services (T020-T029) | Implementor-B | 🔵 pending | 0/10 |
-| US1 Frontend (T030-T044) | Implementor-C | 🟢 complete | 7/15 |
+| Setup (T001-T006) | Implementor-A | 🟢 complete | 6/6 |
+| Foundational (T007-T009) | All | 🟡 in progress | 1/3 |
+| US1 Models (T010-T019) | Implementor-A | 🟢 complete | 10/10 |
+| US1 Services (T020-T029) | Implementor-B | 🟡 in progress | 4/10 |
+| US1 Frontend (T030-T044) | Implementor-C | 🔵 pending | 0/15 |
 
 ## Status Updates
 
 ### Implementor-A (Data Layer)
 - Implementor-A → afeb7e9 — Phase 1 Setup complete: migration & models created, database verified (T001-T006)
+- Implementor-A → [pending commit] — Phase 2-3 Data: GoalProgressService created (T007), model tests written (T010-T012), service methods implemented (T020-T023)
 
 ### Implementor-B (API Layer)
 *Append status updates here*
