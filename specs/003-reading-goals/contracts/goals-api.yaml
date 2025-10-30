@@ -1,0 +1,489 @@
+openapi: 3.0.3
+info:
+  title: BookBuddy Reading Goals API
+  description: API for managing time-bound reading challenges and tracking progress
+  version: 1.0.0
+  contact:
+    name: BookBuddy Team
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+  - url: https://api.bookbuddy.app
+    description: Production server
+
+tags:
+  - name: goals
+    description: Reading goal management operations
+
+paths:
+  /goals:
+    get:
+      summary: List user's reading goals
+      description: Retrieve all reading goals for the authenticated user, including active, completed, and expired goals
+      operationId: listGoals
+      tags:
+        - goals
+      parameters:
+        - name: status
+          in: query
+          description: Filter goals by status
+          required: false
+          schema:
+            type: string
+            enum: [active, completed, expired]
+        - name: limit
+          in: query
+          description: Maximum number of goals to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: offset
+          in: query
+          description: Number of goals to skip for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: List of goals retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  goals:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Goal'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Create a new reading goal
+      description: Create a new time-bound reading challenge for the authenticated user
+      operationId: createGoal
+      tags:
+        - goals
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGoalRequest'
+      responses:
+        '201':
+          description: Goal created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Goal'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /goals/{goalId}:
+    get:
+      summary: Get goal details
+      description: Retrieve detailed information about a specific reading goal, including progress history
+      operationId: getGoal
+      tags:
+        - goals
+      parameters:
+        - $ref: '#/components/parameters/GoalId'
+      responses:
+        '200':
+          description: Goal retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoalDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      summary: Update goal
+      description: Update an active goal's parameters (target count or deadline). Only active goals can be edited.
+      operationId: updateGoal
+      tags:
+        - goals
+      parameters:
+        - $ref: '#/components/parameters/GoalId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGoalRequest'
+      responses:
+        '200':
+          description: Goal updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Goal'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Forbidden - Cannot edit completed or expired goals
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Cannot edit completed or expired goals"
+                code: "GOAL_NOT_EDITABLE"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: Delete goal
+      description: Permanently delete a reading goal and all associated progress tracking
+      operationId: deleteGoal
+      tags:
+        - goals
+      parameters:
+        - $ref: '#/components/parameters/GoalId'
+      responses:
+        '204':
+          description: Goal deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /goals/{goalId}/progress:
+    get:
+      summary: Get goal progress history
+      description: Retrieve the list of books that counted toward this goal
+      operationId: getGoalProgress
+      tags:
+        - goals
+      parameters:
+        - $ref: '#/components/parameters/GoalId'
+      responses:
+        '200':
+          description: Progress history retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  goalId:
+                    type: string
+                    format: uuid
+                  books:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GoalProgressEntry'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  parameters:
+    GoalId:
+      name: goalId
+      in: path
+      required: true
+      description: Unique identifier for the reading goal
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    Goal:
+      type: object
+      required:
+        - id
+        - userId
+        - name
+        - targetCount
+        - progressCount
+        - bonusCount
+        - status
+        - progressPercentage
+        - deadlineAtUtc
+        - deadlineTimezone
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique goal identifier
+        userId:
+          type: string
+          format: uuid
+          description: Goal owner's user ID
+        name:
+          type: string
+          maxLength: 255
+          description: User-defined goal name
+          example: "Summer Reading Challenge"
+        targetCount:
+          type: integer
+          minimum: 1
+          maximum: 9999
+          description: Number of books to read
+          example: 10
+        progressCount:
+          type: integer
+          minimum: 0
+          description: Books completed toward goal
+          example: 7
+        bonusCount:
+          type: integer
+          minimum: 0
+          description: Books completed beyond target
+          example: 0
+        status:
+          type: string
+          enum: [active, completed, expired]
+          description: Current goal state
+          example: "active"
+        progressPercentage:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Progress percentage (capped at 100%)
+          example: 70
+        deadlineAtUtc:
+          type: string
+          format: date-time
+          description: Goal deadline in UTC
+          example: "2025-12-31T23:59:59Z"
+        deadlineTimezone:
+          type: string
+          description: IANA timezone for deadline
+          example: "America/New_York"
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when goal reached target (null if incomplete)
+          example: "2025-11-15T14:30:00Z"
+        createdAt:
+          type: string
+          format: date-time
+          description: Goal creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last modification timestamp
+
+    GoalDetail:
+      allOf:
+        - $ref: '#/components/schemas/Goal'
+        - type: object
+          properties:
+            books:
+              type: array
+              description: Books that counted toward this goal
+              items:
+                $ref: '#/components/schemas/GoalProgressEntry'
+
+    GoalProgressEntry:
+      type: object
+      required:
+        - bookId
+        - readingEntryId
+        - appliedAt
+      properties:
+        bookId:
+          type: string
+          format: uuid
+          description: Book identifier
+        readingEntryId:
+          type: string
+          format: uuid
+          description: Reading entry identifier
+        bookTitle:
+          type: string
+          description: Book title (joined from books table)
+          example: "The Great Gatsby"
+        bookAuthor:
+          type: string
+          description: Book author (joined from books table)
+          example: "F. Scott Fitzgerald"
+        appliedAt:
+          type: string
+          format: date-time
+          description: When book was counted toward goal
+        appliedFromState:
+          type: string
+          enum: [active, completed, expired]
+          nullable: true
+          description: Goal status when book was applied
+
+    CreateGoalRequest:
+      type: object
+      required:
+        - name
+        - targetCount
+        - daysFromNow
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: User-defined goal name
+          example: "Summer Reading Challenge"
+        targetCount:
+          type: integer
+          minimum: 1
+          maximum: 9999
+          description: Number of books to read
+          example: 10
+        daysFromNow:
+          type: integer
+          minimum: 1
+          maximum: 3650
+          description: Goal timeframe in days from now
+          example: 30
+        timezone:
+          type: string
+          description: User's IANA timezone (defaults to user profile timezone if not provided)
+          example: "America/New_York"
+
+    UpdateGoalRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Updated goal name
+        targetCount:
+          type: integer
+          minimum: 1
+          maximum: 9999
+          description: Updated target count
+        daysToAdd:
+          type: integer
+          minimum: 1
+          maximum: 365
+          description: Number of days to extend deadline (relative to current deadline)
+      minProperties: 1
+      description: At least one field must be provided
+
+    Pagination:
+      type: object
+      required:
+        - total
+        - limit
+        - offset
+      properties:
+        total:
+          type: integer
+          description: Total number of goals matching filter
+        limit:
+          type: integer
+          description: Maximum number of goals returned
+        offset:
+          type: integer
+          description: Number of goals skipped
+        hasMore:
+          type: boolean
+          description: Whether more goals exist beyond current page
+
+    Error:
+      type: object
+      required:
+        - error
+        - code
+      properties:
+        error:
+          type: string
+          description: Human-readable error message
+        code:
+          type: string
+          description: Machine-readable error code
+        details:
+          type: object
+          description: Additional error context (validation errors, field-specific messages)
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters or validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            ValidationError:
+              value:
+                error: "Validation failed"
+                code: "VALIDATION_ERROR"
+                details:
+                  targetCount: "Target count must be a positive integer"
+                  daysFromNow: "Days must be at least 1"
+            PastDeadline:
+              value:
+                error: "Goal deadline must be in the future"
+                code: "PAST_DEADLINE"
+
+    Unauthorized:
+      description: Authentication required or invalid credentials
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Authentication required"
+            code: "UNAUTHORIZED"
+
+    NotFound:
+      description: Resource not found or user lacks access
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Goal not found"
+            code: "NOT_FOUND"
+
+    InternalServerError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Internal server error"
+            code: "INTERNAL_ERROR"
+
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: sessionId
+      description: Session-based authentication via cookie
+
+security:
+  - sessionAuth: []

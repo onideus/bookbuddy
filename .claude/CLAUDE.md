@@ -1,4 +1,41 @@
-# Project: [Your Project Name]
+# Project: BookBuddy
+
+## Agent Role Detection
+
+**Check role on session startup:**
+
+```bash
+if [ -f .claude/agent-role.local ]; then
+  export AGENT_ROLE=$(cat .claude/agent-role.local)
+  echo "🤖 Agent Role: $AGENT_ROLE"
+else
+  export AGENT_ROLE="single-agent"
+  echo "ℹ️ Running in single-agent mode (no role assigned)"
+fi
+```
+
+**Available Roles:**
+- `overseer` - Coordinates, reviews, integrates
+- `implementor-a` - Data layer (database, models)
+- `implementor-b` - API layer (endpoints, services)
+- `implementor-c` - UI layer (components, pages)
+- `single-agent` - Default (no multi-agent coordination)
+
+**To set your role, create** `.claude/agent-role.local` (gitignored):
+```bash
+echo "overseer" > .claude/agent-role.local
+# or: implementor-a, implementor-b, implementor-c
+```
+
+**Role-Specific Behavior:**
+- **Overseer**: Focus on coordination, PR reviews, integration testing, state management
+- **Implementors**: Focus on assigned work items, keep status updated, create PRs to overseer branch
+- **Single-Agent**: Standard Claude Code behavior (no coordination overhead)
+
+See `CLAUDE.md` (root) for full multi-agent coordination architecture.
+See `.specify/agents.md` for detailed per-role runbooks.
+
+---
 
 ## Multi-Agent Strategy: Claude + Codex Collaboration
 

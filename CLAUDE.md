@@ -6,6 +6,8 @@ Auto-generated from all feature plans. Last updated: 2025-10-25
 - JavaScript ES2022+, Node.js 20+ LTS + Fastify (web framework), ioredis (Redis client), opossum (circuit breaker), axios/got (HTTP client with retry), fuzzball/string-similarity (fuzzy matching) (001-book-api-search)
 - PostgreSQL (existing) + Redis (Docker Compose orchestrated) + pg_trgm extension for fuzzy text search (001-book-api-search)
 - PostgreSQL 15+ (books, reading entries, progress updates, status history, reader profiles) (001-book-api-search)
+- JavaScript ES2022+, Node.js 20 LTS + Fastify 4.x (web framework), pg 8.x (PostgreSQL client), vitest (testing) (003-reading-goals)
+- PostgreSQL 15+ (existing: books, reading_entries, users; new: reading_goals, reading_goal_progress) (003-reading-goals)
 
 - JavaScript (ES2022+) for frontend and backend, Node.js 20+ LTS for server runtime (001-track-reading)
 
@@ -25,9 +27,9 @@ npm test && npm run lint
 JavaScript (ES2022+) for frontend and backend, Node.js 20+ LTS for server runtime: Follow standard conventions
 
 ## Recent Changes
+- 003-reading-goals: Added JavaScript ES2022+, Node.js 20 LTS + Fastify 4.x (web framework), pg 8.x (PostgreSQL client), vitest (testing)
 - 002-book-api-search: Added JavaScript ES2022+, Node.js 20+ LTS + Fastify (web framework), ioredis (Redis client), opossum (circuit breaker), axios/got (HTTP client with retry), fuzzball/string-similarity (fuzzy matching)
 - 001-book-api-search: Added JavaScript (ES2022+) for frontend and backend, Node.js 20+ LTS for server runtime
-- 001-book-api-search: Added JavaScript ES2022+, Node.js 20+ LTS + Fastify (web framework), ioredis (Redis client), opossum (circuit breaker), axios/got (HTTP client with retry), fuzzball/string-similarity (fuzzy matching)
 
 
 <!-- MANUAL ADDITIONS START -->
@@ -171,4 +173,204 @@ Claude Code should have these permissions for Codex integration:
   ]
 }
 ```
+
+---
+
+# Multi-Agent Coordination Architecture
+
+This project supports **parallel development** with 4 Claude Code instances working on the same feature:
+- **1 Overseer** - Coordinates, reviews, integrates
+- **3 Implementors** - Parallel execution on different work areas
+
+## Agent Role Detection
+
+Each Claude instance identifies its role via environment or local configuration:
+- Check `.claude/agent-role.local` (gitignored) for `AGENT_ROLE=overseer|implementor-a|implementor-b|implementor-c`
+- If not set, prompt user or default to single-agent mode
+
+## Documentation Structure
+
+**High-Level Coordination** (this file):
+- Agent roles and responsibilities
+- Branching rules
+- Communication expectations
+
+**Detailed Runbooks** (`.specify/agents.md`):
+- Per-role checklists
+- Slash commands for coordination
+- Task assignment protocols
+- See: `.specify/agents.md` (referenced below)
+
+**Local Overrides** (`.claude/CLAUDE.md`):
+- Developer-specific settings
+- NOT version controlled
+
+## Git Branching Strategy
+
+### Branch Hierarchy
+```
+main
+  └─ feature/<spec-id>/overseer  ← Integration branch (Overseer)
+      ├─ feature/<spec-id>/impl-data     ← Implementor A
+      ├─ feature/<spec-id>/impl-ui       ← Implementor B
+      └─ feature/<spec-id>/impl-api      ← Implementor C
+```
+
+### Branch Rules
+1. **Overseer** creates `feature/<spec-id>/overseer` from `main`
+2. **Implementors** branch from overseer branch using `feature/<spec-id>/impl-<area>`
+3. **Integration**: Implementors PR to overseer branch (fast-forward merge preferred)
+4. **Final Merge**: Only overseer branch merges to `main`
+5. **Multi-Spec**: Use prefix `rel-<N>/feature/...` for parallel sprints
+
+### Branch Operations
+```bash
+# Overseer creates integration branch
+git checkout main
+git checkout -b feature/003-auth/overseer
+
+# Implementor branches from overseer
+git checkout feature/003-auth/overseer
+git checkout -b feature/003-auth/impl-data
+
+# Implementor stays synced
+git fetch origin
+git rebase origin/feature/003-auth/overseer
+```
+
+## Task Decomposition Format
+
+Tasks are defined in `.specify/tasks.md` with explicit agent ownership:
+
+```markdown
+## 003-auth — User Authentication System
+- Overseer: overseer-claude — Status: 🟡 in-progress
+- Integration Branch: feature/003-auth/overseer
+
+### Work Items
+1. [ ] Database schema and migrations — Owner: Implementor-A — Branch: feature/003-auth/impl-data — Deps: none
+2. [ ] Auth API endpoints — Owner: Implementor-B — Branch: feature/003-auth/impl-api — Deps: #1
+3. [ ] Login UI components — Owner: Implementor-C — Branch: feature/003-auth/impl-ui — Deps: #2
+
+### Status Updates
+- Implementor-A → abc1234 — migrations complete, tests passing
+- Implementor-B → pending — blocked on #1
+- Implementor-C → def5678 — UI mocks ready
+
+### Integration Notes
+- Risk: Session storage decision pending (Redis vs PG)
+- Blocker: None currently
+```
+
+## Inter-Agent Communication Protocol
+
+### Daily Async Updates
+1. **Implementors**: Push code + append one-line status to tasks.md
+2. **Overseer**: Review updates, acknowledge with initials, resolve blockers
+3. **Frequency**: At least once per work session
+
+### Escalation Protocol
+- Use `@Overseer` or `@Implementor-X` tags inline in tasks.md
+- Overseer responds within same session or marks for sync discussion
+- Urgent: Create `BLOCKER` section in tasks.md
+
+### Commit Message Format
+```
+[Spec-ID] Brief description
+
+Longer explanation if needed.
+
+Agent: implementor-a
+```
+
+### PR Titles
+```
+[003-auth] Add database migrations for user auth
+```
+
+## Integration Workflow
+
+### Phase 1: Overseer Setup
+1. Validate spec in `.specify/spec.md`
+2. Run `/speckit.tasks` to generate task decomposition
+3. Create overseer branch
+4. Assign work items to implementors in tasks.md
+5. Scaffold integration tests/stubs
+6. Push overseer branch
+
+### Phase 2: Parallel Implementation
+1. **Implementors**:
+   - Pull latest overseer branch
+   - Create impl branch
+   - Implement assigned work items
+   - Run local tests
+   - Open draft PR to overseer branch
+   - Rebase daily on overseer branch
+   - Update status in tasks.md
+
+2. **Overseer**:
+   - Monitor PRs and status updates
+   - Run integration tests on implementor branches
+   - Request changes if needed
+   - Squash-merge approved PRs
+   - Update tasks.md with merge commits
+
+### Phase 3: Final Integration
+1. Overseer runs full test suite from overseer branch
+2. Update changelog
+3. Merge overseer branch to main
+4. Archive completed spec to `.specify/completed/`
+5. Tag release: `git tag -a spec-003-merged -m "Auth system complete"`
+
+## State Management
+
+### Overseer State (`state/overseer.md`)
+```markdown
+# Overseer State: Feature 003-auth
+
+## Branch Status
+| Branch | Owner | Status | Last Update | Tests |
+|--------|-------|--------|-------------|-------|
+| impl-data | Implementor-A | 🟢 merged | 2025-10-30 | ✅ |
+| impl-api | Implementor-B | 🟡 in-progress | 2025-10-30 | ⏳ |
+| impl-ui | Implementor-C | 🟢 merged | 2025-10-30 | ✅ |
+
+## Known Blockers
+- None
+
+## Integration Test Results
+Last run: 2025-10-30 14:30
+Status: 12/15 passing (3 pending impl-api completion)
+```
+
+### Implementor State (`state/impl-<area>.md`)
+- Debugging breadcrumbs
+- Local test commands
+- Fixture data notes
+- **Discarded before merge** to reduce noise
+
+### Milestone Tags
+```bash
+# Overseer tags checkpoints
+git tag -a spec-003-ready -m "Ready for testing"
+git tag -a spec-003-merged -m "Merged to main"
+```
+
+## Coordination Scripts
+
+See `.specify/agents.md` for:
+- Automated branch creation
+- Status update helpers
+- Integration test runners
+- Conflict resolution guides
+
+## Weekly Housekeeping (Overseer)
+
+1. Archive completed task sections to `.specify/completed.md`
+2. Prune merged branches after confirmation
+3. Reset state files for next cycle
+4. Update this documentation if coordination patterns change
+
+---
+
 <!-- MANUAL ADDITIONS END -->

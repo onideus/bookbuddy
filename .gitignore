@@ -45,3 +45,7 @@ Thumbs.db
 
 # Vibe Logs
 vibe-log*
+
+# Multi-agent state files (implementor-local only)
+state/impl-*.md
+.claude/agent-role.local
