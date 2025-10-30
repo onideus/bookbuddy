@@ -34,16 +34,40 @@ get_agent_role() {
     fi
 }
 
-# Extract spec ID from current branch
+# Extract spec ID from current branch or event store
 get_spec_id() {
     local current_branch
     current_branch="$(git branch --show-current)"
 
+    # Try pattern matching first
     if [[ "$current_branch" =~ feature/([^/]+) ]]; then
         echo "${BASH_REMATCH[1]}"
-    else
-        echo ""
+        return 0
     fi
+
+    # If that fails, try querying event store
+    local event_db="$PROJECT_ROOT/.orchestrator/events.db"
+    if [[ -f "$event_db" ]]; then
+        # Query event store for feature matching this branch
+        local spec_id
+        spec_id=$(sqlite3 "$event_db" "
+            SELECT f.spec_id
+            FROM features f
+            JOIN agents a ON f.id = a.feature_id
+            WHERE a.branch_name = '$current_branch'
+            AND f.status = 'in-progress'
+            LIMIT 1;
+        " 2>/dev/null)
+
+        if [[ -n "$spec_id" ]]; then
+            echo "$spec_id"
+            return 0
+        fi
+    fi
+
+    # No spec ID found
+    echo ""
+    return 1
 }
 
 # Update tasks.md with latest commit info
