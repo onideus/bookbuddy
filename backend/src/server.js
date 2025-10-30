@@ -13,6 +13,7 @@ import { configureSession } from './api/middleware/session.js';
 import { configureRateLimit } from './api/middleware/rate-limit.js';
 import { errorHandler, notFoundHandler } from './api/middleware/error-handler.js';
 import { closePool } from './db/connection.js';
+import { connectRedis, disconnectRedis } from './services/redis-client.js';
 
 // Validate configuration
 validateConfig();
@@ -59,11 +60,13 @@ async function registerPlugins() {
   const readingEntriesRoutes = await import('./api/routes/reading-entries.js');
   const progressNotesRoutes = await import('./api/routes/progress-notes.js');
   const ratingsRoutes = await import('./api/routes/ratings.js');
+  const bookSearchRoutes = await import('./api/routes/book-search.js');
 
   await fastify.register(authRoutes.default, { prefix: '/api' });
   await fastify.register(readingEntriesRoutes.default, { prefix: '/api' });
   await fastify.register(progressNotesRoutes.default, { prefix: '/api' });
   await fastify.register(ratingsRoutes.default, { prefix: '/api' });
+  await fastify.register(bookSearchRoutes.default, { prefix: '' });
 
   // 404 handler
   fastify.setNotFoundHandler(notFoundHandler);
@@ -75,6 +78,9 @@ async function registerPlugins() {
 // Start server
 async function start() {
   try {
+    // Connect to Redis
+    await connectRedis();
+
     await registerPlugins();
 
     await fastify.listen({
@@ -98,6 +104,7 @@ async function shutdown(signal) {
   try {
     await fastify.close();
     await closePool();
+    await disconnectRedis();
     logger.info('Server and database connections closed');
     process.exit(0);
   } catch (err) {

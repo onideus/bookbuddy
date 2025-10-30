@@ -7,12 +7,20 @@ import { migrate } from 'postgres-migrations';
 import { Pool } from 'pg';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { existsSync } from 'fs';
+import dotenv from 'dotenv';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Load .env file
+const envPath = join(__dirname, '../../.env');
+if (existsSync(envPath)) {
+  dotenv.config({ path: envPath });
+}
+
 // Get database URL from environment
-const DATABASE_URL = process.env.DATABASE_URL ||'postgresql://localhost:5432/bookbuddy_dev';
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://localhost:5432/bookbuddy_dev';
 
 // Create database connection pool
 const pool = new Pool({
