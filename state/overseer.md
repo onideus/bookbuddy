@@ -50,3 +50,12 @@ See `specs/003-reading-goals/tasks.md` for detailed task breakdown.
 
 **Update 2025-10-30 18:55**: dd30ed3
 - [orchestration] Improve spec ID detection in auto-status-sync
+
+**Update 2025-10-30 18:57**: 9e79035
+- updated md docs to better align with strategy
+
+**Update 2025-10-30 19:18**: 9e79035
+- updated md docs to better align with strategy
+
+**Update 2025-10-30 19:22**: 93a8340
+- [orchestration] Add branch-agnostic feature tracking
