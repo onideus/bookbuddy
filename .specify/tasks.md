@@ -8,8 +8,8 @@
 
 | Phase | Owner | Status | Progress |
 |-------|-------|--------|----------|
-| Setup (T001-T004) | Implementor-A | 🔵 pending | 0/4 |
-| Foundational (T005-T009) | All | 🔵 pending | 0/5 |
+| Setup (T001-T004) | Implementor-A | 🟢 complete | 4/4 |
+| Foundational (T005-T009) | All | 🟡 in progress | 2/5 |
 | US1 Models (T010-T019) | Implementor-A | 🔵 pending | 0/10 |
 | US1 Services (T020-T029) | Implementor-B | 🔵 pending | 0/10 |
 | US1 Frontend (T030-T044) | Implementor-C | 🔵 pending | 0/15 |
@@ -17,7 +17,7 @@
 ## Status Updates
 
 ### Implementor-A (Data Layer)
-*Append status updates here in format: `- Implementor-A → <commit> — <status>`*
+- Implementor-A → afeb7e9 — Phase 1 Setup complete: migration & models created, database verified (T001-T006)
 
 ### Implementor-B (API Layer)
 *Append status updates here*
