@@ -37,11 +37,11 @@ get_agent_role() {
 
   if [[ "$dir_name" =~ ^overseer ]]; then
     echo "overseer"
-  elif [[ "$dir_name" =~ ^implementor-one ]]; then
+  elif [[ "$dir_name" =~ ^implementor-a ]]; then
     echo "implementor-a"
-  elif [[ "$dir_name" =~ ^implementor-two ]]; then
+  elif [[ "$dir_name" =~ ^implementor-b ]]; then
     echo "implementor-b"
-  elif [[ "$dir_name" =~ ^implementor-three ]]; then
+  elif [[ "$dir_name" =~ ^implementor-c ]]; then
     echo "implementor-c"
   else
     echo "single-agent"
@@ -107,8 +107,8 @@ echo -e "${GREEN}✓ All agents synced successfully!${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 echo -e "${BLUE}Agent Role Mapping:${NC}"
-echo -e "  overseer_*        → overseer"
-echo -e "  implementor-one_* → implementor-a"
-echo -e "  implementor-two_* → implementor-b"
-echo -e "  implementor-three_* → implementor-c"
+echo -e "  overseer_*          → overseer"
+echo -e "  implementor-a_*     → implementor-a"
+echo -e "  implementor-b_*     → implementor-b"
+echo -e "  implementor-c_*     → implementor-c"
 echo ""
