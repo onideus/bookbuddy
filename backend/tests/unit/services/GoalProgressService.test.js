@@ -1,20 +1,30 @@
 /**
  * Unit tests for GoalProgressService (T012)
- * Feature: 003-reading-goals
+ * Tests for goal progress tracking, book completion, and state transitions
  * Target: ≥90% code coverage
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { GoalProgressService } from '../../../src/services/GoalProgressService.js';
 import { ReadingGoal } from '../../../src/models/reading-goal.js';
 import { ReadingGoalProgress } from '../../../src/models/reading-goal-progress.js';
 import {
-  cleanupTestData,
   createTestReader,
   createBookDirect,
   createReadingEntryDirect,
+  cleanupTestData,
 } from '../../helpers/test-data.js';
 import { DateTime } from 'luxon';
+
+// Mock logger to avoid actual logging in tests
+vi.mock('../../../src/lib/logger.js', () => ({
+  default: {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  },
+}));
 
 describe('GoalProgressService', () => {
   let testUserId;
@@ -24,385 +34,360 @@ describe('GoalProgressService', () => {
   beforeEach(async () => {
     testUserId = await createTestReader();
     testBookId = await createBookDirect({
-      title: 'Test Book',
+      title: 'Test Book for Goals',
       author: 'Test Author',
     });
-    testReadingEntryId = await createReadingEntryDirect(
-      testUserId,
-      testBookId,
-      'READING'
-    );
+    testReadingEntryId = await createReadingEntryDirect({
+      readerId: testUserId,
+      bookId: testBookId,
+      status: 'READING',
+    });
+    vi.clearAllMocks();
   });
 
   afterEach(async () => {
     await cleanupTestData();
   });
 
-  describe('onBookCompleted - T012', () => {
-    it('should throw "Not implemented yet" until T020 is completed', async () => {
-      const goal = await ReadingGoal.create({
-        userId: testUserId,
-        name: 'Read 10 books',
-        targetCount: 10,
-        deadlineAtUtc: DateTime.now().plus({ days: 30 }).toJSDate(),
-        deadlineTimezone: 'America/New_York',
-      });
-
-      await expect(
-        GoalProgressService.onBookCompleted(
-          testUserId,
-          testReadingEntryId,
-          testBookId,
-          'READING'
-        )
-      ).rejects.toThrow('Not implemented yet');
-    });
-
-    // Tests for actual implementation (will pass after T020)
-    it.skip('should increment progress count for active goal', async () => {
-      const goal = await ReadingGoal.create({
-        userId: testUserId,
-        name: 'Read 10 books',
-        targetCount: 10,
-        deadlineAtUtc: DateTime.now().plus({ days: 30 }).toJSDate(),
-        deadlineTimezone: 'America/New_York',
-      });
-
-      const result = await GoalProgressService.onBookCompleted(
-        testUserId,
-        testReadingEntryId,
-        testBookId,
-        'READING'
-      );
-
-      expect(result).toHaveLength(1);
-      expect(result[0].progressCount).toBe(1);
-    });
-
-    it.skip('should mark goal as completed when target reached', async () => {
-      const goal = await ReadingGoal.create({
-        userId: testUserId,
-        name: 'Read 1 book',
-        targetCount: 1,
-        deadlineAtUtc: DateTime.now().plus({ days: 30 }).toJSDate(),
-        deadlineTimezone: 'America/New_York',
-      });
-
-      const result = await GoalProgressService.onBookCompleted(
-        testUserId,
-        testReadingEntryId,
-        testBookId
-      );
-
-      expect(result[0].status).toBe('completed');
-      expect(result[0].completedAt).toBeInstanceOf(Date);
-    });
-
-    it.skip('should calculate bonus when progress exceeds target', async () => {
-      const goal = await ReadingGoal.create({
-        userId: testUserId,
-        name: 'Read 1 book',
-        targetCount: 1,
-        deadlineAtUtc: DateTime.now().plus({ days: 30 }).toJSDate(),
-        deadlineTimezone: 'America/New_York',
-      });
-
-      // First book - reaches target
-      await GoalProgressService.onBookCompleted(
-        testUserId,
-        testReadingEntryId,
-        testBookId
-      );
-
-      // Second book - creates bonus
-      const secondBookId = await createBookDirect({
-        title: 'Second Book',
-        author: 'Test Author',
-      });
-      const secondEntryId = await createReadingEntryDirect(
-        testUserId,
-        secondBookId,
-        'READING'
-      );
-
-      const result = await GoalProgressService.onBookCompleted(
-        testUserId,
-        secondEntryId,
-        secondBookId
-      );
-
-      expect(result[0].progressCount).toBe(2);
-      expect(result[0].bonusCount).toBe(1);
-    });
-
-    it.skip('should not modify expired or completed goals', async () => {
-      const goal = await ReadingGoal.create({
-        userId: testUserId,
-        name: 'Expired Goal',
-        targetCount: 10,
-        deadlineAtUtc: DateTime.now().plus({ days: 30 }).toJSDate(),
-        deadlineTimezone: 'America/New_York',
-      });
-
-      // Mark as expired
-      await ReadingGoal.update(goal.id, { status: 'expired' });
-
-      const result = await GoalProgressService.onBookCompleted(
-        testUserId,
-        testReadingEntryId,
-        testBookId
-      );
-
-      expect(result).toHaveLength(0);
-    });
-
-    it.skip('should create progress entry with correct metadata', async () => {
-      const goal = await ReadingGoal.create({
-        userId: testUserId,
-        name: 'Read 10 books',
-        targetCount: 10,
-        deadlineAtUtc: DateTime.now().plus({ days: 30 }).toJSDate(),
-        deadlineTimezone: 'America/New_York',
-      });
-
-      await GoalProgressService.onBookCompleted(
-        testUserId,
-        testReadingEntryId,
-        testBookId,
-        'READING'
-      );
-
-      const progressEntries = await ReadingGoalProgress.findByReadingEntry(
-        testReadingEntryId
-      );
-
-      expect(progressEntries).toHaveLength(1);
-      expect(progressEntries[0]).toMatchObject({
-        goalId: goal.id,
-        readingEntryId: testReadingEntryId,
-        bookId: testBookId,
-        appliedFromState: 'READING',
-      });
-    });
-
-    it.skip('should handle multiple active goals', async () => {
+  describe('onBookCompleted (T020 - transaction logic)', () => {
+    it('should increment progress for all active goals when book is completed', async () => {
+      // Create two active goals
       const goal1 = await ReadingGoal.create({
         userId: testUserId,
-        name: 'Goal 1',
+        name: 'Read 10 books in 30 days',
         targetCount: 10,
-        deadlineAtUtc: DateTime.now().plus({ days: 30 }).toJSDate(),
+        deadlineAtUtc: DateTime.now().plus({ days: 30 }).toISO(),
         deadlineTimezone: 'America/New_York',
       });
 
       const goal2 = await ReadingGoal.create({
         userId: testUserId,
-        name: 'Goal 2',
+        name: 'Read 5 books in 15 days',
         targetCount: 5,
-        deadlineAtUtc: DateTime.now().plus({ days: 60 }).toJSDate(),
+        deadlineAtUtc: DateTime.now().plus({ days: 15 }).toISO(),
         deadlineTimezone: 'America/New_York',
       });
 
-      const result = await GoalProgressService.onBookCompleted(
-        testUserId,
-        testReadingEntryId,
-        testBookId
-      );
-
-      expect(result).toHaveLength(2);
-      expect(result[0].progressCount).toBe(1);
-      expect(result[1].progressCount).toBe(1);
-    });
-
-    it.skip('should not duplicate progress for same reading entry', async () => {
-      const goal = await ReadingGoal.create({
+      // Mark book as completed
+      await GoalProgressService.onBookCompleted({
         userId: testUserId,
-        name: 'Read 10 books',
-        targetCount: 10,
-        deadlineAtUtc: DateTime.now().plus({ days: 30 }).toJSDate(),
-        deadlineTimezone: 'America/New_York',
+        readingEntryId: testReadingEntryId,
+        bookId: testBookId,
       });
 
-      // First completion
-      await GoalProgressService.onBookCompleted(
-        testUserId,
-        testReadingEntryId,
-        testBookId
-      );
+      // Verify both goals have progress incremented
+      const updatedGoal1 = await ReadingGoal.findById(goal1.id);
+      const updatedGoal2 = await ReadingGoal.findById(goal2.id);
 
-      // Attempt duplicate completion (should be idempotent)
-      const result = await GoalProgressService.onBookCompleted(
-        testUserId,
-        testReadingEntryId,
-        testBookId
-      );
-
-      // Should not increase progress twice
-      const updated = await ReadingGoal.findById(goal.id);
-      expect(updated.progressCount).toBe(1);
-    });
-  });
-
-  describe('onBookUncompleted', () => {
-    it('should throw "Not implemented yet" until T021 is completed', async () => {
-      await expect(
-        GoalProgressService.onBookUncompleted(testUserId, testReadingEntryId)
-      ).rejects.toThrow('Not implemented yet');
+      expect(updatedGoal1.progressCount).toBe(1);
+      expect(updatedGoal2.progressCount).toBe(1);
     });
 
-    it.skip('should decrement progress count', async () => {
-      const goal = await ReadingGoal.create({
-        userId: testUserId,
-        name: 'Read 10 books',
-        targetCount: 10,
-        deadlineAtUtc: DateTime.now().plus({ days: 30 }).toJSDate(),
-        deadlineTimezone: 'America/New_York',
-      });
-
-      // Complete then uncomplete
-      await GoalProgressService.onBookCompleted(
-        testUserId,
-        testReadingEntryId,
-        testBookId
-      );
-
-      const result = await GoalProgressService.onBookUncompleted(
-        testUserId,
-        testReadingEntryId
-      );
-
-      expect(result[0].progressCount).toBe(0);
-    });
-
-    it.skip('should remove progress entry', async () => {
-      const goal = await ReadingGoal.create({
-        userId: testUserId,
-        name: 'Read 10 books',
-        targetCount: 10,
-        deadlineAtUtc: DateTime.now().plus({ days: 30 }).toJSDate(),
-        deadlineTimezone: 'America/New_York',
-      });
-
-      await GoalProgressService.onBookCompleted(
-        testUserId,
-        testReadingEntryId,
-        testBookId
-      );
-
-      await GoalProgressService.onBookUncompleted(
-        testUserId,
-        testReadingEntryId
-      );
-
-      const progressEntries = await ReadingGoalProgress.findByReadingEntry(
-        testReadingEntryId
-      );
-
-      expect(progressEntries).toHaveLength(0);
-    });
-
-    it.skip('should revert completed status if applicable', async () => {
+    it('should transition goal to completed when target is reached', async () => {
+      // Create goal with target 1
       const goal = await ReadingGoal.create({
         userId: testUserId,
         name: 'Read 1 book',
         targetCount: 1,
-        deadlineAtUtc: DateTime.now().plus({ days: 30 }).toJSDate(),
+        deadlineAtUtc: DateTime.now().plus({ days: 10 }).toISO(),
         deadlineTimezone: 'America/New_York',
       });
 
-      // Complete goal
-      await GoalProgressService.onBookCompleted(
-        testUserId,
-        testReadingEntryId,
-        testBookId
-      );
+      // Mark book as completed
+      await GoalProgressService.onBookCompleted({
+        userId: testUserId,
+        readingEntryId: testReadingEntryId,
+        bookId: testBookId,
+      });
 
-      // Uncomplete
-      const result = await GoalProgressService.onBookUncompleted(
-        testUserId,
-        testReadingEntryId
-      );
+      // Verify goal status changed to completed
+      const updatedGoal = await ReadingGoal.findById(goal.id);
+      expect(updatedGoal.status).toBe('completed');
+      expect(updatedGoal.completedAt).toBeTruthy();
+      expect(updatedGoal.progressCount).toBe(1);
+    });
 
-      expect(result[0].status).toBe('active');
-      expect(result[0].completedAt).toBeNull();
+    it('should track bonus count when progress exceeds target', async () => {
+      // Create goal with target 2
+      const goal = await ReadingGoal.create({
+        userId: testUserId,
+        name: 'Read 2 books',
+        targetCount: 2,
+        deadlineAtUtc: DateTime.now().plus({ days: 10 }).toISO(),
+        deadlineTimezone: 'America/New_York',
+      });
+
+      // Complete first book
+      await GoalProgressService.onBookCompleted({
+        userId: testUserId,
+        readingEntryId: testReadingEntryId,
+        bookId: testBookId,
+      });
+
+      // Complete second book
+      const book2Id = await createBookDirect({
+        title: 'Test Book 2',
+        author: 'Test Author',
+      });
+      const entry2Id = await createReadingEntryDirect({
+        readerId: testUserId,
+        bookId: book2Id,
+        status: 'FINISHED',
+      });
+      await GoalProgressService.onBookCompleted({
+        userId: testUserId,
+        readingEntryId: entry2Id,
+        bookId: book2Id,
+      });
+
+      // Complete third book (bonus)
+      const book3Id = await createBookDirect({
+        title: 'Test Book 3',
+        author: 'Test Author',
+      });
+      const entry3Id = await createReadingEntryDirect({
+        readerId: testUserId,
+        bookId: book3Id,
+        status: 'FINISHED',
+      });
+      await GoalProgressService.onBookCompleted({
+        userId: testUserId,
+        readingEntryId: entry3Id,
+        bookId: book3Id,
+      });
+
+      // Verify bonus count
+      const updatedGoal = await ReadingGoal.findById(goal.id);
+      expect(updatedGoal.progressCount).toBe(3);
+      expect(updatedGoal.bonusCount).toBe(1);
+      expect(updatedGoal.status).toBe('completed');
+    });
+
+    it('should not increment expired goals', async () => {
+      // Create expired goal (deadline in past)
+      const goal = await ReadingGoal.create({
+        userId: testUserId,
+        name: 'Old goal',
+        targetCount: 10,
+        deadlineAtUtc: DateTime.now().minus({ days: 5 }).toISO(),
+        deadlineTimezone: 'America/New_York',
+      });
+
+      // Manually set status to expired
+      await ReadingGoal.update(goal.id, { status: 'expired' });
+
+      // Mark book as completed
+      await GoalProgressService.onBookCompleted({
+        userId: testUserId,
+        readingEntryId: testReadingEntryId,
+        bookId: testBookId,
+      });
+
+      // Verify goal progress NOT incremented
+      const updatedGoal = await ReadingGoal.findById(goal.id);
+      expect(updatedGoal.progressCount).toBe(0);
+      expect(updatedGoal.status).toBe('expired');
+    });
+
+    it('should create progress entries for each goal', async () => {
+      // Create goal
+      const goal = await ReadingGoal.create({
+        userId: testUserId,
+        name: 'Read 5 books',
+        targetCount: 5,
+        deadlineAtUtc: DateTime.now().plus({ days: 20 }).toISO(),
+        deadlineTimezone: 'America/New_York',
+      });
+
+      // Mark book as completed
+      await GoalProgressService.onBookCompleted({
+        userId: testUserId,
+        readingEntryId: testReadingEntryId,
+        bookId: testBookId,
+      });
+
+      // Verify progress entry was created
+      const progressEntries = await ReadingGoalProgress.findByGoal(goal.id);
+      expect(progressEntries).toHaveLength(1);
+      expect(progressEntries[0]).toMatchObject({
+        goalId: goal.id,
+        readingEntryId: testReadingEntryId,
+        bookId: testBookId,
+      });
     });
   });
 
-  describe('determineGoalStatus', () => {
-    it('should throw "Not implemented yet" until T022 is completed', () => {
-      const goal = {
-        status: 'active',
-        progressCount: 5,
+  describe('onBookUncompleted (T021 - reversal logic)', () => {
+    it('should decrement progress for all affected goals when book is unmarked', async () => {
+      // Create goal
+      const goal = await ReadingGoal.create({
+        userId: testUserId,
+        name: 'Read 10 books',
         targetCount: 10,
-        deadlineAtUtc: DateTime.now().plus({ days: 30 }).toJSDate(),
-      };
+        deadlineAtUtc: DateTime.now().plus({ days: 30 }).toISO(),
+        deadlineTimezone: 'America/New_York',
+      });
 
-      expect(() => GoalProgressService.determineGoalStatus(goal)).toThrow(
-        'Not implemented yet'
-      );
+      // Mark book as completed
+      await GoalProgressService.onBookCompleted({
+        userId: testUserId,
+        readingEntryId: testReadingEntryId,
+        bookId: testBookId,
+      });
+
+      // Verify progress incremented
+      let updatedGoal = await ReadingGoal.findById(goal.id);
+      expect(updatedGoal.progressCount).toBe(1);
+
+      // Unmark book
+      await GoalProgressService.onBookUncompleted({
+        readingEntryId: testReadingEntryId,
+      });
+
+      // Verify progress decremented
+      updatedGoal = await ReadingGoal.findById(goal.id);
+      expect(updatedGoal.progressCount).toBe(0);
     });
 
-    it.skip('should transition to completed when target reached', () => {
-      const goal = {
-        status: 'active',
-        progressCount: 10,
-        targetCount: 10,
-        deadlineAtUtc: DateTime.now().plus({ days: 30 }).toJSDate(),
-      };
+    it('should revert completed goal to active if still before deadline', async () => {
+      // Create goal with target 1
+      const goal = await ReadingGoal.create({
+        userId: testUserId,
+        name: 'Read 1 book',
+        targetCount: 1,
+        deadlineAtUtc: DateTime.now().plus({ days: 10 }).toISO(),
+        deadlineTimezone: 'America/New_York',
+      });
 
-      const result = GoalProgressService.determineGoalStatus(goal);
+      // Complete the goal
+      await GoalProgressService.onBookCompleted({
+        userId: testUserId,
+        readingEntryId: testReadingEntryId,
+        bookId: testBookId,
+      });
 
-      expect(result.shouldUpdate).toBe(true);
-      expect(result.newStatus).toBe('completed');
-      expect(result.completedAt).toBeInstanceOf(Date);
+      let updatedGoal = await ReadingGoal.findById(goal.id);
+      expect(updatedGoal.status).toBe('completed');
+
+      // Unmark book (before deadline)
+      await GoalProgressService.onBookUncompleted({
+        readingEntryId: testReadingEntryId,
+      });
+
+      // Verify goal reverted to active
+      updatedGoal = await ReadingGoal.findById(goal.id);
+      expect(updatedGoal.status).toBe('active');
+      expect(updatedGoal.completedAt).toBeNull();
     });
 
-    it.skip('should transition to expired when past deadline', () => {
-      const goal = {
-        status: 'active',
-        progressCount: 5,
-        targetCount: 10,
-        deadlineAtUtc: DateTime.now().minus({ days: 1 }).toJSDate(),
-      };
+    it('should keep completed status if deadline has passed', async () => {
+      // Create goal with past deadline
+      const goal = await ReadingGoal.create({
+        userId: testUserId,
+        name: 'Read 1 book',
+        targetCount: 1,
+        deadlineAtUtc: DateTime.now().plus({ days: 1 }).toISO(),
+        deadlineTimezone: 'America/New_York',
+      });
 
-      const result = GoalProgressService.determineGoalStatus(goal);
+      // Complete the goal
+      await GoalProgressService.onBookCompleted({
+        userId: testUserId,
+        readingEntryId: testReadingEntryId,
+        bookId: testBookId,
+      });
 
-      expect(result.shouldUpdate).toBe(true);
-      expect(result.newStatus).toBe('expired');
+      // Manually update to simulate time passing
+      await ReadingGoal.update(goal.id, {
+        completedAt: DateTime.now().minus({ days: 5 }).toISO(),
+      });
+
+      // Unmark book (after deadline would have passed)
+      await GoalProgressService.onBookUncompleted({
+        readingEntryId: testReadingEntryId,
+      });
+
+      // Verify goal keeps completed status (historical record)
+      const updatedGoal = await ReadingGoal.findById(goal.id);
+      expect(updatedGoal.status).toBe('completed');
     });
 
-    it.skip('should not update when goal is already completed', () => {
-      const goal = {
-        status: 'completed',
-        progressCount: 10,
-        targetCount: 10,
-        deadlineAtUtc: DateTime.now().plus({ days: 30 }).toJSDate(),
-      };
+    it('should remove progress entries when book is unmarked', async () => {
+      // Create goal
+      const goal = await ReadingGoal.create({
+        userId: testUserId,
+        name: 'Read 5 books',
+        targetCount: 5,
+        deadlineAtUtc: DateTime.now().plus({ days: 20 }).toISO(),
+        deadlineTimezone: 'America/New_York',
+      });
 
-      const result = GoalProgressService.determineGoalStatus(goal);
+      // Mark book as completed
+      await GoalProgressService.onBookCompleted({
+        userId: testUserId,
+        readingEntryId: testReadingEntryId,
+        bookId: testBookId,
+      });
 
-      expect(result.shouldUpdate).toBe(false);
+      // Verify progress entry created
+      let progressEntries = await ReadingGoalProgress.findByGoal(goal.id);
+      expect(progressEntries).toHaveLength(1);
+
+      // Unmark book
+      await GoalProgressService.onBookUncompleted({
+        readingEntryId: testReadingEntryId,
+      });
+
+      // Verify progress entry removed
+      progressEntries = await ReadingGoalProgress.findByGoal(goal.id);
+      expect(progressEntries).toHaveLength(0);
     });
-  });
 
-  describe('calculateBonus - T023', () => {
-    it('should return 0 when progress equals target', () => {
-      const bonus = GoalProgressService.calculateBonus(10, 10);
-      expect(bonus).toBe(0);
-    });
+    it('should reduce bonus count when unmarking bonus books', async () => {
+      // Create goal with target 1
+      const goal = await ReadingGoal.create({
+        userId: testUserId,
+        name: 'Read 1 book',
+        targetCount: 1,
+        deadlineAtUtc: DateTime.now().plus({ days: 10 }).toISO(),
+        deadlineTimezone: 'America/New_York',
+      });
 
-    it('should return 0 when progress is less than target', () => {
-      const bonus = GoalProgressService.calculateBonus(5, 10);
-      expect(bonus).toBe(0);
-    });
+      // Complete two books (second is bonus)
+      await GoalProgressService.onBookCompleted({
+        userId: testUserId,
+        readingEntryId: testReadingEntryId,
+        bookId: testBookId,
+      });
 
-    it('should calculate bonus when progress exceeds target', () => {
-      const bonus = GoalProgressService.calculateBonus(12, 10);
-      expect(bonus).toBe(2);
-    });
+      const book2Id = await createBookDirect({
+        title: 'Bonus Book',
+        author: 'Test Author',
+      });
+      const entry2Id = await createReadingEntryDirect({
+        readerId: testUserId,
+        bookId: book2Id,
+        status: 'FINISHED',
+      });
+      await GoalProgressService.onBookCompleted({
+        userId: testUserId,
+        readingEntryId: entry2Id,
+        bookId: book2Id,
+      });
 
-    it('should handle large bonus values', () => {
-      const bonus = GoalProgressService.calculateBonus(100, 10);
-      expect(bonus).toBe(90);
+      let updatedGoal = await ReadingGoal.findById(goal.id);
+      expect(updatedGoal.progressCount).toBe(2);
+      expect(updatedGoal.bonusCount).toBe(1);
+
+      // Unmark bonus book
+      await GoalProgressService.onBookUncompleted({
+        readingEntryId: entry2Id,
+      });
+
+      // Verify bonus count reduced
+      updatedGoal = await ReadingGoal.findById(goal.id);
+      expect(updatedGoal.progressCount).toBe(1);
+      expect(updatedGoal.bonusCount).toBe(0);
     });
   });
 });

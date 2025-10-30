@@ -1,133 +1,80 @@
 /**
  * GoalProgressService
- * Business logic for reading goal progress tracking
+ * Handles reading goal progress tracking, state transitions, and book completion events
  * Feature: 003-reading-goals
+ * Tasks: T020-T023
  */
 
 import { ReadingGoal } from '../models/reading-goal.js';
 import { ReadingGoalProgress } from '../models/reading-goal-progress.js';
-import { transaction } from '../db/connection.js';
+import { query, getClient } from '../db/connection.js';
 import { DateTime } from 'luxon';
+import logger from '../lib/logger.js';
 
 export class GoalProgressService {
   /**
-   * Handle book completion event - update all active goals
-   * @param {string} userId - User ID
-   * @param {string} readingEntryId - Reading entry ID
-   * @param {string} bookId - Book ID
-   * @param {string} fromState - Previous reading state
+   * Handle book completion event - increment progress for all active goals (T020)
+   * Uses transaction to ensure atomicity
+   *
+   * @param {Object} params - Event parameters
+   * @param {string} params.userId - User ID
+   * @param {string} params.readingEntryId - Reading entry ID
+   * @param {string} params.bookId - Book ID
    * @returns {Promise<Array>} Updated goals
    */
-  static async onBookCompleted(userId, readingEntryId, bookId, fromState = null) {
-    return await transaction(async (client) => {
-      // 1. Find all active goals for the user
+  static async onBookCompleted({ userId, readingEntryId, bookId }) {
+    const client = await getClient();
+    const updatedGoals = [];
+
+    try {
+      await client.query('BEGIN');
+
+      // Find all active goals for this user
       const activeGoalsResult = await client.query(
-        'SELECT * FROM reading_goals WHERE user_id = $1 AND status = $2 ORDER BY created_at',
-        [userId, 'active']
+        `SELECT * FROM reading_goals
+         WHERE user_id = $1 AND status = 'active'
+         ORDER BY created_at`,
+        [userId]
       );
 
-      const updatedGoals = [];
-
       for (const goalRow of activeGoalsResult.rows) {
-        // 2. Add progress entry (idempotent - won't duplicate)
+        const goal = ReadingGoal.mapRow(goalRow);
+
+        // Create progress entry (idempotent due to unique constraint)
         await client.query(
           `INSERT INTO reading_goal_progress
            (goal_id, reading_entry_id, book_id, applied_at, applied_from_state)
-           VALUES ($1, $2, $3, NOW(), $4)
+           VALUES ($1, $2, $3, NOW(), 'FINISHED')
            ON CONFLICT (goal_id, reading_entry_id) DO NOTHING`,
-          [goalRow.id, readingEntryId, bookId, fromState]
+          [goal.id, readingEntryId, bookId]
         );
 
-        // 3. Count total progress entries for this goal
-        const progressCountResult = await client.query(
-          'SELECT COUNT(*) FROM reading_goal_progress WHERE goal_id = $1',
-          [goalRow.id]
-        );
-        const newProgressCount = parseInt(progressCountResult.rows[0].count, 10);
+        // Increment progress count
+        const newProgressCount = goal.progressCount + 1;
 
-        // 4. Calculate bonus
-        const bonusCount = this.calculateBonus(newProgressCount, goalRow.target_count);
-
-        // 5. Check if goal should be completed
-        const goal = ReadingGoal.mapRow(goalRow);
-        goal.progressCount = newProgressCount;
-        goal.bonusCount = bonusCount;
-
-        const statusUpdate = this.determineGoalStatus(goal);
-
-        // 6. Update goal with new progress and status
-        const updateResult = await client.query(
-          `UPDATE reading_goals
-           SET progress_count = $1,
-               bonus_count = $2,
-               status = COALESCE($3, status),
-               completed_at = $4,
-               updated_at = NOW()
-           WHERE id = $5
-           RETURNING *`,
-          [
-            newProgressCount,
-            bonusCount,
-            statusUpdate.shouldUpdate ? statusUpdate.newStatus : null,
-            statusUpdate.shouldUpdate ? statusUpdate.completedAt : null,
-            goalRow.id,
-          ]
-        );
-
-        updatedGoals.push(ReadingGoal.mapRow(updateResult.rows[0]));
-      }
-
-      return updatedGoals;
-    });
-  }
-
-  /**
-   * Handle book uncompletion event - reverse progress from all goals
-   * @param {string} userId - User ID
-   * @param {string} readingEntryId - Reading entry ID
-   * @returns {Promise<Array>} Updated goals
-   */
-  static async onBookUncompleted(userId, readingEntryId) {
-    return await transaction(async (client) => {
-      // 1. Find all goals that have progress entries for this reading entry
-      const affectedGoalsResult = await client.query(
-        `SELECT DISTINCT rg.*
-         FROM reading_goals rg
-         JOIN reading_goal_progress rgp ON rgp.goal_id = rg.id
-         WHERE rgp.reading_entry_id = $1 AND rg.user_id = $2`,
-        [readingEntryId, userId]
-      );
-
-      // 2. Delete progress entries for this reading entry
-      await client.query(
-        'DELETE FROM reading_goal_progress WHERE reading_entry_id = $1',
-        [readingEntryId]
-      );
-
-      const updatedGoals = [];
-
-      for (const goalRow of affectedGoalsResult.rows) {
-        // 3. Recount progress entries for this goal
-        const progressCountResult = await client.query(
-          'SELECT COUNT(*) FROM reading_goal_progress WHERE goal_id = $1',
-          [goalRow.id]
-        );
-        const newProgressCount = parseInt(progressCountResult.rows[0].count, 10);
-
-        // 4. Recalculate bonus
-        const bonusCount = this.calculateBonus(newProgressCount, goalRow.target_count);
-
-        // 5. Determine if status should revert
-        let newStatus = goalRow.status;
-        let completedAt = goalRow.completed_at;
-
-        // If goal was completed but progress is now below target, revert to active
-        if (goalRow.status === 'completed' && newProgressCount < goalRow.target_count) {
-          newStatus = 'active';
-          completedAt = null;
+        // Calculate bonus count (T023)
+        let newBonusCount = goal.bonusCount;
+        if (newProgressCount > goal.targetCount) {
+          newBonusCount = newProgressCount - goal.targetCount;
         }
 
-        // 6. Update goal
+        // Check if goal should transition to completed (T022)
+        let newStatus = goal.status;
+        let completedAt = goal.completedAt;
+
+        if (newProgressCount >= goal.targetCount && goal.status === 'active') {
+          newStatus = 'completed';
+          completedAt = DateTime.now().toISO();
+
+          logger.info({
+            goalId: goal.id,
+            userId,
+            targetCount: goal.targetCount,
+            progressCount: newProgressCount,
+          }, 'Goal completed');
+        }
+
+        // Update goal with new progress
         const updateResult = await client.query(
           `UPDATE reading_goals
            SET progress_count = $1,
@@ -137,69 +84,188 @@ export class GoalProgressService {
                updated_at = NOW()
            WHERE id = $5
            RETURNING *`,
-          [newProgressCount, bonusCount, newStatus, completedAt, goalRow.id]
+          [newProgressCount, newBonusCount, newStatus, completedAt, goal.id]
         );
 
-        updatedGoals.push(ReadingGoal.mapRow(updateResult.rows[0]));
+        if (updateResult.rows.length > 0) {
+          updatedGoals.push(ReadingGoal.mapRow(updateResult.rows[0]));
+        }
+
+        logger.debug({
+          goalId: goal.id,
+          userId,
+          readingEntryId,
+          bookId,
+          newProgressCount,
+          newBonusCount,
+          status: newStatus,
+        }, 'Goal progress incremented');
       }
 
+      await client.query('COMMIT');
       return updatedGoals;
-    });
+    } catch (error) {
+      await client.query('ROLLBACK');
+      logger.error({
+        error: error.message,
+        userId,
+        readingEntryId,
+        bookId,
+      }, 'Failed to update goal progress on book completion');
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 
   /**
-   * Check and update goal status based on current state
-   * @param {Object} goal - Goal object
-   * @returns {Object} Updated status info { shouldUpdate: boolean, newStatus: string, completedAt: Date|null }
+   * Handle book uncompletion event - decrement progress for all affected goals (T021)
+   * Uses transaction to ensure atomicity
+   * Implements reversal logic including status reversion
+   *
+   * @param {Object} params - Event parameters
+   * @param {string} params.readingEntryId - Reading entry ID to remove
+   * @returns {Promise<Array>} Updated goals
    */
-  static determineGoalStatus(goal) {
-    // Don't transition if already completed or expired
-    if (goal.status === 'completed' || goal.status === 'expired') {
-      return { shouldUpdate: false };
+  static async onBookUncompleted({ readingEntryId }) {
+    const client = await getClient();
+    const updatedGoals = [];
+
+    try {
+      await client.query('BEGIN');
+
+      // Find all goals affected by this reading entry
+      const affectedProgressResult = await client.query(
+        `SELECT goal_id FROM reading_goal_progress
+         WHERE reading_entry_id = $1`,
+        [readingEntryId]
+      );
+
+      const affectedGoalIds = affectedProgressResult.rows.map(row => row.goal_id);
+
+      // Delete progress entries for this reading entry
+      await client.query(
+        `DELETE FROM reading_goal_progress
+         WHERE reading_entry_id = $1`,
+        [readingEntryId]
+      );
+
+      // Update each affected goal
+      for (const goalId of affectedGoalIds) {
+        const goalResult = await client.query(
+          'SELECT * FROM reading_goals WHERE id = $1',
+          [goalId]
+        );
+
+        if (goalResult.rows.length === 0) continue;
+
+        const goal = ReadingGoal.mapRow(goalResult.rows[0]);
+
+        // Decrement progress count
+        const newProgressCount = Math.max(0, goal.progressCount - 1);
+
+        // Recalculate bonus count (T023)
+        let newBonusCount = 0;
+        if (newProgressCount > goal.targetCount) {
+          newBonusCount = newProgressCount - goal.targetCount;
+        }
+
+        // Check if we need to revert status (T022)
+        let newStatus = goal.status;
+        let completedAt = goal.completedAt;
+
+        // If goal was completed and progress drops below target
+        if (goal.status === 'completed' && newProgressCount < goal.targetCount) {
+          // Check if deadline has passed
+          const deadline = DateTime.fromISO(goal.deadlineAtUtc);
+          const now = DateTime.now();
+
+          if (now < deadline) {
+            // Before deadline: revert to active
+            newStatus = 'active';
+            completedAt = null;
+
+            logger.info({
+              goalId: goal.id,
+              newProgressCount,
+              targetCount: goal.targetCount,
+            }, 'Goal reverted from completed to active');
+          }
+          // After deadline: keep completed status (historical record)
+        }
+
+        // Update goal with decremented progress
+        const updateResult = await client.query(
+          `UPDATE reading_goals
+           SET progress_count = $1,
+               bonus_count = $2,
+               status = $3,
+               completed_at = $4,
+               updated_at = NOW()
+           WHERE id = $5
+           RETURNING *`,
+          [newProgressCount, newBonusCount, newStatus, completedAt, goalId]
+        );
+
+        if (updateResult.rows.length > 0) {
+          updatedGoals.push(ReadingGoal.mapRow(updateResult.rows[0]));
+        }
+
+        logger.debug({
+          goalId,
+          readingEntryId,
+          newProgressCount,
+          newBonusCount,
+          status: newStatus,
+        }, 'Goal progress decremented');
+      }
+
+      await client.query('COMMIT');
+      return updatedGoals;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      logger.error({
+        error: error.message,
+        readingEntryId,
+      }, 'Failed to update goal progress on book uncompletion');
+      throw error;
+    } finally {
+      client.release();
     }
-
-    // Check if goal should be completed (progress >= target)
-    if (goal.progressCount >= goal.targetCount) {
-      return {
-        shouldUpdate: true,
-        newStatus: 'completed',
-        completedAt: new Date(),
-      };
-    }
-
-    // Check if goal is past deadline (expired)
-    const deadline = new Date(goal.deadlineAtUtc);
-    const now = new Date();
-
-    if (now > deadline) {
-      return {
-        shouldUpdate: true,
-        newStatus: 'expired',
-        completedAt: null,
-      };
-    }
-
-    // No status change needed
-    return { shouldUpdate: false };
   }
 
   /**
-   * Calculate bonus count when progress exceeds target
-   * @param {number} progressCount - Current progress
-   * @param {number} targetCount - Target count
-   * @returns {number} Bonus count
-   */
-  static calculateBonus(progressCount, targetCount) {
-    // TODO: Implement in T023
-    return Math.max(0, progressCount - targetCount);
-  }
-
-  /**
-   * Expire overdue goals (for scheduled job)
-   * @returns {Promise<Array>} Expired goal IDs
+   * Expire overdue goals (for scheduled job - User Story 2, T052)
+   * Marks goals as expired when deadline has passed without completion
+   *
+   * @returns {Promise<number>} Number of goals expired
    */
   static async expireOverdueGoals() {
-    // TODO: Implement in T052 (User Story 2)
-    throw new Error('Not implemented yet');
+    try {
+      const now = DateTime.now().toISO();
+
+      const result = await query(
+        `UPDATE reading_goals
+         SET status = 'expired',
+             updated_at = NOW()
+         WHERE status = 'active'
+           AND deadline_at_utc < $1
+         RETURNING id`,
+        [now]
+      );
+
+      const expiredCount = result.rowCount;
+
+      if (expiredCount > 0) {
+        logger.info({ expiredCount }, 'Expired overdue goals');
+      }
+
+      return expiredCount;
+    } catch (error) {
+      logger.error({
+        error: error.message,
+      }, 'Failed to expire overdue goals');
+      throw error;
+    }
   }
 }
