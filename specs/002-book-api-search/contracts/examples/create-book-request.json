@@ -1,0 +1,9 @@
+{
+  "resultId": "goog_IyMCtAEACAAJ",
+  "provider": "google_books",
+  "overrides": {
+    "pageCount": "350",
+    "description": "My personal edition has some additional notes"
+  },
+  "force": false
+}

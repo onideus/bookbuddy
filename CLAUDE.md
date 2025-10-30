@@ -3,6 +3,9 @@
 Auto-generated from all feature plans. Last updated: 2025-10-25
 
 ## Active Technologies
+- JavaScript ES2022+, Node.js 20+ LTS + Fastify (web framework), ioredis (Redis client), opossum (circuit breaker), axios/got (HTTP client with retry), fuzzball/string-similarity (fuzzy matching) (001-book-api-search)
+- PostgreSQL (existing) + Redis (Docker Compose orchestrated) + pg_trgm extension for fuzzy text search (001-book-api-search)
+- PostgreSQL 15+ (books, reading entries, progress updates, status history, reader profiles) (001-book-api-search)
 
 - JavaScript (ES2022+) for frontend and backend, Node.js 20+ LTS for server runtime (001-track-reading)
 
@@ -22,8 +25,10 @@ npm test && npm run lint
 JavaScript (ES2022+) for frontend and backend, Node.js 20+ LTS for server runtime: Follow standard conventions
 
 ## Recent Changes
+- 002-book-api-search: Added JavaScript ES2022+, Node.js 20+ LTS + Fastify (web framework), ioredis (Redis client), opossum (circuit breaker), axios/got (HTTP client with retry), fuzzball/string-similarity (fuzzy matching)
+- 001-book-api-search: Added JavaScript (ES2022+) for frontend and backend, Node.js 20+ LTS for server runtime
+- 001-book-api-search: Added JavaScript ES2022+, Node.js 20+ LTS + Fastify (web framework), ioredis (Redis client), opossum (circuit breaker), axios/got (HTTP client with retry), fuzzball/string-similarity (fuzzy matching)
 
-- 001-track-reading: Added JavaScript (ES2022+) for frontend and backend, Node.js 20+ LTS for server runtime
 
 <!-- MANUAL ADDITIONS START -->
 # Project: BookBuddy

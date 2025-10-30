@@ -1,0 +1,52 @@
+{
+  "results": [
+    {
+      "id": "goog_IyMCtAEACAAJ",
+      "title": "1984",
+      "subtitle": null,
+      "author": "George Orwell",
+      "authors": ["George Orwell"],
+      "isbn": "9780451524935",
+      "isbn10": "0451524934",
+      "isbn13": "9780451524935",
+      "publisher": "Signet Classics",
+      "publicationDate": "1950-07-01",
+      "pageCount": 328,
+      "language": "en",
+      "description": "Written in 1948, 1984 was George Orwell's chilling prophecy about the future. And while 1984 has come and gone, Orwell's narrative is timelier than ever...",
+      "categories": ["Fiction", "Dystopian", "Political Fiction"],
+      "coverImageUrl": "https://books.google.com/books/content?id=IyMCtAEACAAJ&printsec=frontcover&img=1&zoom=1",
+      "provider": "google_books",
+      "providerUrl": "https://books.google.com/books?id=IyMCtAEACAAJ"
+    },
+    {
+      "id": "goog_B2sdBAAAQBAJ",
+      "title": "Nineteen Eighty-Four",
+      "subtitle": null,
+      "author": "George Orwell",
+      "authors": ["George Orwell"],
+      "isbn": "9780141036144",
+      "isbn10": "0141036141",
+      "isbn13": "9780141036144",
+      "publisher": "Penguin UK",
+      "publicationDate": "2013-01-10",
+      "pageCount": 400,
+      "language": "en",
+      "description": "Hidden away in the Record Department of the sprawling Ministry of Truth, Winston Smith skilfully rewrites the past to suit the needs of the Party...",
+      "categories": ["Fiction", "Classics"],
+      "coverImageUrl": "https://books.google.com/books/content?id=B2sdBAAAQBAJ&printsec=frontcover&img=1&zoom=1",
+      "provider": "google_books",
+      "providerUrl": "https://books.google.com/books?id=B2sdBAAAQBAJ"
+    }
+  ],
+  "totalCount": 247,
+  "page": 1,
+  "limit": 20,
+  "provider": "google_books",
+  "cacheHit": true,
+  "cacheTtl": 43200,
+  "query": {
+    "q": "1984 George Orwell",
+    "type": "combined"
+  }
+}

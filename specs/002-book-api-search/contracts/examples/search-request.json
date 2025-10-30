@@ -1,0 +1,12 @@
+{
+  "description": "Example search request for '1984 by George Orwell'",
+  "method": "GET",
+  "url": "/api/books/search?q=1984%20George%20Orwell&type=combined&limit=20",
+  "query_parameters": {
+    "q": "1984 George Orwell",
+    "type": "combined",
+    "limit": 20,
+    "offset": 0,
+    "provider": "auto"
+  }
+}

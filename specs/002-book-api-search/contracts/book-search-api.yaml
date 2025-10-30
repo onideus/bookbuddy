@@ -1,0 +1,784 @@
+openapi: 3.0.3
+info:
+  title: BookBuddy - Book Search API
+  description: |
+    API for searching external book databases (Google Books, Open Library) and
+    auto-populating book metadata to reduce manual entry time.
+
+    Features:
+    - Multi-provider search (Google Books primary, Open Library fallback)
+    - Multi-layer caching (Redis 12h + PostgreSQL 30 days)
+    - Circuit breaker for resilience
+    - Duplicate detection (ISBN-first + fuzzy matching)
+    - Per-user metadata overrides
+  version: 1.0.0
+  contact:
+    name: BookBuddy Development Team
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+  - url: https://api.bookbuddy.example.com/api
+    description: Production server (TBD)
+
+tags:
+  - name: search
+    description: Book search operations
+  - name: books
+    description: Book management operations
+
+paths:
+  /books/search:
+    get:
+      tags:
+        - search
+      summary: Search for books by title, author, or ISBN
+      description: |
+        Searches external book APIs for matching books. Results are cached for
+        performance (Redis 12h, PostgreSQL 30 days). Circuit breaker protects
+        against external API failures.
+
+        **Search Types**:
+        - `title`: Search by book title (fuzzy matching supported)
+        - `author`: Search by author name
+        - `isbn`: Search by ISBN-10 or ISBN-13
+        - `combined`: Search all fields (default)
+
+        **Cache Behavior**:
+        - Hits Redis L1 cache first (12h TTL)
+        - Falls back to PostgreSQL L2 cache (30 days TTL)
+        - Only queries external API on cache miss
+
+        **Rate Limiting**:
+        - User: 10 searches/minute
+        - Global: Google Books free tier (1,000 req/day)
+      operationId: searchBooks
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query string (minimum 2 characters)
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 200
+          example: "1984 George Orwell"
+
+        - name: type
+          in: query
+          required: false
+          description: Type of search to perform
+          schema:
+            type: string
+            enum: [title, author, isbn, combined]
+            default: combined
+          example: combined
+
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of results to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+          example: 20
+
+        - name: offset
+          in: query
+          required: false
+          description: Number of results to skip (for pagination)
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          example: 0
+
+        - name: provider
+          in: query
+          required: false
+          description: Preferred search provider (falls back automatically if unavailable)
+          schema:
+            type: string
+            enum: [google_books, open_library, auto]
+            default: auto
+          example: auto
+
+      responses:
+        '200':
+          description: Search results returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+              examples:
+                successWithResults:
+                  summary: Successful search with results
+                  value:
+                    results:
+                      - id: "goog_IyMCtAEACAAJ"
+                        title: "1984"
+                        subtitle: "A Novel"
+                        author: "George Orwell"
+                        authors: ["George Orwell"]
+                        isbn: "9780451524935"
+                        isbn10: "0451524934"
+                        isbn13: "9780451524935"
+                        publisher: "Signet Classics"
+                        publicationDate: "1950-07-01"
+                        pageCount: 328
+                        language: "en"
+                        description: "Written in 1948, 1984 was George Orwell's chilling prophecy about the future..."
+                        categories: ["Fiction", "Dystopian", "Political Fiction"]
+                        coverImageUrl: "https://books.google.com/books/content?id=IyMCtAEACAAJ&printsec=frontcover&img=1"
+                        provider: "google_books"
+                        providerUrl: "https://books.google.com/books?id=IyMCtAEACAAJ"
+                    totalCount: 247
+                    page: 1
+                    limit: 20
+                    provider: "google_books"
+                    cacheHit: true
+                    cacheTtl: 43200
+                    query:
+                      q: "1984 George Orwell"
+                      type: "combined"
+
+                emptyResults:
+                  summary: Search with no results
+                  value:
+                    results: []
+                    totalCount: 0
+                    page: 1
+                    limit: 20
+                    provider: "google_books"
+                    cacheHit: false
+                    query:
+                      q: "nonexistentbooktitle12345"
+                      type: "combined"
+
+        '400':
+          description: Bad request (invalid parameters)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                queryTooShort:
+                  summary: Search query too short
+                  value:
+                    error: "Bad Request"
+                    message: "Search query must be at least 2 characters"
+                    code: "QUERY_TOO_SHORT"
+                    statusCode: 400
+
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rateLimitUser:
+                  summary: User rate limit exceeded
+                  value:
+                    error: "Too Many Requests"
+                    message: "Search rate limit exceeded. Maximum 10 searches per minute."
+                    code: "RATE_LIMIT_EXCEEDED"
+                    statusCode: 429
+                    retryAfter: 45
+
+        '503':
+          description: Service unavailable (circuit breaker open)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                circuitBreakerOpen:
+                  summary: External API unavailable
+                  value:
+                    error: "Service Unavailable"
+                    message: "Book search temporarily offline. Please add book manually or try again later."
+                    code: "CIRCUIT_BREAKER_OPEN"
+                    statusCode: 503
+                    fallbackAvailable: true
+                    retryAfter: 30
+
+  /books/search/results/{resultId}:
+    get:
+      tags:
+        - search
+      summary: Get detailed information for a specific search result
+      description: |
+        Retrieves full details for a search result by its temporary result ID.
+        Result IDs are provider-specific (e.g., Google Books volume ID).
+
+        This endpoint is used when a user clicks on a search result to view
+        more details before adding to their library.
+      operationId: getSearchResultDetails
+      parameters:
+        - name: resultId
+          in: path
+          required: true
+          description: Provider-specific result ID (e.g., Google Books volume ID)
+          schema:
+            type: string
+          example: "IyMCtAEACAAJ"
+
+        - name: provider
+          in: query
+          required: false
+          description: Provider that returned this result
+          schema:
+            type: string
+            enum: [google_books, open_library]
+            default: google_books
+          example: google_books
+
+      responses:
+        '200':
+          description: Result details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResult'
+
+        '404':
+          description: Result not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Not Found"
+                message: "Search result not found. It may have expired or been removed by the provider."
+                code: "RESULT_NOT_FOUND"
+                statusCode: 404
+
+  /books/from-search:
+    post:
+      tags:
+        - books
+      summary: Create a book entry from a search result
+      description: |
+        Creates a new book in the user's library from a search result. This endpoint:
+
+        1. Checks for duplicates (ISBN-first, then fuzzy title/author matching)
+        2. If duplicate found, offers to link to existing book
+        3. If new, creates Book, BookEdition, and BookMetadataSource records
+        4. Creates ReadingEntry for the user
+        5. Applies any user overrides to metadata
+
+        **Duplicate Detection**:
+        - Primary: ISBN-13 or ISBN-10 lookup
+        - Fallback: Fuzzy matching (title + author similarity >0.8)
+      operationId: createBookFromSearch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookFromSearchRequest'
+            examples:
+              fromGoogleBooks:
+                summary: Create book from Google Books result
+                value:
+                  resultId: "IyMCtAEACAAJ"
+                  provider: "google_books"
+                  overrides:
+                    pageCount: "350"
+                    description: "My personal note about this edition"
+
+              manualOverrides:
+                summary: Create with manual overrides
+                value:
+                  resultId: "OL7353617M"
+                  provider: "open_library"
+                  overrides:
+                    title: "Nineteen Eighty-Four"
+                    edition: "First Edition"
+
+      responses:
+        '201':
+          description: Book created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateBookResponse'
+              examples:
+                newBookCreated:
+                  summary: New book created
+                  value:
+                    book:
+                      id: "550e8400-e29b-41d4-a716-446655440000"
+                      title: "1984"
+                      author: "George Orwell"
+                      isbn: "9780451524935"
+                    edition:
+                      id: "660e8400-e29b-41d4-a716-446655440001"
+                      isbn13: "9780451524935"
+                      format: "paperback"
+                    readingEntry:
+                      id: "770e8400-e29b-41d4-a716-446655440002"
+                      status: "to_read"
+                    duplicate: false
+                    message: "Book added to your library"
+
+        '200':
+          description: Duplicate detected, user prompted for action
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuplicateDetectedResponse'
+              example:
+                duplicate: true
+                matchType: "isbn"
+                confidence: 1.0
+                existingBook:
+                  id: "550e8400-e29b-41d4-a716-446655440000"
+                  title: "1984"
+                  author: "George Orwell"
+                  isbn: "9780451524935"
+                  readingEntry:
+                    id: "770e8400-e29b-41d4-a716-446655440002"
+                    status: "reading"
+                    startedAt: "2025-10-15T10:00:00Z"
+                message: "This book may already be in your library. Use existing book or add as new edition?"
+                actions:
+                  - action: "use_existing"
+                    label: "Use existing book"
+                    endpoint: "/api/books/550e8400-e29b-41d4-a716-446655440000"
+                  - action: "add_new"
+                    label: "Add as new edition"
+                    endpoint: "/api/books/from-search?force=true"
+
+        '400':
+          description: Bad request (invalid result ID or provider)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /books/{bookId}/refresh-metadata:
+    post:
+      tags:
+        - books
+      summary: Refresh book metadata from external provider
+      description: |
+        Fetches updated metadata from the external provider for an existing book.
+        Useful when:
+        - Provider data has been updated (new editions, corrected info)
+        - Book was manually entered and user wants to populate from API
+        - Stale cache needs refreshing
+
+        **Note**: This is a Phase 2 feature (P2 priority)
+      operationId: refreshBookMetadata
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          description: UUID of the book to refresh
+          schema:
+            type: string
+            format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+
+        - name: provider
+          in: query
+          required: false
+          description: Provider to use for refresh (auto-detects if not specified)
+          schema:
+            type: string
+            enum: [google_books, open_library, auto]
+            default: auto
+
+      responses:
+        '200':
+          description: Metadata refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshMetadataResponse'
+
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '503':
+          description: Provider unavailable (circuit breaker open)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    SearchResult:
+      type: object
+      required:
+        - id
+        - title
+        - provider
+      properties:
+        id:
+          type: string
+          description: Provider-specific result ID
+          example: "IyMCtAEACAAJ"
+        title:
+          type: string
+          description: Book title
+          example: "1984"
+        subtitle:
+          type: string
+          nullable: true
+          description: Book subtitle if present
+          example: "A Novel"
+        author:
+          type: string
+          description: Primary author (first in list)
+          example: "George Orwell"
+        authors:
+          type: array
+          items:
+            type: string
+          description: Full list of authors
+          example: ["George Orwell"]
+        isbn:
+          type: string
+          nullable: true
+          description: Preferred ISBN (ISBN-13 if available, else ISBN-10)
+          example: "9780451524935"
+        isbn10:
+          type: string
+          nullable: true
+          description: ISBN-10 if available
+          example: "0451524934"
+        isbn13:
+          type: string
+          nullable: true
+          description: ISBN-13 if available
+          example: "9780451524935"
+        publisher:
+          type: string
+          nullable: true
+          description: Publisher name
+          example: "Signet Classics"
+        publicationDate:
+          type: string
+          format: date
+          nullable: true
+          description: Publication date (ISO 8601)
+          example: "1950-07-01"
+        pageCount:
+          type: integer
+          nullable: true
+          description: Number of pages
+          example: 328
+        language:
+          type: string
+          nullable: true
+          description: ISO 639-1 language code
+          example: "en"
+        description:
+          type: string
+          nullable: true
+          description: Book description/synopsis
+          example: "Written in 1948, 1984 was George Orwell's chilling prophecy..."
+        categories:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: List of categories/genres
+          example: ["Fiction", "Dystopian"]
+        coverImageUrl:
+          type: string
+          format: uri
+          nullable: true
+          description: URL to cover image
+          example: "https://books.google.com/books/content?id=IyMCtAEACAAJ"
+        provider:
+          type: string
+          enum: [google_books, open_library]
+          description: Provider that returned this result
+          example: "google_books"
+        providerUrl:
+          type: string
+          format: uri
+          nullable: true
+          description: URL to book on provider's site
+          example: "https://books.google.com/books?id=IyMCtAEACAAJ"
+
+    SearchResponse:
+      type: object
+      required:
+        - results
+        - totalCount
+        - page
+        - limit
+        - provider
+        - query
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResult'
+          description: Array of search results
+        totalCount:
+          type: integer
+          description: Total number of results available (may exceed limit)
+          example: 247
+        page:
+          type: integer
+          description: Current page number (1-indexed)
+          example: 1
+        limit:
+          type: integer
+          description: Results per page
+          example: 20
+        provider:
+          type: string
+          enum: [google_books, open_library]
+          description: Provider used for this search
+          example: "google_books"
+        cacheHit:
+          type: boolean
+          description: Whether results came from cache (true) or fresh API call (false)
+          example: true
+        cacheTtl:
+          type: integer
+          nullable: true
+          description: Cache TTL in seconds (if cached)
+          example: 43200
+        query:
+          type: object
+          description: Echo of the search query parameters
+          properties:
+            q:
+              type: string
+            type:
+              type: string
+          example:
+            q: "1984 George Orwell"
+            type: "combined"
+
+    CreateBookFromSearchRequest:
+      type: object
+      required:
+        - resultId
+        - provider
+      properties:
+        resultId:
+          type: string
+          description: Provider-specific result ID from search
+          example: "IyMCtAEACAAJ"
+        provider:
+          type: string
+          enum: [google_books, open_library]
+          description: Provider that returned the result
+          example: "google_books"
+        overrides:
+          type: object
+          nullable: true
+          description: User-provided overrides to auto-populated fields
+          additionalProperties:
+            type: string
+          example:
+            pageCount: "350"
+            edition: "Special Edition"
+        force:
+          type: boolean
+          default: false
+          description: Force creation even if duplicate detected
+
+    CreateBookResponse:
+      type: object
+      required:
+        - book
+        - readingEntry
+        - duplicate
+        - message
+      properties:
+        book:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            title:
+              type: string
+            author:
+              type: string
+            isbn:
+              type: string
+              nullable: true
+        edition:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: string
+              format: uuid
+            isbn13:
+              type: string
+              nullable: true
+            format:
+              type: string
+              nullable: true
+        readingEntry:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            status:
+              type: string
+              enum: [to_read, reading, completed]
+        duplicate:
+          type: boolean
+          description: Whether this was detected as a duplicate
+        message:
+          type: string
+          description: User-friendly message
+
+    DuplicateDetectedResponse:
+      type: object
+      required:
+        - duplicate
+        - matchType
+        - confidence
+        - existingBook
+        - message
+        - actions
+      properties:
+        duplicate:
+          type: boolean
+          enum: [true]
+        matchType:
+          type: string
+          enum: [isbn, fuzzy]
+          description: How duplicate was detected
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Match confidence (1.0 for ISBN, 0.0-1.0 for fuzzy)
+        existingBook:
+          type: object
+          description: The existing book that matched
+          properties:
+            id:
+              type: string
+              format: uuid
+            title:
+              type: string
+            author:
+              type: string
+            isbn:
+              type: string
+              nullable: true
+            readingEntry:
+              type: object
+              nullable: true
+              description: User's existing reading entry for this book
+        message:
+          type: string
+          description: User-friendly duplicate message
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+              label:
+                type: string
+              endpoint:
+                type: string
+
+    RefreshMetadataResponse:
+      type: object
+      required:
+        - book
+        - updated
+        - changes
+        - message
+      properties:
+        book:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            title:
+              type: string
+            author:
+              type: string
+        updated:
+          type: boolean
+          description: Whether any fields were updated
+        changes:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              oldValue:
+                type: string
+              newValue:
+                type: string
+        message:
+          type: string
+          description: User-friendly message
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+        - code
+        - statusCode
+      properties:
+        error:
+          type: string
+          description: HTTP error name
+          example: "Bad Request"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Search query must be at least 2 characters"
+        code:
+          type: string
+          description: Machine-readable error code
+          example: "QUERY_TOO_SHORT"
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 400
+        details:
+          type: object
+          nullable: true
+          description: Additional error details
+        retryAfter:
+          type: integer
+          nullable: true
+          description: Seconds to wait before retrying (for rate limits)
+        fallbackAvailable:
+          type: boolean
+          nullable: true
+          description: Whether a fallback option is available
+
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: sessionId
+      description: Session-based authentication (existing BookBuddy auth)
+
+security:
+  - sessionAuth: []
