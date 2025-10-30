@@ -7,7 +7,7 @@ description: Review past Codex consultations to learn from architectural decisio
 Review past consultations with Codex CLI:
 ```bash
 # Show recent Codex interactions
-grep -r "codex --approval" ~/.claude/history/ | tail -20
+grep -r "codex -a" ~/.claude/history/ | tail -20
 
 # Or check logs
 cat ~/.codex/logs/latest.log
