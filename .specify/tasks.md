@@ -18,7 +18,7 @@
 
 ### Implementor-A (Data Layer)
 - Implementor-A → afeb7e9 — Phase 1 Setup complete: migration & models created, database verified (T001-T006)
-- Implementor-A → [pending commit] — Phase 2-3 Data: GoalProgressService created (T007), model tests written (T010-T012), service methods implemented (T020-T023)
+- Implementor-A → a9082ac — Phase 2-3 Data: GoalProgressService created (T007), model tests written (T010-T012), service methods implemented (T020-T023)
 
 ### Implementor-B (API Layer)
 *Append status updates here*
