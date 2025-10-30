@@ -34,21 +34,38 @@ get_agent_role() {
     fi
 }
 
-# Extract spec ID from current branch or event store
+# Extract spec ID from multiple sources (priority order)
 get_spec_id() {
     local current_branch
     current_branch="$(git branch --show-current)"
 
-    # Try pattern matching first
+    # 1. Check .claude/feature.config (highest priority - explicit config)
+    if [[ -f "$PROJECT_ROOT/.claude/feature.config" ]]; then
+        local spec_id
+        spec_id=$(grep "^SPEC_ID=" "$PROJECT_ROOT/.claude/feature.config" 2>/dev/null | cut -d'=' -f2)
+        if [[ -n "$spec_id" ]]; then
+            echo "$spec_id"
+            return 0
+        fi
+    fi
+
+    # 2. Check git config
+    local git_spec_id
+    git_spec_id=$(git config --local feature.specid 2>/dev/null || echo "")
+    if [[ -n "$git_spec_id" ]]; then
+        echo "$git_spec_id"
+        return 0
+    fi
+
+    # 3. Try branch pattern matching
     if [[ "$current_branch" =~ feature/([^/]+) ]]; then
         echo "${BASH_REMATCH[1]}"
         return 0
     fi
 
-    # If that fails, try querying event store
+    # 4. Query event store (fallback)
     local event_db="$PROJECT_ROOT/.orchestrator/events.db"
     if [[ -f "$event_db" ]]; then
-        # Query event store for feature matching this branch
         local spec_id
         spec_id=$(sqlite3 "$event_db" "
             SELECT f.spec_id
