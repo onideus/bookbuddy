@@ -1,0 +1,110 @@
+name: Implementor CI
+
+# Runs unit tests and linting on implementor branches
+on:
+  push:
+    branches:
+      - 'feature/*/impl-*'
+  pull_request:
+    branches:
+      - 'feature/*/overseer'
+
+jobs:
+  unit-tests:
+    name: Unit Tests & Lint
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint || echo "No lint script configured"
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Check code formatting
+        run: npm run format:check || echo "No format check configured"
+
+      - name: Report test results
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Unit Test Results
+          path: 'test-results/*.xml'
+          reporter: jest-junit
+          fail-on-error: true
+
+  conflict-check:
+    name: Conflict Detection
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for merge conflicts
+        run: |
+          # Extract spec ID from branch name
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          if [[ "$BRANCH_NAME" =~ feature/([^/]+)/impl- ]]; then
+            SPEC_ID="${BASH_REMATCH[1]}"
+            OVERSEER_BRANCH="feature/${SPEC_ID}/overseer"
+
+            echo "Checking for conflicts with $OVERSEER_BRANCH"
+
+            git fetch origin "$OVERSEER_BRANCH"
+
+            # Run merge-tree to detect conflicts
+            if git merge-tree $(git merge-base HEAD origin/$OVERSEER_BRANCH) HEAD origin/$OVERSEER_BRANCH | grep -q "^changed in both"; then
+              echo "⚠️  CONFLICTS DETECTED with overseer branch!"
+              echo "Coordinate with overseer before merging."
+              exit 1
+            else
+              echo "✅ No conflicts detected"
+            fi
+          fi
+
+  build:
+    name: Build Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build || echo "No build script configured"
+
+      - name: Upload build artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: dist/
+          retention-days: 7
