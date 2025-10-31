@@ -140,6 +140,13 @@ main {
   margin-top: var(--spacing-xs);
 }
 
+.form-help {
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-xs);
+  font-style: italic;
+}
+
 .form-textarea {
   min-height: 100px;
   resize: vertical;
@@ -313,6 +320,283 @@ main {
   display: flex;
   gap: var(--spacing-md);
   margin-top: var(--spacing-lg);
+}
+
+/* Goal Progress Bar (T032) - WCAG 2.1 AA compliant */
+.goal-progress-bar {
+  width: 100%;
+}
+
+.progress-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.progress-bar-track {
+  width: 100%;
+  height: 24px;
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: var(--spacing-sm);
+  min-width: 0;
+}
+
+/* Progress bar states */
+.goal-progress-bar[data-progress="0"] .progress-bar-fill {
+  background: var(--color-bg-secondary);
+}
+
+.goal-progress-bar[data-progress="100"] .progress-bar-fill {
+  background: linear-gradient(90deg, var(--color-success), var(--color-secondary-light));
+}
+
+.goal-progress-bar.has-bonus .progress-bar-fill {
+  background: linear-gradient(90deg, var(--color-success), var(--color-secondary-light));
+  box-shadow: 0 0 8px rgba(5, 150, 105, 0.5);
+}
+
+/* Progress label */
+.progress-bar-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.progress-count {
+  color: var(--color-text-primary);
+}
+
+.progress-percentage {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.goal-progress-bar.has-bonus .progress-percentage {
+  color: var(--color-success);
+}
+
+/* Bonus indicator */
+.progress-bonus-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-secondary-light);
+  color: var(--color-text-primary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  animation: bonus-appear var(--transition-slow);
+}
+
+@keyframes bonus-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bonus-icon {
+  font-size: var(--font-size-lg);
+}
+
+.bonus-text {
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Size variants */
+.goal-progress-bar.size-small .progress-bar-track {
+  height: 16px;
+}
+
+.goal-progress-bar.size-small .progress-bar-label {
+  font-size: var(--font-size-xs);
+}
+
+.goal-progress-bar.size-large .progress-bar-track {
+  height: 32px;
+}
+
+.goal-progress-bar.size-large .progress-bar-label {
+  font-size: var(--font-size-base);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .progress-bar-track {
+    border: 2px solid var(--color-border);
+  }
+
+  .progress-bar-fill {
+    border: 2px solid var(--color-primary-dark);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .progress-bar-fill {
+    transition: none;
+  }
+
+  .progress-bonus-indicator {
+    animation: none;
+  }
+}
+
+/* Goal Card (T035) */
+.goal-card {
+  background: var(--color-bg-primary);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+.goal-card[role="button"] {
+  cursor: pointer;
+}
+
+.goal-card[role="button"]:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.goal-card[role="button"]:focus {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Goal card header */
+.goal-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-md);
+  gap: var(--spacing-md);
+}
+
+.goal-card-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+  flex: 1;
+}
+
+/* Goal status badges (T058) */
+.goal-status-badge {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.goal-status-badge.status-active {
+  background-color: var(--color-status-reading);
+  color: var(--color-text-inverse);
+}
+
+.goal-status-badge.status-completed {
+  background-color: var(--color-status-finished);
+  color: var(--color-text-inverse);
+}
+
+.goal-status-badge.status-expired {
+  background-color: var(--color-text-tertiary);
+  color: var(--color-text-inverse);
+}
+
+/* Goal card progress */
+.goal-card-progress {
+  margin-bottom: var(--spacing-md);
+}
+
+/* Goal card metadata */
+.goal-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.goal-meta-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-sm);
+}
+
+.goal-meta-label {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.goal-meta-value {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.goal-meta-value.text-primary {
+  color: var(--color-primary);
+}
+
+/* Goal card actions (T073, T074) */
+.goal-card-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.btn-accent {
+  background-color: var(--color-accent);
+  color: var(--color-text-inverse);
+}
+
+.btn-accent:hover {
+  background-color: var(--color-accent-dark);
+}
+
+/* Goal card status variants */
+.goal-card.status-active {
+  border-left: 4px solid var(--color-status-reading);
+}
+
+.goal-card.status-completed {
+  border-left: 4px solid var(--color-status-finished);
+}
+
+.goal-card.status-expired {
+  border-left: 4px solid var(--color-text-tertiary);
+  opacity: 0.8;
 }
 
 /* Responsive */
