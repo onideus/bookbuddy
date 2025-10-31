@@ -14,6 +14,7 @@
 | US1 Services (T020-T029) | Implementor-B | 🟢 complete | 10/10 |
 | US1 Frontend (T030-T044) | Implementor-C | 🟢 complete | 12/15 |
 | US1 Refactor (T042-T044) | Implementor-A | 🔵 pending | 0/3 |
+| US2 Frontend (T055-T063) | Implementor-C | 🟢 complete | 9/9 |
 
 ## Status Updates
 
@@ -29,6 +30,7 @@
 ### Implementor-C (UI Layer)
 - Implementor-C → 664e7b5 — US1 Frontend components complete: Goals API client, GoalProgressBar, GoalForm, GoalCard, styles, tests (T009, T030-T041)
 - **Status**: ✅ Merged to overseer (2025-10-30 21:21)
+- Implementor-C → c3abf15 — US2 Frontend complete: GoalsPage with sections, empty states, loading/error handling, pagination (T055-T063)
 
 ### Overseer Integration
 - **Date**: 2025-10-30 21:25
