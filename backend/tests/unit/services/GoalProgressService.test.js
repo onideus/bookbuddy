@@ -37,11 +37,11 @@ describe('GoalProgressService', () => {
       title: 'Test Book for Goals',
       author: 'Test Author',
     });
-    testReadingEntryId = await createReadingEntryDirect({
-      readerId: testUserId,
-      bookId: testBookId,
-      status: 'READING',
-    });
+    testReadingEntryId = await createReadingEntryDirect(
+      testUserId,
+      testBookId,
+      'READING'
+    );
     vi.clearAllMocks();
   });
 
@@ -129,11 +129,11 @@ describe('GoalProgressService', () => {
         title: 'Test Book 2',
         author: 'Test Author',
       });
-      const entry2Id = await createReadingEntryDirect({
-        readerId: testUserId,
-        bookId: book2Id,
-        status: 'FINISHED',
-      });
+      const entry2Id = await createReadingEntryDirect(
+        testUserId,
+        book2Id,
+        'FINISHED'
+      );
       await GoalProgressService.onBookCompleted({
         userId: testUserId,
         readingEntryId: entry2Id,
@@ -145,11 +145,11 @@ describe('GoalProgressService', () => {
         title: 'Test Book 3',
         author: 'Test Author',
       });
-      const entry3Id = await createReadingEntryDirect({
-        readerId: testUserId,
-        bookId: book3Id,
-        status: 'FINISHED',
-      });
+      const entry3Id = await createReadingEntryDirect(
+        testUserId,
+        book3Id,
+        'FINISHED'
+      );
       await GoalProgressService.onBookCompleted({
         userId: testUserId,
         readingEntryId: entry3Id,
@@ -364,11 +364,11 @@ describe('GoalProgressService', () => {
         title: 'Bonus Book',
         author: 'Test Author',
       });
-      const entry2Id = await createReadingEntryDirect({
-        readerId: testUserId,
-        bookId: book2Id,
-        status: 'FINISHED',
-      });
+      const entry2Id = await createReadingEntryDirect(
+        testUserId,
+        book2Id,
+        'FINISHED'
+      );
       await GoalProgressService.onBookCompleted({
         userId: testUserId,
         readingEntryId: entry2Id,
