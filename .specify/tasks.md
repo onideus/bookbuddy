@@ -21,7 +21,7 @@
 - Implementor-A → a9082ac — Phase 2-3 Data: GoalProgressService created (T007), model tests written (T010-T012), service methods implemented (T020-T023)
 
 ### Implementor-B (API Layer)
-*Append status updates here*
+- Implementor-B → 34ea4dd — T020-T029 complete: GoalProgressService, goals API routes, reading entry hooks (19/21 tests passing)
 
 ### Implementor-C (UI Layer)
 - Implementor-C → 664e7b5 — US1 Frontend components complete: Goals API client, GoalProgressBar, GoalForm, GoalCard, styles, tests (T009, T030-T041)

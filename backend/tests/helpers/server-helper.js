@@ -55,11 +55,13 @@ export async function build(opts = {}) {
   const readingEntriesRoutes = await import('../../src/api/routes/reading-entries.js');
   const progressNotesRoutes = await import('../../src/api/routes/progress-notes.js');
   const ratingsRoutes = await import('../../src/api/routes/ratings.js');
+  const goalsRoutes = await import('../../src/api/routes/goals.js');
 
   await fastify.register(authRoutes.default, { prefix: '/api' });
   await fastify.register(readingEntriesRoutes.default, { prefix: '/api' });
   await fastify.register(progressNotesRoutes.default, { prefix: '/api' });
   await fastify.register(ratingsRoutes.default, { prefix: '/api' });
+  await fastify.register(goalsRoutes.default, { prefix: '/api' });
 
   fastify.setNotFoundHandler(notFoundHandler);
   fastify.setErrorHandler(errorHandler);

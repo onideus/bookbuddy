@@ -9,6 +9,7 @@ import { StatusTransition } from '../models/status-transition.js';
 import * as ProgressUpdate from '../models/progress-update.js';
 import { transaction, query } from '../db/connection.js';
 import { logAnalyticsEvent } from '../lib/logger.js';
+import { GoalProgressService } from './GoalProgressService.js';
 
 export class ReadingService {
   /**
@@ -89,6 +90,25 @@ export class ReadingService {
       isNewBook: result.isNewBook,
       timestamp: new Date().toISOString(),
     });
+
+    // T028: Trigger goal progress update if book added as FINISHED
+    if (status === 'FINISHED') {
+      try {
+        await GoalProgressService.onBookCompleted({
+          userId: readerId,
+          readingEntryId: result.entry.id,
+          bookId: result.book.id,
+        });
+      } catch (error) {
+        // Log error but don't fail the book addition
+        logAnalyticsEvent({
+          eventType: 'goal_progress_update_failed',
+          error: error.message,
+          readerId,
+          entryId: result.entry.id,
+        });
+      }
+    }
 
     return {
       readingEntry: {
@@ -199,6 +219,34 @@ export class ReadingService {
       conflictWarning,
       timestamp: new Date().toISOString(),
     });
+
+    // T028-T029: Trigger goal progress updates based on status transition
+    try {
+      // If transitioning TO FINISHED, increment goals
+      if (oldStatus !== 'FINISHED' && newStatus === 'FINISHED') {
+        await GoalProgressService.onBookCompleted({
+          userId: readerId,
+          readingEntryId: entryId,
+          bookId: currentEntry.book.id,
+        });
+      }
+      // If transitioning FROM FINISHED to something else, decrement goals
+      else if (oldStatus === 'FINISHED' && newStatus !== 'FINISHED') {
+        await GoalProgressService.onBookUncompleted({
+          readingEntryId: entryId,
+        });
+      }
+    } catch (error) {
+      // Log error but don't fail the status update
+      logAnalyticsEvent({
+        eventType: 'goal_progress_update_failed',
+        error: error.message,
+        readerId,
+        entryId,
+        fromStatus: oldStatus,
+        toStatus: newStatus,
+      });
+    }
 
     return {
       readingEntry: {

@@ -61,12 +61,14 @@ async function registerPlugins() {
   const progressNotesRoutes = await import('./api/routes/progress-notes.js');
   const ratingsRoutes = await import('./api/routes/ratings.js');
   const bookSearchRoutes = await import('./api/routes/book-search.js');
+  const goalsRoutes = await import('./api/routes/goals.js');
 
   await fastify.register(authRoutes.default, { prefix: '/api' });
   await fastify.register(readingEntriesRoutes.default, { prefix: '/api' });
   await fastify.register(progressNotesRoutes.default, { prefix: '/api' });
   await fastify.register(ratingsRoutes.default, { prefix: '/api' });
   await fastify.register(bookSearchRoutes.default, { prefix: '' });
+  await fastify.register(goalsRoutes.default, { prefix: '/api' });
 
   // 404 handler
   fastify.setNotFoundHandler(notFoundHandler);
