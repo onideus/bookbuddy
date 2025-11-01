@@ -1,103 +1,78 @@
-// Simple in-memory database for demo purposes
-// In production, you'd use a real database like PostgreSQL, MongoDB, etc.
+/**
+ * DEPRECATED: This file is maintained for backward compatibility only.
+ * New code should use the repository pattern from /domain and /infrastructure.
+ *
+ * This file now re-exports types from the domain layer and provides
+ * a compatibility wrapper around the new architecture.
+ */
 
-export interface User {
-  id: string;
-  email: string;
-  password: string;
-  name: string;
-  createdAt: Date;
-}
+// Re-export types from domain layer
+export type { User } from '../domain/entities/user';
+export type { Book } from '../domain/entities/book';
+export type { Goal } from '../domain/entities/goal';
 
-export interface Book {
-  id: string;
-  userId: string;
-  googleBooksId: string;
-  title: string;
-  authors: string[];
-  thumbnail?: string;
-  description?: string;
-  pageCount?: number;
-  status: 'want-to-read' | 'reading' | 'read';
-  currentPage?: number;
-  rating?: number;
-  addedAt: Date;
-  finishedAt?: Date;
-}
+import { memoryDatabase } from '../infrastructure/persistence/memory/database';
+import type { User } from '../domain/entities/user';
+import type { Book } from '../domain/entities/book';
+import type { Goal } from '../domain/entities/goal';
 
-export interface Goal {
-  id: string;
-  userId: string;
-  title: string;
-  description?: string;
-  targetBooks: number;
-  currentBooks: number;
-  startDate: Date;
-  endDate: Date;
-  completed: boolean;
-}
-
-// In-memory storage
-const users: Map<string, User> = new Map();
-const books: Map<string, Book> = new Map();
-const goals: Map<string, Goal> = new Map();
-
-// User operations
+// Compatibility wrapper for legacy code
+// This uses the new memory database but maintains the old API
 export const db = {
   users: {
     create: async (user: User) => {
-      users.set(user.id, user);
+      memoryDatabase.users.set(user.id, user);
       return user;
     },
     findByEmail: async (email: string) => {
-      return Array.from(users.values()).find(u => u.email === email);
+      return Array.from(memoryDatabase.users.values()).find(u => u.email === email);
     },
     findById: async (id: string) => {
-      return users.get(id);
+      return memoryDatabase.users.get(id);
     },
   },
   books: {
     create: async (book: Book) => {
-      books.set(book.id, book);
+      memoryDatabase.books.set(book.id, book);
       return book;
     },
     findByUserId: async (userId: string) => {
-      return Array.from(books.values()).filter(b => b.userId === userId);
+      return Array.from(memoryDatabase.books.values()).filter(b => b.userId === userId);
     },
     findById: async (id: string) => {
-      return books.get(id);
+      return memoryDatabase.books.get(id);
     },
     update: async (id: string, updates: Partial<Book>) => {
-      const book = books.get(id);
+      const book = memoryDatabase.books.get(id);
       if (!book) return null;
       const updated = { ...book, ...updates };
-      books.set(id, updated);
+      memoryDatabase.books.set(id, updated);
       return updated;
     },
     delete: async (id: string) => {
-      return books.delete(id);
+      return memoryDatabase.books.delete(id);
     },
   },
   goals: {
     create: async (goal: Goal) => {
-      goals.set(goal.id, goal);
+      memoryDatabase.goals.set(goal.id, goal);
       return goal;
     },
     findByUserId: async (userId: string) => {
-      return Array.from(goals.values()).filter(g => g.userId === userId);
+      return Array.from(memoryDatabase.goals.values()).filter(g => g.userId === userId);
     },
     findById: async (id: string) => {
-      return goals.get(id);
+      return memoryDatabase.goals.get(id);
     },
     update: async (id: string, updates: Partial<Goal>) => {
-      const goal = goals.get(id);
+      const goal = memoryDatabase.goals.get(id);
       if (!goal) return null;
       const updated = { ...goal, ...updates };
-      goals.set(id, updated);
+      memoryDatabase.goals.set(id, updated);
       return updated;
     },
     delete: async (id: string) => {
-      return goals.delete(id);
+      return memoryDatabase.goals.delete(id);
     },
   },
 };

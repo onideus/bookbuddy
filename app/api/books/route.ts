@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { Container } from "@/lib/di/container";
+import { GetUserBooksUseCase } from "@/application/use-cases/books/get-user-books";
+import { AddBookUseCase } from "@/application/use-cases/books/add-book";
+import { DuplicateError, ValidationError } from "@/domain/errors/domain-errors";
 
 export async function GET(request: Request) {
   try {
@@ -11,7 +14,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const books = await db.books.findByUserId(session.user.id);
+    const bookRepository = Container.getBookRepository();
+    const useCase = new GetUserBooksUseCase(bookRepository);
+    const books = await useCase.execute({ userId: session.user.id });
 
     return NextResponse.json({ books });
   } catch (error) {
@@ -41,8 +46,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const book = await db.books.create({
-      id: crypto.randomUUID(),
+    const bookRepository = Container.getBookRepository();
+    const useCase = new AddBookUseCase(bookRepository);
+
+    const book = await useCase.execute({
       userId: session.user.id,
       googleBooksId,
       title,
@@ -51,13 +58,26 @@ export async function POST(request: Request) {
       description,
       pageCount,
       status,
-      currentPage: 0,
-      addedAt: new Date(),
     });
 
     return NextResponse.json({ book }, { status: 201 });
   } catch (error) {
     console.error("Error creating book:", error);
+
+    if (error instanceof DuplicateError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 409 }
+      );
+    }
+
+    if (error instanceof ValidationError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

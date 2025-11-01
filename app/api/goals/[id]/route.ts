@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { Container } from "@/lib/di/container";
+import { UpdateGoalUseCase } from "@/application/use-cases/goals/update-goal";
+import { DeleteGoalUseCase } from "@/application/use-cases/goals/delete-goal";
+import { NotFoundError, UnauthorizedError } from "@/domain/errors/domain-errors";
 
 export async function PATCH(
   request: Request,
@@ -15,19 +18,29 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const goal = await db.goals.findById(id);
-
-    if (!goal || goal.userId !== session.user.id) {
-      return NextResponse.json({ error: "Goal not found" }, { status: 404 });
-    }
-
     const updates = await request.json();
 
-    const updatedGoal = await db.goals.update(id, updates);
+    const goalRepository = Container.getGoalRepository();
+    const useCase = new UpdateGoalUseCase(goalRepository);
 
-    return NextResponse.json({ goal: updatedGoal });
+    const goal = await useCase.execute({
+      goalId: id,
+      userId: session.user.id,
+      updates,
+    });
+
+    return NextResponse.json({ goal });
   } catch (error) {
     console.error("Error updating goal:", error);
+
+    if (error instanceof NotFoundError) {
+      return NextResponse.json({ error: error.message }, { status: 404 });
+    }
+
+    if (error instanceof UnauthorizedError) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -47,17 +60,27 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    const goal = await db.goals.findById(id);
 
-    if (!goal || goal.userId !== session.user.id) {
-      return NextResponse.json({ error: "Goal not found" }, { status: 404 });
-    }
+    const goalRepository = Container.getGoalRepository();
+    const useCase = new DeleteGoalUseCase(goalRepository);
 
-    await db.goals.delete(id);
+    await useCase.execute({
+      goalId: id,
+      userId: session.user.id,
+    });
 
     return NextResponse.json({ message: "Goal deleted successfully" });
   } catch (error) {
     console.error("Error deleting goal:", error);
+
+    if (error instanceof NotFoundError) {
+      return NextResponse.json({ error: error.message }, { status: 404 });
+    }
+
+    if (error instanceof UnauthorizedError) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

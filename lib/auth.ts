@@ -1,7 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
-import { db } from "./db";
+import { Container } from "./di/container";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -16,13 +15,16 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const user = await db.users.findByEmail(credentials.email);
+        const userRepository = Container.getUserRepository();
+        const passwordHasher = Container.getPasswordHasher();
+
+        const user = await userRepository.findByEmail(credentials.email);
 
         if (!user) {
           return null;
         }
 
-        const passwordMatch = await bcrypt.compare(
+        const passwordMatch = await passwordHasher.compare(
           credentials.password,
           user.password
         );

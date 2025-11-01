@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { Container } from "@/lib/di/container";
+import { GetUserGoalsUseCase } from "@/application/use-cases/goals/get-user-goals";
+import { CreateGoalUseCase } from "@/application/use-cases/goals/create-goal";
+import { ValidationError } from "@/domain/errors/domain-errors";
 
 export async function GET(request: Request) {
   try {
@@ -11,7 +14,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const goals = await db.goals.findByUserId(session.user.id);
+    const goalRepository = Container.getGoalRepository();
+    const useCase = new GetUserGoalsUseCase(goalRepository);
+    const goals = await useCase.execute({ userId: session.user.id });
 
     return NextResponse.json({ goals });
   } catch (error) {
@@ -41,21 +46,29 @@ export async function POST(request: Request) {
       );
     }
 
-    const goal = await db.goals.create({
-      id: crypto.randomUUID(),
+    const goalRepository = Container.getGoalRepository();
+    const useCase = new CreateGoalUseCase(goalRepository);
+
+    const goal = await useCase.execute({
       userId: session.user.id,
       title,
       description,
       targetBooks,
-      currentBooks: 0,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
-      completed: false,
     });
 
     return NextResponse.json({ goal }, { status: 201 });
   } catch (error) {
     console.error("Error creating goal:", error);
+
+    if (error instanceof ValidationError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

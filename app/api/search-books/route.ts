@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { Container } from "@/lib/di/container";
+import { SearchBooksUseCase } from "@/application/use-cases/search/search-books";
 
 export async function GET(request: Request) {
   try {
@@ -9,26 +11,19 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Query is required" }, { status: 400 });
     }
 
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY;
-    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=20${apiKey ? `&key=${apiKey}` : ''}`;
+    const externalBookSearch = Container.getExternalBookSearch();
+    const useCase = new SearchBooksUseCase(externalBookSearch);
 
-    const response = await fetch(url);
+    const results = await useCase.execute({ query });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch from Google Books API");
-    }
-
-    const data = await response.json();
-
-    const books = data.items?.map((item: any) => ({
+    const books = results.map((item) => ({
       id: item.id,
       title: item.volumeInfo.title,
       authors: item.volumeInfo.authors || [],
       description: item.volumeInfo.description,
       thumbnail: item.volumeInfo.imageLinks?.thumbnail,
       pageCount: item.volumeInfo.pageCount,
-      publishedDate: item.volumeInfo.publishedDate,
-    })) || [];
+    }));
 
     return NextResponse.json({ books });
   } catch (error) {
