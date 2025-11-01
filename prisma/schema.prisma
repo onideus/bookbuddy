@@ -1,0 +1,73 @@
+// Prisma Schema for BookTracker Application
+// PostgreSQL database with User, Book, and Goal entities
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User entity - Authentication and user management
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // bcrypt hashed password
+  name      String
+  createdAt DateTime @default(now())
+
+  // Relations
+  books     Book[]
+  goals     Goal[]
+
+  @@map("users")
+}
+
+// Book entity - Book tracking with reading progress
+model Book {
+  id            String    @id @default(uuid())
+  userId        String
+  googleBooksId String
+  title         String
+  authors       String[]  // Array of author names
+  thumbnail     String?
+  description   String?   @db.Text
+  pageCount     Int?
+  status        String    // 'want-to-read', 'reading', 'read'
+  currentPage   Int       @default(0)
+  rating        Int?      // 1-5 stars, nullable
+  addedAt       DateTime  @default(now())
+  finishedAt    DateTime?
+
+  // Relations
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes for performance
+  @@unique([userId, googleBooksId]) // Prevent duplicate books per user
+  @@index([userId])
+  @@index([status])
+  @@map("books")
+}
+
+// Goal entity - Reading goals with tracking
+model Goal {
+  id           String   @id @default(uuid())
+  userId       String
+  title        String
+  description  String?  @db.Text
+  targetBooks  Int
+  currentBooks Int      @default(0)
+  startDate    DateTime
+  endDate      DateTime
+  completed    Boolean  @default(false)
+
+  // Relations
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes for performance
+  @@index([userId])
+  @@index([completed])
+  @@map("goals")
+}
