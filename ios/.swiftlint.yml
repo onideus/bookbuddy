@@ -1,0 +1,50 @@
+# SwiftLint Configuration for BookTracker iOS
+
+disabled_rules:
+  - trailing_whitespace
+  - line_length
+
+opt_in_rules:
+  - empty_count
+  - closure_spacing
+  - explicit_init
+  - first_where
+  - modifier_order
+  - redundant_nil_coalescing
+
+excluded:
+  - Pods
+  - .build
+  - DerivedData
+  - Packages/*/Tests
+
+identifier_name:
+  min_length: 1
+  max_length: 60
+  excluded:
+    - id
+    - url
+    - db
+    - vm
+
+type_name:
+  min_length: 3
+  max_length: 50
+
+function_body_length:
+  warning: 50
+  error: 100
+
+file_length:
+  warning: 500
+  error: 1000
+
+type_body_length:
+  warning: 300
+  error: 500
+
+cyclomatic_complexity:
+  warning: 10
+  error: 20
+
+reporter: "xcode"

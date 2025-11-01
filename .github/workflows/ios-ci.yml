@@ -1,0 +1,166 @@
+name: iOS CI
+
+on:
+  push:
+    branches: [ main, develop, feature/ios-* ]
+    paths:
+      - 'ios/**'
+      - '.github/workflows/ios-ci.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'ios/**'
+      - '.github/workflows/ios-ci.yml'
+
+jobs:
+  lint:
+    name: Lint and Format Check
+    runs-on: macos-14
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: ios
+
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      - name: Install SwiftFormat
+        run: brew install swiftformat
+
+      - name: Run SwiftLint
+        working-directory: ios
+        run: swiftlint lint --strict
+
+      - name: Run SwiftFormat Check
+        working-directory: ios
+        run: swiftformat --lint .
+
+  test-packages:
+    name: Test Swift Packages
+    runs-on: macos-14
+    strategy:
+      matrix:
+        package: [CoreDomain, Application, InfrastructureIOS]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_15.2.app
+
+      - name: Cache SPM dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/Library/Caches/org.swift.swiftpm
+            ios/Packages/${{ matrix.package }}/.build
+          key: ${{ runner.os }}-spm-${{ hashFiles('ios/Packages/${{ matrix.package }}/Package.swift') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Build ${{ matrix.package }}
+        working-directory: ios/Packages/${{ matrix.package }}
+        run: swift build
+
+      - name: Test ${{ matrix.package }}
+        working-directory: ios/Packages/${{ matrix.package }}
+        run: swift test --enable-code-coverage
+
+      - name: Generate coverage report
+        if: matrix.package == 'CoreDomain'
+        working-directory: ios/Packages/${{ matrix.package }}
+        run: |
+          xcrun llvm-cov export -format="lcov" \
+            .build/debug/${{ matrix.package }}PackageTests.xctest/Contents/MacOS/${{ matrix.package }}PackageTests \
+            -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
+
+      - name: Upload coverage to Codecov
+        if: matrix.package == 'CoreDomain'
+        uses: codecov/codecov-action@v3
+        with:
+          files: ios/Packages/${{ matrix.package }}/coverage.lcov
+          flags: ios-${{ matrix.package }}
+          name: ${{ matrix.package }}
+
+  build-app:
+    name: Build iOS App
+    runs-on: macos-14
+    needs: [lint, test-packages]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_15.2.app
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: ios
+
+      - name: Cache SPM dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/Library/Caches/org.swift.swiftpm
+            ios/.build
+          key: ${{ runner.os }}-spm-app-${{ hashFiles('ios/**/*.swift') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-app-
+
+      - name: Install dependencies
+        working-directory: ios
+        run: bundle install
+
+      - name: Build app (Development)
+        working-directory: ios
+        run: bundle exec fastlane build_dev
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: BookTrackerIOS-Debug
+          path: ios/build/*.ipa
+          retention-days: 7
+
+  test-app:
+    name: Test iOS App
+    runs-on: macos-14
+    needs: [lint, test-packages]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_15.2.app
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: ios
+
+      - name: Install dependencies
+        working-directory: ios
+        run: bundle install
+
+      - name: Run app tests
+        working-directory: ios
+        run: bundle exec fastlane test
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: ios/fastlane/test_output
+          retention-days: 7
