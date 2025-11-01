@@ -24,7 +24,7 @@ struct ContentView: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             BooksListView(viewModel: viewModel)
         }
     }
@@ -185,13 +185,17 @@ struct BooksListView: View {
                                             Task {
                                                 await viewModel.updateBook(book, updates: updates)
                                             }
-                                        },
-                                        onDelete: { book in
+                                        }
+                                    )
+                                    .contextMenu {
+                                        Button(role: .destructive) {
                                             Task {
                                                 await viewModel.deleteBook(book)
                                             }
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
                                         }
-                                    )
+                                    }
                                 }
                             }
                             .padding(.horizontal)
@@ -414,60 +418,47 @@ enum BookStatusFilter: Hashable, Identifiable {
 struct BookCard: View {
     let book: Book
     let onUpdate: (Book, BookUpdate) -> Void
-    let onDelete: (Book) -> Void
 
     @State private var showingPageUpdate = false
-    @State private var showingDeleteConfirmation = false
     @State private var currentPageInput = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Book thumbnail with delete button overlay
-            ZStack(alignment: .topTrailing) {
-                if let thumbnail = book.thumbnail, let url = URL(string: thumbnail) {
-                    AsyncImage(url: url) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } placeholder: {
-                        PlaceholderBookCover()
-                    }
-                    .frame(height: 220)
-                    .frame(maxWidth: .infinity)
-                    .clipped()
-                } else {
+            // Book thumbnail
+            if let thumbnail = book.thumbnail, let url = URL(string: thumbnail) {
+                AsyncImage(url: url) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(3/4, contentMode: .fill)
+                } placeholder: {
                     PlaceholderBookCover()
-                        .frame(height: 220)
-                        .frame(maxWidth: .infinity)
                 }
-
-                // Delete button
-                Button(action: { showingDeleteConfirmation = true }) {
-                    Image(systemName: "trash.fill")
-                        .font(.caption)
-                        .foregroundColor(.white)
-                        .padding(8)
-                        .background(Color.black.opacity(0.6))
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-                .padding(8)
+                .frame(maxWidth: .infinity)
+                .aspectRatio(3/4, contentMode: .fit)
+                .clipped()
+                .cornerRadius(8)
+            } else {
+                PlaceholderBookCover()
+                    .frame(maxWidth: .infinity)
+                    .aspectRatio(3/4, contentMode: .fit)
+                    .cornerRadius(8)
             }
 
             // Book info section
             VStack(alignment: .leading, spacing: 8) {
                 // Title
                 Text(book.title)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
+                    .font(.headline)
                     .lineLimit(2)
-                    .frame(minHeight: 34, alignment: .top)
+                    .frame(minHeight: 40, alignment: .top)
 
                 // Author
                 Text(book.authors.joined(separator: ", "))
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
-                    .lineLimit(1)
+                    .lineLimit(2)
+                    .truncationMode(.tail)
+                    .frame(minHeight: 36, alignment: .top)
 
                 // Status picker
                 Menu {
@@ -483,26 +474,27 @@ struct BookCard: View {
                 } label: {
                     HStack(spacing: 4) {
                         Text(book.status.displayName)
-                            .font(.caption2)
+                            .font(.callout)
                             .fontWeight(.medium)
                         Image(systemName: "chevron.down")
-                            .font(.system(size: 8))
+                            .font(.caption2)
                     }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
                     .frame(maxWidth: .infinity)
-                    .background(statusColor.opacity(0.15))
+                    .background(statusColor.opacity(0.12))
                     .foregroundColor(statusColor)
                     .cornerRadius(8)
                 }
                 .buttonStyle(.plain)
 
-                // Reading progress (for books being read)
-                if book.status == .reading, let pageCount = book.pageCount {
-                    VStack(alignment: .leading, spacing: 6) {
+                // Variable content area (fixed height for consistent card sizes)
+                VStack(alignment: .leading, spacing: 6) {
+                    // Reading progress (for books being read)
+                    if book.status == .reading, let pageCount = book.pageCount {
                         HStack {
-                            Text("\(book.currentPage ?? 0) / \(pageCount)")
-                                .font(.caption2)
+                            Text("\(book.currentPage ?? 0) / \(pageCount) (\(Int(readingProgress * 100))%)")
+                                .font(.caption)
                                 .foregroundColor(.secondary)
 
                             Spacer()
@@ -511,37 +503,36 @@ struct BookCard: View {
                                 currentPageInput = String(book.currentPage ?? 0)
                                 showingPageUpdate = true
                             }
-                            .font(.caption2)
-                            .fontWeight(.medium)
-                            .foregroundColor(.blue)
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.accentColor)
                         }
 
                         ProgressView(value: readingProgress, total: 1.0)
-                            .tint(.blue)
-                            .scaleEffect(y: 0.7)
+                            .tint(.accentColor)
                     }
-                }
-
-                // Rating (for completed books)
-                if book.status == .read {
-                    HStack(spacing: 4) {
-                        ForEach(1...5, id: \.self) { star in
-                            Button(action: { updateRating(star) }) {
-                                Image(systemName: star <= (book.rating ?? 0) ? "star.fill" : "star")
-                                    .foregroundColor(star <= (book.rating ?? 0) ? .yellow : .gray.opacity(0.3))
-                                    .font(.system(size: 14))
+                    // Rating (for completed books)
+                    else if book.status == .read {
+                        HStack(spacing: 6) {
+                            ForEach(1...5, id: \.self) { star in
+                                Button(action: { updateRating(star) }) {
+                                    Image(systemName: star <= (book.rating ?? 0) ? "star.fill" : "star")
+                                        .foregroundColor(star <= (book.rating ?? 0) ? .yellow : .gray.opacity(0.4))
+                                        .font(.footnote)
+                                }
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
+                            Spacer()
                         }
-                        Spacer()
                     }
                 }
+                .frame(minHeight: 44, alignment: .top)
             }
-            .padding(12)
+            .padding(16)
         }
         .background(Color(.systemBackground))
         .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 2)
+        .shadow(color: Color.black.opacity(0.12), radius: 12, x: 0, y: 4)
         .alert("Update Page", isPresented: $showingPageUpdate) {
             TextField("Current Page", text: $currentPageInput)
                 .keyboardType(.numberPad)
@@ -553,18 +544,6 @@ struct BookCard: View {
             if let pageCount = book.pageCount {
                 Text("Enter your current page (out of \(pageCount))")
             }
-        }
-        .confirmationDialog(
-            "Delete Book",
-            isPresented: $showingDeleteConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button("Delete", role: .destructive) {
-                onDelete(book)
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Are you sure you want to delete \"\(book.title)\"?")
         }
     }
 
@@ -579,11 +558,11 @@ struct BookCard: View {
     private var statusColor: Color {
         switch book.status {
         case .wantToRead:
-            return .orange
+            return Color.orange
         case .reading:
-            return .blue
+            return Color.blue
         case .read:
-            return .green
+            return Color.green
         }
     }
 
@@ -661,7 +640,7 @@ struct SearchBar: View {
         }
         .padding(12)
         .background(Color(.systemGray6))
-        .cornerRadius(10)
+        .cornerRadius(12)
     }
 }
 
