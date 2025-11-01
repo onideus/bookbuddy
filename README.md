@@ -130,46 +130,100 @@ The dashboard provides an overview of:
 - **Language**: TypeScript
 - **Password Hashing**: bcryptjs
 
+## Architecture
+
+This application has been refactored to follow **Clean Architecture** and **SOLID principles**. It demonstrates professional software engineering practices with clear separation of concerns.
+
+### 🏗️ Clean Architecture Layers
+
+```
+┌─────────────────────────────────────┐
+│     UI Layer (Next.js Pages)        │  ← User Interface
+├─────────────────────────────────────┤
+│  Application Layer (Use Cases)      │  ← Business Logic
+├─────────────────────────────────────┤
+│  Domain Layer (Entities, Services)  │  ← Core Business Rules
+├─────────────────────────────────────┤
+│  Infrastructure (Repositories, API) │  ← External Concerns
+└─────────────────────────────────────┘
+```
+
+### ✅ SOLID Principles
+
+- **S**ingle Responsibility: Each class has one reason to change
+- **O**pen/Closed: Open for extension, closed for modification
+- **L**iskov Substitution: Implementations are interchangeable
+- **I**nterface Segregation: Focused, specific interfaces
+- **D**ependency Inversion: Depend on abstractions, not concretions
+
+### 📚 Documentation
+
+Comprehensive documentation available:
+
+- **[FINAL_SUMMARY.md](./FINAL_SUMMARY.md)** - Complete refactoring overview
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Detailed architecture guide
+- **[DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)** - How to add features
+- **[REFACTORING_SUMMARY.md](./REFACTORING_SUMMARY.md)** - Refactoring history
+
 ## Database
 
-Currently uses an in-memory database for demo purposes. For production use, you should replace the `lib/db.ts` implementation with a real database:
+Currently uses an in-memory database for demo purposes. Thanks to the repository pattern, you can easily swap to a real database by implementing new repositories:
 
+**To switch to PostgreSQL with Prisma:**
+1. Implement `PrismaBookRepository` implementing `IBookRepository`
+2. Update `lib/di/container.ts` bindings
+3. **No other changes needed!** Use cases, services, and UI remain unchanged.
+
+Supported databases:
 - PostgreSQL with Prisma
 - MongoDB with Mongoose
 - Supabase
 - Firebase
-- Any other database of your choice
+- Redis (for caching)
 
 ## Project Structure
 
 ```
 repo/
 ├── app/
-│   ├── api/              # API routes
+│   ├── actions/          # Server actions (type-safe mutations)
+│   │   ├── book-actions.ts
+│   │   └── goal-actions.ts
+│   ├── api/              # API routes (REST endpoints)
 │   │   ├── auth/         # NextAuth endpoints
-│   │   ├── books/        # Book management endpoints
-│   │   ├── goals/        # Goals endpoints
+│   │   ├── books/        # Book management
+│   │   ├── goals/        # Goals management
+│   │   ├── register/     # User registration
 │   │   └── search-books/ # Google Books search
-│   ├── dashboard/        # Dashboard page
-│   ├── books/           # Book management page
-│   ├── search/          # Book search page
-│   ├── goals/           # Goals page
-│   ├── login/           # Login page
-│   ├── register/        # Registration page
-│   ├── layout.tsx       # Root layout
-│   └── page.tsx         # Home page (redirects to login)
-├── components/
-│   ├── BookCard.tsx     # Book display component
-│   ├── GoalCard.tsx     # Goal display component
-│   ├── Navigation.tsx   # Navigation bar
-│   ├── ProgressBar.tsx  # Progress bar component
-│   └── Providers.tsx    # Session provider wrapper
+│   └── [pages]/          # UI pages
+│
+├── application/          # Application Layer
+│   └── use-cases/       # Business use cases (11 use cases)
+│       ├── books/       # Book operations
+│       ├── goals/       # Goal operations
+│       ├── auth/        # Authentication
+│       └── search/      # Book search
+│
+├── domain/              # Domain Layer (Core Business Logic)
+│   ├── entities/       # Business objects (User, Book, Goal)
+│   ├── services/       # Domain services (BookService, GoalService)
+│   ├── value-objects/  # Business rules (GoalProgress, ReadingStatus)
+│   ├── interfaces/     # Contracts (repository interfaces)
+│   └── errors/         # Domain errors
+│
+├── infrastructure/      # Infrastructure Layer
+│   ├── persistence/    # Data access
+│   │   └── memory/     # In-memory repositories (swap with Prisma)
+│   ├── external/       # External APIs (Google Books)
+│   └── security/       # Security (bcrypt)
+│
 ├── lib/
-│   ├── auth.ts          # NextAuth configuration
-│   └── db.ts            # Database operations (in-memory)
-├── types/
-│   └── next-auth.d.ts   # NextAuth type definitions
-└── middleware.ts        # Route protection middleware
+│   ├── di/            # Dependency injection container
+│   ├── auth.ts        # NextAuth configuration
+│   └── db.ts          # Backward compatibility wrapper
+│
+├── components/         # React components
+└── types/             # TypeScript types
 ```
 
 ## Contributing
