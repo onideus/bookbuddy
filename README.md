@@ -15,12 +15,40 @@ A modern, mobile-friendly book tracking application built with Next.js that help
 - **Mobile Responsive**: Fully optimized for all screen sizes with bottom navigation on mobile
 - **Dark Mode**: Built-in dark/light theme support
 
+## Quick Start
+
+Get up and running in 5 minutes:
+
+```bash
+# 1. Clone and install
+git clone <your-repo-url>
+cd repo
+npm install
+
+# 2. Copy environment file
+cp .env.example .env
+# (Update .env with your Google Books API key if you have one)
+
+# 3. Start PostgreSQL with Docker
+docker-compose up -d
+
+# 4. Setup database
+npm run prisma:migrate
+npm run prisma:seed
+
+# 5. Start the app
+npm run dev
+```
+
+Now open [http://localhost:3000](http://localhost:3000) and use the **🔧 Dev Login** button (dev@booktracker.com / dev123).
+
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+ installed
 - npm or yarn package manager
+- Docker and Docker Compose (recommended) OR PostgreSQL 14+ installed locally
 
 ### Installation
 
@@ -37,9 +65,19 @@ npm install
 
 3. Set up environment variables:
 
-Edit the `.env` file and update the following variables:
+Copy the example environment file and update it:
+
+```bash
+cp .env.example .env
+```
+
+Update the `.env` file with your configuration:
 
 ```env
+# Database - PostgreSQL connection string
+# For Docker (recommended): use this connection string as-is
+DATABASE_URL="postgresql://booktracker:booktracker_dev_password@localhost:5432/booktracker?schema=public"
+
 # NextAuth Secret - Generate a secure random string
 NEXTAUTH_SECRET=your-secret-key-change-this-in-production
 
@@ -56,6 +94,54 @@ To get a Google Books API key:
 3. Enable the "Books API"
 4. Create credentials (API Key)
 5. Copy the API key to your `.env` file
+
+4. Set up the database:
+
+**Option A: Using Docker (Recommended)**
+
+Start the PostgreSQL database using Docker Compose:
+
+```bash
+# Start PostgreSQL in the background
+docker-compose up -d
+
+# Wait a few seconds for the database to be ready, then run migrations
+npm run prisma:migrate
+
+# Seed the database with a dev user (dev@booktracker.com / dev123)
+npm run prisma:seed
+```
+
+To stop the database:
+```bash
+docker-compose down
+```
+
+To reset the database (⚠️ deletes all data):
+```bash
+docker-compose down -v
+docker-compose up -d
+npm run prisma:migrate
+npm run prisma:seed
+```
+
+**Option B: Using Local PostgreSQL**
+
+If you have PostgreSQL installed locally, update the `DATABASE_URL` in `.env` with your local credentials, then run:
+
+```bash
+# Run database migrations
+npm run prisma:migrate
+
+# Seed the database with a dev user
+npm run prisma:seed
+```
+
+**Database Tools:**
+```bash
+# Open Prisma Studio to view/edit your database visually
+npm run prisma:studio
+```
 
 ### Running the Application
 
@@ -126,6 +212,7 @@ The dashboard provides an overview of:
 ## Technology Stack
 
 - **Framework**: Next.js 16 with App Router
+- **Database**: PostgreSQL with Prisma ORM
 - **Authentication**: NextAuth.js with credentials provider
 - **Styling**: Tailwind CSS
 - **Icons**: Lucide React
@@ -170,15 +257,19 @@ This application has been refactored to follow **Clean Architecture** and **SOLI
 
 ## Database
 
-Currently uses an in-memory database for demo purposes. Thanks to the repository pattern, you can easily swap to a real database by implementing new repositories:
+This application uses **PostgreSQL** with **Prisma ORM** for persistent data storage. Thanks to the repository pattern, you can easily swap to a different database by implementing new repositories:
 
-**To switch to PostgreSQL with Prisma:**
-1. Implement `PrismaBookRepository` implementing `IBookRepository`
+**Current Implementation:**
+- `PrismaUserRepository` implements `IUserRepository`
+- `PrismaBookRepository` implements `IBookRepository`
+- `PrismaGoalRepository` implements `IGoalRepository`
+
+**To switch to a different database:**
+1. Implement new repositories (e.g., `MongoBookRepository` implementing `IBookRepository`)
 2. Update `lib/di/container.ts` bindings
 3. **No other changes needed!** Use cases, services, and UI remain unchanged.
 
-Supported databases:
-- PostgreSQL with Prisma
+Other supported databases:
 - MongoDB with Mongoose
 - Supabase
 - Firebase
@@ -216,7 +307,8 @@ repo/
 │
 ├── infrastructure/      # Infrastructure Layer
 │   ├── persistence/    # Data access
-│   │   └── memory/     # In-memory repositories (swap with Prisma)
+│   │   ├── prisma/     # Prisma repositories (PostgreSQL)
+│   │   └── memory/     # In-memory repositories (legacy)
 │   ├── external/       # External APIs (Google Books)
 │   └── security/       # Security (bcrypt)
 │

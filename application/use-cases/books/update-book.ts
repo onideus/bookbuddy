@@ -22,7 +22,19 @@ export class UpdateBookUseCase {
       throw new UnauthorizedError('You do not own this book');
     }
 
-    const updated = await this.bookRepository.update(input.bookId, input.updates);
+    const updates = { ...input.updates };
+
+    // Automatically set finishedAt when marking as read
+    if (updates.status === 'read' && !book.finishedAt && !updates.finishedAt) {
+      updates.finishedAt = new Date();
+    }
+
+    // Clear finishedAt if changing from read to another status
+    if (updates.status && updates.status !== 'read' && book.status === 'read') {
+      updates.finishedAt = null;
+    }
+
+    const updated = await this.bookRepository.update(input.bookId, updates);
 
     if (!updated) {
       throw new NotFoundError('Book', input.bookId);

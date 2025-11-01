@@ -99,8 +99,28 @@ export async function updateBookAction(
       updates,
     });
 
+    // Sync goal progress if book status changed to 'read'
+    if (updates.status === 'read' || updates.finishedAt) {
+      try {
+        const goalRepository = Container.getGoalRepository();
+        const goalService = Container.getGoalService();
+        const goals = await goalRepository.findByUserId(session.user.id);
+
+        // Sync all active goals
+        for (const goal of goals) {
+          if (!goal.completed) {
+            await goalService.syncGoalProgress(goal.id, session.user.id);
+          }
+        }
+      } catch (goalError) {
+        console.error('Error syncing goal progress:', goalError);
+        // Don't fail the book update if goal sync fails
+      }
+    }
+
     revalidatePath('/books');
     revalidatePath('/dashboard');
+    revalidatePath('/goals');
 
     return { success: true, data: book };
   } catch (error) {
@@ -169,8 +189,28 @@ export async function updateReadingProgressAction(
       currentPage
     );
 
+    // Sync goal progress if book was automatically marked as 'read'
+    if (book.status === 'read' && book.finishedAt) {
+      try {
+        const goalRepository = Container.getGoalRepository();
+        const goalService = Container.getGoalService();
+        const goals = await goalRepository.findByUserId(session.user.id);
+
+        // Sync all active goals
+        for (const goal of goals) {
+          if (!goal.completed) {
+            await goalService.syncGoalProgress(goal.id, session.user.id);
+          }
+        }
+      } catch (goalError) {
+        console.error('Error syncing goal progress:', goalError);
+        // Don't fail the progress update if goal sync fails
+      }
+    }
+
     revalidatePath('/books');
     revalidatePath('/dashboard');
+    revalidatePath('/goals');
 
     return { success: true, data: book };
   } catch (error) {
