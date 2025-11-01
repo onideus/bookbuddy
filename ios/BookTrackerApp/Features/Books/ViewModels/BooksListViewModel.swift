@@ -26,7 +26,7 @@ class BooksListViewModel: ObservableObject {
     private let getUserBooksUseCase: GetUserBooksUseCase
     private let updateBookUseCase: UpdateBookUseCase
     private let deleteBookUseCase: DeleteBookUseCase
-    private let currentUserId: String // TODO: Get from auth service
+    private let currentUserId: String // NOTE: Will be retrieved from auth service when implemented
 
     // MARK: - Cancellables
 

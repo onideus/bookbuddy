@@ -81,13 +81,16 @@ struct BooksListView: View {
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button(action: { showingAddBook = true }) {
-                    Image(systemName: "plus")
-                }
+                Button(
+                    action: { showingAddBook = true },
+                    label: {
+                        Image(systemName: "plus")
+                    }
+                )
             }
         }
         .sheet(isPresented: $showingAddBook) {
-            // TODO: Add book sheet
+            // NOTE: Add book sheet will be implemented in future update
             Text("Add Book - Coming Soon")
         }
         .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
@@ -119,10 +122,13 @@ struct SearchBar: View {
                 .textFieldStyle(.plain)
 
             if !text.isEmpty {
-                Button(action: { text = "" }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
-                }
+                Button(
+                    action: { text = "" },
+                    label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
+                    }
+                )
             }
         }
         .padding(12)

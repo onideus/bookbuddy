@@ -77,10 +77,13 @@ struct BookCard: View {
                 Spacer()
 
                 // Delete button
-                Button(action: { showingDeleteConfirmation = true }) {
-                    Image(systemName: "trash")
-                        .foregroundColor(.gray)
-                }
+                Button(
+                    action: { showingDeleteConfirmation = true },
+                    label: {
+                        Image(systemName: "trash")
+                            .foregroundColor(.gray)
+                    }
+                )
                 .buttonStyle(.plain)
             }
 
@@ -111,11 +114,14 @@ struct BookCard: View {
             if book.status == .read {
                 HStack(spacing: 4) {
                     ForEach(1...5, id: \.self) { star in
-                        Button(action: { updateRating(star) }) {
-                            Image(systemName: star <= (book.rating ?? 0) ? "star.fill" : "star")
-                                .foregroundColor(star <= (book.rating ?? 0) ? .yellow : .gray)
-                                .font(.caption)
-                        }
+                        Button(
+                            action: { updateRating(star) },
+                            label: {
+                                Image(systemName: star <= (book.rating ?? 0) ? "star.fill" : "star")
+                                    .foregroundColor(star <= (book.rating ?? 0) ? .yellow : .gray)
+                                    .font(.caption)
+                            }
+                        )
                         .buttonStyle(.plain)
                     }
                 }
