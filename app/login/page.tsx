@@ -37,6 +37,29 @@ export default function LoginPage() {
     }
   };
 
+  const handleDevLogin = async () => {
+    setError("");
+    setLoading(true);
+
+    try {
+      const result = await signIn("credentials", {
+        email: "dev@booktracker.com",
+        password: "dev123",
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError("Dev account not found. Please create it first.");
+      } else {
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      setError("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 px-4">
       <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl">
@@ -104,6 +127,22 @@ export default function LoginPage() {
               {loading ? "Signing in..." : "Sign in"}
             </button>
           </div>
+
+          {process.env.NODE_ENV === "development" && (
+            <div>
+              <button
+                type="button"
+                onClick={handleDevLogin}
+                disabled={loading}
+                className="group relative w-full flex justify-center py-3 px-4 border-2 border-dashed border-orange-400 dark:border-orange-600 text-sm font-medium rounded-md text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                🔧 Dev Login (dev@booktracker.com)
+              </button>
+              <p className="mt-2 text-xs text-center text-gray-500 dark:text-gray-400">
+                Development mode only - auto-login with test account
+              </p>
+            </div>
+          )}
 
           <div className="text-center text-sm">
             <span className="text-gray-600 dark:text-gray-400">Don't have an account? </span>
