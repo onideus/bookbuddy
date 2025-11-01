@@ -17,6 +17,7 @@ excluded:
   - .build
   - DerivedData
   - Packages/*/Tests
+  - vendor
 
 identifier_name:
   min_length: 1
