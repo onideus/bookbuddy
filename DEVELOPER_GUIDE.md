@@ -744,3 +744,11 @@ export async function POST(request: Request) {
 - [REFACTORING_SUMMARY.md](./REFACTORING_SUMMARY.md) - Refactoring history
 - [Clean Architecture by Robert C. Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 - [Domain-Driven Design](https://martinfowler.com/bliki/DomainDrivenDesign.html)
+
+---
+
+## Related Documentation
+
+- **[README.md](./README.md)** - Quick start and features overview
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Detailed architecture and design patterns  
+- **[REFACTORING_SUMMARY.md](./REFACTORING_SUMMARY.md)** - Refactoring history and achievements

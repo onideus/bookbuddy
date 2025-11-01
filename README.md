@@ -4,13 +4,16 @@ A modern, mobile-friendly book tracking application built with Next.js that help
 
 ## Features
 
-- **User Authentication**: Secure login and registration system
-- **Book Management**: Track books you want to read, are currently reading, or have finished
-- **Google Books Integration**: Search and add books using the Google Books API
-- **Reading Progress**: Track your progress with easy-to-read progress bars
-- **Reading Goals**: Create and monitor reading goals with visual progress tracking
-- **Mobile Responsive**: Fully optimized for mobile devices
-- **Dark Mode**: Built-in dark mode support
+### Core Features
+- **User Authentication**: Secure login and registration with NextAuth.js and bcryptjs password hashing
+- **Book Management**: Track books across three statuses (want-to-read, reading, read)
+- **Google Books Integration**: Search and add books by title, author, or ISBN
+- **Reading Progress**: Track page progress with visual progress bars and automatic status updates
+- **Star Ratings**: Rate finished books with a 5-star system
+- **Reading Goals**: Create goals with target books, deadlines, and automatic progress tracking
+- **Dashboard**: Overview with statistics, currently reading books, and active goals
+- **Mobile Responsive**: Fully optimized for all screen sizes with bottom navigation on mobile
+- **Dark Mode**: Built-in dark/light theme support
 
 ## Getting Started
 
@@ -158,12 +161,12 @@ This application has been refactored to follow **Clean Architecture** and **SOLI
 
 ### 📚 Documentation
 
-Comprehensive documentation available:
-
-- **[FINAL_SUMMARY.md](./FINAL_SUMMARY.md)** - Complete refactoring overview
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Detailed architecture guide
-- **[DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)** - How to add features
-- **[REFACTORING_SUMMARY.md](./REFACTORING_SUMMARY.md)** - Refactoring history
+| Document | Description | Audience |
+|----------|-------------|----------|
+| **[README.md](./README.md)** (this file) | Quick start guide, features, and setup | Everyone |
+| **[ARCHITECTURE.md](./ARCHITECTURE.md)** | Detailed architecture documentation, design patterns, SOLID principles | Developers/Architects |
+| **[DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)** | Step-by-step guide for adding features, testing examples, best practices | Developers |
+| **[REFACTORING_SUMMARY.md](./REFACTORING_SUMMARY.md)** | Complete refactoring history and achievements | Technical Leads |
 
 ## Database
 

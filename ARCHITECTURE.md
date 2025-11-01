@@ -616,3 +616,11 @@ static getBookRepository(): IBookRepository {
 ## Conclusion
 
 The BookTracker application now exemplifies Clean Architecture and SOLID principles. The codebase is maintainable, testable, and ready for production scale. New developers can understand the structure quickly, and new features follow established patterns.
+
+---
+
+## Related Documentation
+
+- **[README.md](./README.md)** - Quick start and features overview
+- **[DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)** - How to add features and best practices
+- **[REFACTORING_SUMMARY.md](./REFACTORING_SUMMARY.md)** - Refactoring history and achievements
