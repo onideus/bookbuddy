@@ -1,0 +1,128 @@
+# Fastfile for BookTracker iOS
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Run SwiftLint"
+  lane :lint do
+    swiftlint(
+      mode: :lint,
+      config_file: ".swiftlint.yml",
+      raise_if_swiftlint_error: true,
+      ignore_exit_status: false
+    )
+  end
+
+  desc "Run SwiftFormat check"
+  lane :format_check do
+    sh("cd .. && swiftformat --lint .")
+  end
+
+  desc "Run SwiftFormat"
+  lane :format do
+    sh("cd .. && swiftformat .")
+  end
+
+  desc "Run all tests"
+  lane :test do
+    run_tests(
+      scheme: "BookTrackerIOS",
+      devices: ["iPhone 15 Pro"],
+      clean: true,
+      code_coverage: true
+    )
+  end
+
+  desc "Run tests for a specific package"
+  lane :test_package do |options|
+    package_name = options[:package]
+    sh("cd ../Packages/#{package_name} && swift test")
+  end
+
+  desc "Build for development"
+  lane :build_dev do
+    gym(
+      scheme: "BookTrackerIOS",
+      configuration: "Debug",
+      clean: true,
+      export_method: "development",
+      output_directory: "./build"
+    )
+  end
+
+  desc "Build for App Store"
+  lane :build_release do
+    gym(
+      scheme: "BookTrackerIOS",
+      configuration: "Release",
+      clean: true,
+      export_method: "app-store",
+      output_directory: "./build"
+    )
+  end
+
+  desc "Upload to TestFlight"
+  lane :beta do
+    # Increment build number
+    increment_build_number(xcodeproj: "BookTrackerIOS.xcodeproj")
+
+    # Build
+    gym(
+      scheme: "BookTrackerIOS",
+      configuration: "Release",
+      clean: true,
+      export_method: "app-store"
+    )
+
+    # Upload to TestFlight
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      notify_external_testers: false
+    )
+  end
+
+  desc "Deploy to App Store"
+  lane :release do
+    # Ensure we're on main branch
+    ensure_git_branch(branch: "main")
+
+    # Ensure clean git status
+    ensure_git_status_clean
+
+    # Increment version
+    increment_version_number
+    increment_build_number(xcodeproj: "BookTrackerIOS.xcodeproj")
+
+    # Build and upload
+    gym(
+      scheme: "BookTrackerIOS",
+      configuration: "Release",
+      clean: true,
+      export_method: "app-store"
+    )
+
+    upload_to_app_store(
+      force: true,
+      submit_for_review: false
+    )
+
+    # Tag release
+    add_git_tag(
+      tag: "ios/v#{get_version_number}/#{get_build_number}"
+    )
+
+    push_to_git_remote
+  end
+
+  desc "Run CI checks (lint, format, test)"
+  lane :ci do
+    lint
+    format_check
+    test
+  end
+
+  # Error handling
+  error do |lane, exception|
+    UI.error("Error in lane #{lane}: #{exception.message}")
+  end
+end

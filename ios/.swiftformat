@@ -1,0 +1,58 @@
+# SwiftFormat Configuration for BookTracker iOS
+
+# File options
+--swiftversion 5.9
+
+# Format options
+--indent 4
+--indentcase false
+--trimwhitespace always
+--allman false
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--closingparen balanced
+--decimalgrouping 3,6
+--exponentgrouping disabled
+--fractiongrouping disabled
+--hexgrouping 4,8
+--hexliteralcase lowercase
+--octalgrouping 4,8
+--patternlet inline
+--commas inline
+--semicolons inline
+--ranges spaced
+--operatorfunc spaced
+--stripunusedargs always
+--elseposition same-line
+--guardelse auto
+--ifdef no-indent
+--redundanttype inferred
+--self remove
+--importgrouping testable-bottom
+--header strip
+
+# Enabled rules
+--enable isEmpty
+--enable sortImports
+--enable duplicateImports
+--enable blankLinesAtStartOfScope
+--enable blankLinesAtEndOfScope
+--enable blankLinesBetweenScopes
+--enable consecutiveBlankLines
+--enable consecutiveSpaces
+
+# Disabled rules
+--disable trailingClosures
+--disable wrapMultilineStatementBraces
+
+# Exclusions
+--exclude Pods
+--exclude .build
+--exclude DerivedData
+--exclude Packages/*/Tests
+--exclude **/.build
+--exclude vendor
+
+# Line length (soft limit)
+--maxwidth 120

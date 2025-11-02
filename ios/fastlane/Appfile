@@ -1,0 +1,16 @@
+# Appfile for BookTracker iOS
+
+# Your Apple Developer account email
+# apple_id "your-apple-id@example.com"
+
+# App Identifier
+# app_identifier "com.yourcompany.booktracker"
+
+# Team ID (found in Apple Developer portal)
+# team_id "YOURTEAMID"
+
+# iTunes Connect Team ID (if different from team_id)
+# itc_team_id "YOURITCTEAMID"
+
+# Note: Uncomment and fill in the above values when ready to deploy
+# For local development, these can remain commented out
