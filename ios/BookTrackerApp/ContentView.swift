@@ -134,7 +134,7 @@ class PreviewBookRepository: BookRepositoryProtocol {
                 rating: nil,
                 addedAt: Date().addingTimeInterval(-86400 * 14),
                 finishedAt: nil
-            ),
+            )
         ]
     }
 }

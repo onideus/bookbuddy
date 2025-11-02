@@ -4,16 +4,16 @@ import PackageDescription
 let package = Package(
     name: "Application",
     platforms: [
-        .iOS(.v16),
+        .iOS(.v16)
     ],
     products: [
         .library(
             name: "Application",
             targets: ["Application"]
-        ),
+        )
     ],
     dependencies: [
-        .package(path: "../CoreDomain"),
+        .package(path: "../CoreDomain")
     ],
     targets: [
         .target(
@@ -23,6 +23,6 @@ let package = Package(
         .testTarget(
             name: "ApplicationTests",
             dependencies: ["Application"]
-        ),
+        )
     ]
 )

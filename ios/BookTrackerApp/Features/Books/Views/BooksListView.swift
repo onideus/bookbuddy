@@ -33,7 +33,7 @@ struct BooksListView: View {
                             LazyVGrid(
                                 columns: [
                                     GridItem(.flexible()),
-                                    GridItem(.flexible()),
+                                    GridItem(.flexible())
                                 ],
                                 spacing: 16
                             ) {

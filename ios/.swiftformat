@@ -19,7 +19,7 @@
 --hexliteralcase lowercase
 --octalgrouping 4,8
 --patternlet inline
---commas always
+--commas inline
 --semicolons inline
 --ranges spaced
 --operatorfunc spaced

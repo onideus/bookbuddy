@@ -152,7 +152,7 @@ class BooksListViewModel: ObservableObject {
             .all: books.count,
             .status(.wantToRead): books.filter { $0.status == .wantToRead }.count,
             .status(.reading): books.filter { $0.status == .reading }.count,
-            .status(.read): books.filter { $0.status == .read }.count,
+            .status(.read): books.filter { $0.status == .read }.count
         ]
     }
 

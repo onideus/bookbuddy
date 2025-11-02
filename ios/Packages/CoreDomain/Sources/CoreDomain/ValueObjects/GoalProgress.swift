@@ -141,7 +141,7 @@ public struct GoalProgress: Codable, Equatable, Hashable {
             "completed": isCompleted(),
             "overdue": isOverdue(),
             "onTrack": isOnTrack(),
-            "timeRemainingFormatted": getTimeRemainingFormatted(),
+            "timeRemainingFormatted": getTimeRemainingFormatted()
         ]
     }
 }
