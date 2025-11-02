@@ -17,7 +17,9 @@ excluded:
   - .build
   - DerivedData
   - Packages/*/Tests
+  - Packages/*/.build
   - vendor
+  - "**/.build"
 
 identifier_name:
   min_length: 1

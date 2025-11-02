@@ -163,20 +163,19 @@ struct BookCard: View {
     // MARK: - Actions
 
     private func updateStatus(_ status: BookStatus) {
-        var updates = BookUpdate()
-        updates.status = status
-
         // Auto-set finishedAt when marking as read
-        if status == .read, book.status != .read {
-            updates.finishedAt = Date()
-        }
+        let finishedAt = (status == .read && book.status != .read) ? Date() : nil
+
+        let updates = BookUpdate(
+            status: status,
+            finishedAt: finishedAt
+        )
 
         onUpdate(book, updates)
     }
 
     private func updateRating(_ rating: Int) {
-        var updates = BookUpdate()
-        updates.rating = rating
+        let updates = BookUpdate(rating: rating)
         onUpdate(book, updates)
     }
 
@@ -188,14 +187,13 @@ struct BookCard: View {
             return
         }
 
-        var updates = BookUpdate()
-        updates.currentPage = page
-
         // Auto-complete if reached last page
-        if page == pageCount, book.status != .read {
-            updates.status = .read
-            updates.finishedAt = Date()
-        }
+        let shouldComplete = page == pageCount && book.status != .read
+        let updates = BookUpdate(
+            status: shouldComplete ? .read : nil,
+            currentPage: page,
+            finishedAt: shouldComplete ? Date() : nil
+        )
 
         onUpdate(book, updates)
     }

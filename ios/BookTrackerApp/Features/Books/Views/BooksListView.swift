@@ -1,3 +1,4 @@
+import Application
 import CoreDomain
 import SwiftUI
 
@@ -248,39 +249,22 @@ struct NoResultsView: View {
 // MARK: - Preview
 
 #Preview {
-    NavigationView {
+    let repository = MockBookRepository()
+    return NavigationView {
         BooksListView(
             viewModel: BooksListViewModel(
-                getUserBooksUseCase: MockGetUserBooksUseCase(),
-                updateBookUseCase: MockUpdateBookUseCase(),
-                deleteBookUseCase: MockDeleteBookUseCase(),
+                getUserBooksUseCase: GetUserBooksUseCase(bookRepository: repository),
+                updateBookUseCase: UpdateBookUseCase(bookRepository: repository),
+                deleteBookUseCase: DeleteBookUseCase(bookRepository: repository),
                 currentUserId: "user1"
             )
         )
     }
 }
 
-// MARK: - Mock Use Cases (for preview)
+// MARK: - Mock implementations (for preview)
 
-class MockGetUserBooksUseCase: GetUserBooksUseCase {
-    init() {
-        // Mock repository - would be injected in real app
-        super.init(bookRepository: MockBookRepository())
-    }
-}
-
-class MockUpdateBookUseCase: UpdateBookUseCase {
-    init() {
-        super.init(bookRepository: MockBookRepository())
-    }
-}
-
-class MockDeleteBookUseCase: DeleteBookUseCase {
-    init() {
-        super.init(bookRepository: MockBookRepository())
-    }
-}
-
+@MainActor
 class MockBookRepository: BookRepositoryProtocol {
     func create(_ book: Book) async throws -> Book {
         book
@@ -292,6 +276,10 @@ class MockBookRepository: BookRepositoryProtocol {
 
     func findById(_: String) async throws -> Book? {
         nil
+    }
+
+    func findByStatus(_: String, status _: BookStatus) async throws -> [Book] {
+        []
     }
 
     func update(_: String, updates _: BookUpdate) async throws -> Book? {
