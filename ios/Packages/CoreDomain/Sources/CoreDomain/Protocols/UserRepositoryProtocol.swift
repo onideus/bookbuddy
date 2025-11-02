@@ -1,10 +1,3 @@
-//
-//  UserRepositoryProtocol.swift
-//  CoreDomain
-//
-//  Protocol defining user data access operations
-//
-
 import Foundation
 
 /// Protocol for user repository operations

@@ -1,10 +1,3 @@
-//
-//  Goal.swift
-//  CoreDomain
-//
-//  Domain entity representing a reading goal
-//
-
 import Foundation
 
 /// Represents a reading goal for tracking progress
@@ -206,13 +199,13 @@ public extension Goal {
     /// Goal status
     var status: GoalStatus {
         if completed {
-            return .completed
+            .completed
         } else if isOverdue {
-            return .overdue
+            .overdue
         } else if !hasStarted {
-            return .notStarted
+            .notStarted
         } else {
-            return .inProgress
+            .inProgress
         }
     }
 }
@@ -221,45 +214,45 @@ public extension Goal {
 public enum GoalStatus: String, Codable, Equatable, Hashable {
     case notStarted = "not-started"
     case inProgress = "in-progress"
-    case completed = "completed"
-    case overdue = "overdue"
+    case completed
+    case overdue
 
     public var displayName: String {
         switch self {
         case .notStarted:
-            return "Not Started"
+            "Not Started"
         case .inProgress:
-            return "In Progress"
+            "In Progress"
         case .completed:
-            return "Completed"
+            "Completed"
         case .overdue:
-            return "Overdue"
+            "Overdue"
         }
     }
 
     public var iconName: String {
         switch self {
         case .notStarted:
-            return "clock"
+            "clock"
         case .inProgress:
-            return "flame.fill"
+            "flame.fill"
         case .completed:
-            return "checkmark.circle.fill"
+            "checkmark.circle.fill"
         case .overdue:
-            return "exclamationmark.triangle.fill"
+            "exclamationmark.triangle.fill"
         }
     }
 
     public var colorName: String {
         switch self {
         case .notStarted:
-            return "gray"
+            "gray"
         case .inProgress:
-            return "blue"
+            "blue"
         case .completed:
-            return "green"
+            "green"
         case .overdue:
-            return "red"
+            "red"
         }
     }
 }

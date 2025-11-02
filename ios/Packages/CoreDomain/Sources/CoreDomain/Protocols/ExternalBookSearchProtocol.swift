@@ -1,10 +1,3 @@
-//
-//  ExternalBookSearchProtocol.swift
-//  CoreDomain
-//
-//  Protocol for external book search operations (e.g., Google Books API)
-//
-
 import Foundation
 
 /// Represents a book search result from an external API

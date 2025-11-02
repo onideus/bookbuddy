@@ -1,10 +1,3 @@
-//
-//  BookRepositoryProtocol.swift
-//  CoreDomain
-//
-//  Protocol defining book data access operations
-//
-
 import Foundation
 
 /// Protocol for book repository operations

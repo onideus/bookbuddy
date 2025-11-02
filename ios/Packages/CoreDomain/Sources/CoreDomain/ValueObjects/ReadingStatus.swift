@@ -1,10 +1,3 @@
-//
-//  ReadingStatus.swift
-//  CoreDomain
-//
-//  Value object that encapsulates reading status logic and state transitions
-//
-
 import Foundation
 
 /// Value object that manages reading status logic and validation
@@ -22,16 +15,16 @@ public struct ReadingStatus {
     /// Checks if the book can transition to a new status
     /// - Parameter newStatus: The proposed new status
     /// - Returns: True if transition is allowed
-    public func canTransitionTo(_ newStatus: BookStatus) -> Bool {
+    public func canTransitionTo(_: BookStatus) -> Bool {
         // All transitions are allowed in this domain
-        return true
+        true
     }
 
     /// Creates an updated book with the new status
     /// - Parameter newStatus: The new reading status
     /// - Returns: Updated book instance
     public func transitionTo(_ newStatus: BookStatus) -> Book {
-        return book.withStatus(newStatus)
+        book.withStatus(newStatus)
     }
 
     // MARK: - Progress Tracking
@@ -39,13 +32,13 @@ public struct ReadingStatus {
     /// Calculates reading progress as a percentage (0-100)
     /// - Returns: Progress percentage
     public func getReadingProgress() -> Double {
-        return book.readingProgress * 100
+        book.readingProgress * 100
     }
 
     /// Gets formatted progress string
     /// - Returns: Progress as percentage string (e.g., "45%")
     public func getReadingProgressFormatted() -> String {
-        return book.readingProgressPercentage
+        book.readingProgressPercentage
     }
 
     // MARK: - Rating Validation
@@ -53,7 +46,7 @@ public struct ReadingStatus {
     /// Checks if the book can be rated
     /// - Returns: True if book status is "read"
     public func canBeRated() -> Bool {
-        return book.canBeRated
+        book.canBeRated
     }
 
     /// Validates a rating value
@@ -87,7 +80,7 @@ public struct ReadingStatus {
     /// Checks if book should be auto-marked as read
     /// - Returns: True if current page >= total pages and status is "reading"
     public func shouldAutoMarkAsRead() -> Bool {
-        return book.shouldAutoMarkAsRead
+        book.shouldAutoMarkAsRead
     }
 
     // MARK: - Status-specific Behaviors
@@ -138,15 +131,15 @@ public extension ReadingStatus {
     ///   - from: Current status
     ///   - to: Proposed new status
     /// - Returns: True if transition is valid
-    static func isValidTransition(from: BookStatus, to: BookStatus) -> Bool {
+    static func isValidTransition(from _: BookStatus, to _: BookStatus) -> Bool {
         // All transitions are allowed
-        return true
+        true
     }
 
     /// Gets all possible status transitions from a given status
     /// - Parameter currentStatus: Current reading status
     /// - Returns: Array of possible target statuses
     static func possibleTransitions(from currentStatus: BookStatus) -> [BookStatus] {
-        return BookStatus.allCases.filter { $0 != currentStatus }
+        BookStatus.allCases.filter { $0 != currentStatus }
     }
 }

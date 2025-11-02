@@ -1,12 +1,5 @@
-//
-//  DeleteBookUseCase.swift
-//  Application
-//
-//  Use case for deleting a book from user's library
-//
-
-import Foundation
 import CoreDomain
+import Foundation
 
 /// Input for deleting a book
 public struct DeleteBookInput {

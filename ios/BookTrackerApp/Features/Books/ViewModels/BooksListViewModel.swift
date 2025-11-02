@@ -1,14 +1,7 @@
-//
-//  BooksListViewModel.swift
-//  BookTracker
-//
-//  ViewModel for the books list screen
-//
-
-import Foundation
-import CoreDomain
 import Application
 import Combine
+import CoreDomain
+import Foundation
 
 @MainActor
 class BooksListViewModel: ObservableObject {
@@ -142,7 +135,7 @@ class BooksListViewModel: ObservableObject {
         if !searchText.isEmpty {
             result = result.filter { book in
                 book.title.localizedCaseInsensitiveContains(searchText) ||
-                book.authors.contains(where: { $0.localizedCaseInsensitiveContains(searchText) })
+                    book.authors.contains(where: { $0.localizedCaseInsensitiveContains(searchText) })
             }
         }
 
@@ -159,7 +152,7 @@ class BooksListViewModel: ObservableObject {
             .all: books.count,
             .status(.wantToRead): books.filter { $0.status == .wantToRead }.count,
             .status(.reading): books.filter { $0.status == .reading }.count,
-            .status(.read): books.filter { $0.status == .read }.count
+            .status(.read): books.filter { $0.status == .read }.count,
         ]
     }
 
@@ -181,18 +174,18 @@ enum BookStatusFilter: Hashable, Identifiable {
     var id: String {
         switch self {
         case .all:
-            return "all"
+            "all"
         case .status(let status):
-            return status.rawValue
+            status.rawValue
         }
     }
 
     var displayName: String {
         switch self {
         case .all:
-            return "All"
+            "All"
         case .status(let status):
-            return status.displayName
+            status.displayName
         }
     }
 

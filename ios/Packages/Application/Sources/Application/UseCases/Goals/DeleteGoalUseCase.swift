@@ -1,12 +1,5 @@
-//
-//  DeleteGoalUseCase.swift
-//  Application
-//
-//  Use case for deleting a goal
-//
-
-import Foundation
 import CoreDomain
+import Foundation
 
 /// Input for deleting a goal
 public struct DeleteGoalInput {

@@ -1,14 +1,7 @@
-//
-//  ContentView.swift
-//  BookTracker
-//
-//  Created by BookTracker Team
-//
-
-import SwiftUI
-import CoreDomain
 import Application
 import Combine
+import CoreDomain
+import SwiftUI
 
 struct ContentView: View {
     @StateObject private var viewModel: BooksListViewModel
@@ -39,7 +32,7 @@ class PreviewBookRepository: BookRepositoryProtocol {
 
     init() {
         // Initialize with sample books
-        self.books = PreviewBookRepository.createSampleBooks()
+        books = PreviewBookRepository.createSampleBooks()
     }
 
     func create(_ book: Book) async throws -> Book {
@@ -48,15 +41,15 @@ class PreviewBookRepository: BookRepositoryProtocol {
     }
 
     func findByUserId(_ userId: String) async throws -> [Book] {
-        return books.filter { $0.userId == userId }
+        books.filter { $0.userId == userId }
     }
 
     func findById(_ id: String) async throws -> Book? {
-        return books.first { $0.id == id }
+        books.first { $0.id == id }
     }
 
     func findByStatus(_ userId: String, status: BookStatus) async throws -> [Book] {
-        return books.filter { $0.userId == userId && $0.status == status }
+        books.filter { $0.userId == userId && $0.status == status }
     }
 
     func update(_ id: String, updates: BookUpdate) async throws -> Book? {
@@ -141,7 +134,7 @@ class PreviewBookRepository: BookRepositoryProtocol {
                 rating: nil,
                 addedAt: Date().addingTimeInterval(-86400 * 14),
                 finishedAt: nil
-            )
+            ),
         ]
     }
 }

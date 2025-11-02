@@ -1,10 +1,3 @@
-//
-//  Book.swift
-//  CoreDomain
-//
-//  Domain entity representing a book in the user's library
-//
-
 import Foundation
 
 /// Represents a book in the user's reading library
@@ -99,8 +92,8 @@ public struct Book: Identifiable, Codable, Equatable, Hashable {
 public extension Book {
     /// Calculates reading progress as a percentage (0.0 - 1.0)
     var readingProgress: Double {
-        guard let pageCount = pageCount, pageCount > 0,
-              let currentPage = currentPage, currentPage > 0 else {
+        guard let pageCount, pageCount > 0,
+              let currentPage, currentPage > 0 else {
             return 0.0
         }
         return min(Double(currentPage) / Double(pageCount), 1.0)
@@ -114,13 +107,13 @@ public extension Book {
 
     /// Checks if book can be rated (only books marked as "read")
     var canBeRated: Bool {
-        return status == .read
+        status == .read
     }
 
     /// Checks if book should be auto-marked as read
     var shouldAutoMarkAsRead: Bool {
-        guard let pageCount = pageCount, pageCount > 0,
-              let currentPage = currentPage else {
+        guard let pageCount, pageCount > 0,
+              let currentPage else {
             return false
         }
         return currentPage >= pageCount && status == .reading
@@ -130,7 +123,7 @@ public extension Book {
     /// - Parameter rating: Rating to validate
     /// - Returns: True if rating is valid (1-5)
     static func isValidRating(_ rating: Int) -> Bool {
-        return (1...5).contains(rating)
+        (1 ... 5).contains(rating)
     }
 
     /// Validates page progress
@@ -139,7 +132,7 @@ public extension Book {
     ///   - pageCount: Total page count
     /// - Returns: True if page progress is valid
     static func isValidPageProgress(currentPage: Int, pageCount: Int?) -> Bool {
-        guard let pageCount = pageCount else {
+        guard let pageCount else {
             return true // No page count means we can't validate
         }
         return currentPage >= 0 && currentPage <= pageCount
@@ -183,7 +176,7 @@ public extension Book {
             throw DomainError.validation("Book must have at least one author")
         }
 
-        if let pageCount = pageCount, pageCount < 0 {
+        if let pageCount, pageCount < 0 {
             throw DomainError.validation("Page count cannot be negative")
         }
 
@@ -208,17 +201,17 @@ public extension Book {
     /// - Parameter newStatus: New reading status
     /// - Returns: Updated book instance
     func withStatus(_ newStatus: BookStatus) -> Book {
-        var finishedAt = self.finishedAt
-        var rating = self.rating
-        var currentPage = self.currentPage
+        var finishedAt = finishedAt
+        var rating = rating
+        var currentPage = currentPage
 
         // Auto-set finishedAt when marking as read
-        if newStatus == .read && self.status != .read {
+        if newStatus == .read, status != .read {
             finishedAt = Date()
         }
 
         // Clear finishedAt and rating when leaving read status
-        if newStatus != .read && self.status == .read {
+        if newStatus != .read, status == .read {
             finishedAt = nil
             rating = nil
         }

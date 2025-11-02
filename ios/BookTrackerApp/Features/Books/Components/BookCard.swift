@@ -1,12 +1,5 @@
-//
-//  BookCard.swift
-//  BookTracker
-//
-//  SwiftUI component for displaying a book with actions
-//
-
-import SwiftUI
 import CoreDomain
+import SwiftUI
 
 struct BookCard: View {
     let book: Book
@@ -113,7 +106,7 @@ struct BookCard: View {
             // Rating (for completed books)
             if book.status == .read {
                 HStack(spacing: 4) {
-                    ForEach(1...5, id: \.self) { star in
+                    ForEach(1 ... 5, id: \.self) { star in
                         Button(
                             action: { updateRating(star) },
                             label: {
@@ -174,7 +167,7 @@ struct BookCard: View {
         updates.status = status
 
         // Auto-set finishedAt when marking as read
-        if status == .read && book.status != .read {
+        if status == .read, book.status != .read {
             updates.finishedAt = Date()
         }
 
@@ -199,7 +192,7 @@ struct BookCard: View {
         updates.currentPage = page
 
         // Auto-complete if reached last page
-        if page == pageCount && book.status != .read {
+        if page == pageCount, book.status != .read {
             updates.status = .read
             updates.finishedAt = Date()
         }

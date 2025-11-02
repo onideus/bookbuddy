@@ -1,12 +1,5 @@
-//
-//  RegisterUserUseCase.swift
-//  Application
-//
-//  Use case for registering a new user
-//
-
-import Foundation
 import CoreDomain
+import Foundation
 
 /// Input for registering a user
 public struct RegisterUserInput {

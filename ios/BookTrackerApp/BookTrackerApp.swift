@@ -1,10 +1,3 @@
-//
-//  BookTrackerApp.swift
-//  BookTracker
-//
-//  Created by BookTracker Team
-//
-
 import SwiftUI
 
 @main

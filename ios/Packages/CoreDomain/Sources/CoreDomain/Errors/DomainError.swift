@@ -1,10 +1,3 @@
-//
-//  DomainError.swift
-//  CoreDomain
-//
-//  Domain-specific error types
-//
-
 import Foundation
 
 /// Base error type for all domain errors
@@ -28,15 +21,15 @@ public enum DomainError: Error, Equatable, LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .notFound(let message):
-            return "Not Found: \(message)"
+            "Not Found: \(message)"
         case .unauthorized(let message):
-            return "Unauthorized: \(message)"
+            "Unauthorized: \(message)"
         case .validation(let message):
-            return "Validation Error: \(message)"
+            "Validation Error: \(message)"
         case .duplicate(let message):
-            return "Duplicate: \(message)"
+            "Duplicate: \(message)"
         case .general(let message):
-            return "Error: \(message)"
+            "Error: \(message)"
         }
     }
 
@@ -44,15 +37,15 @@ public enum DomainError: Error, Equatable, LocalizedError {
     public var localizedDescription: String {
         switch self {
         case .notFound(let message):
-            return message
+            message
         case .unauthorized(let message):
-            return message
+            message
         case .validation(let message):
-            return message
+            message
         case .duplicate(let message):
-            return message
+            message
         case .general(let message):
-            return message
+            message
         }
     }
 
@@ -60,15 +53,15 @@ public enum DomainError: Error, Equatable, LocalizedError {
     public var code: String {
         switch self {
         case .notFound:
-            return "NOT_FOUND"
+            "NOT_FOUND"
         case .unauthorized:
-            return "UNAUTHORIZED"
+            "UNAUTHORIZED"
         case .validation:
-            return "VALIDATION_ERROR"
+            "VALIDATION_ERROR"
         case .duplicate:
-            return "DUPLICATE"
+            "DUPLICATE"
         case .general:
-            return "GENERAL_ERROR"
+            "GENERAL_ERROR"
         }
     }
 }
@@ -82,7 +75,7 @@ public extension DomainError {
     ///   - id: Entity identifier
     /// - Returns: NotFound error
     static func entityNotFound(_ entityName: String, id: String) -> DomainError {
-        return .notFound("\(entityName) with ID '\(id)' not found")
+        .notFound("\(entityName) with ID '\(id)' not found")
     }
 
     /// Creates a validation error for a specific field
@@ -91,7 +84,7 @@ public extension DomainError {
     ///   - reason: Validation failure reason
     /// - Returns: Validation error
     static func invalidField(_ fieldName: String, reason: String) -> DomainError {
-        return .validation("\(fieldName): \(reason)")
+        .validation("\(fieldName): \(reason)")
     }
 
     /// Creates a duplicate entry error
@@ -100,7 +93,7 @@ public extension DomainError {
     ///   - field: Field with duplicate value
     /// - Returns: Duplicate error
     static func duplicateEntry(_ entityName: String, field: String) -> DomainError {
-        return .duplicate("\(entityName) with this \(field) already exists")
+        .duplicate("\(entityName) with this \(field) already exists")
     }
 }
 

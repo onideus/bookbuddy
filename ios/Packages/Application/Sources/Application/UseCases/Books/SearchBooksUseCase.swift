@@ -1,12 +1,5 @@
-//
-//  SearchBooksUseCase.swift
-//  Application
-//
-//  Use case for searching books via external API (Google Books)
-//
-
-import Foundation
 import CoreDomain
+import Foundation
 
 /// Input for searching books
 public struct SearchBooksInput {

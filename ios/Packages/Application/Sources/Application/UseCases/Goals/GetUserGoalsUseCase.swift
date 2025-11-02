@@ -1,12 +1,5 @@
-//
-//  GetUserGoalsUseCase.swift
-//  Application
-//
-//  Use case for retrieving all goals for a user
-//
-
-import Foundation
 import CoreDomain
+import Foundation
 
 /// Input for getting user's goals
 public struct GetUserGoalsInput {
@@ -29,6 +22,6 @@ public final class GetUserGoalsUseCase: UseCase {
     }
 
     public func execute(_ input: Input) async throws -> [Goal] {
-        return try await goalRepository.findByUserId(input.userId)
+        try await goalRepository.findByUserId(input.userId)
     }
 }

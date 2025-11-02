@@ -1,10 +1,3 @@
-//
-//  GoalRepositoryProtocol.swift
-//  CoreDomain
-//
-//  Protocol defining goal data access operations
-//
-
 import Foundation
 
 /// Protocol for goal repository operations

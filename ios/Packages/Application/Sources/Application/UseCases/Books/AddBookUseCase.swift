@@ -1,12 +1,5 @@
-//
-//  AddBookUseCase.swift
-//  Application
-//
-//  Use case for adding a new book to the user's library
-//
-
-import Foundation
 import CoreDomain
+import Foundation
 
 /// Input for adding a book
 public struct AddBookInput {

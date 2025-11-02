@@ -1,10 +1,3 @@
-//
-//  User.swift
-//  CoreDomain
-//
-//  Domain entity representing a user in the BookTracker system
-//
-
 import Foundation
 
 /// Represents a user in the BookTracker application
@@ -63,7 +56,7 @@ public extension User {
     /// - Returns: True if password meets minimum requirements
     static func isValidPassword(_ password: String) -> Bool {
         // Minimum 8 characters
-        return password.count >= 8
+        password.count >= 8
     }
 
     /// Creates a new user with validated inputs

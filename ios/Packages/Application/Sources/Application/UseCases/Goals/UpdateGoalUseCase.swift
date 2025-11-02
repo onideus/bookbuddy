@@ -1,12 +1,5 @@
-//
-//  UpdateGoalUseCase.swift
-//  Application
-//
-//  Use case for updating an existing goal
-//
-
-import Foundation
 import CoreDomain
+import Foundation
 
 /// Input for updating a goal
 public struct UpdateGoalInput {

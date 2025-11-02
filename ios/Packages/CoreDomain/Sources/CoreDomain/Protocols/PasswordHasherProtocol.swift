@@ -1,10 +1,3 @@
-//
-//  PasswordHasherProtocol.swift
-//  CoreDomain
-//
-//  Protocol for password hashing operations
-//
-
 import Foundation
 
 /// Protocol for password hashing and verification

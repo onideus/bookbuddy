@@ -1,12 +1,5 @@
-//
-//  GetUserBooksUseCase.swift
-//  Application
-//
-//  Use case for retrieving all books for a user
-//
-
-import Foundation
 import CoreDomain
+import Foundation
 
 /// Input for getting user's books
 public struct GetUserBooksInput {
@@ -29,6 +22,6 @@ public final class GetUserBooksUseCase: UseCase {
     }
 
     public func execute(_ input: Input) async throws -> [Book] {
-        return try await bookRepository.findByUserId(input.userId)
+        try await bookRepository.findByUserId(input.userId)
     }
 }

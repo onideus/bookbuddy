@@ -1,10 +1,3 @@
-//
-//  UseCase.swift
-//  Application
-//
-//  Base protocol for all use cases in the application layer
-//
-
 import Foundation
 
 /// Protocol that all use cases must conform to

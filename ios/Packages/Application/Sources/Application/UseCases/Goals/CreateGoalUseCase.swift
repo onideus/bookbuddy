@@ -1,12 +1,5 @@
-//
-//  CreateGoalUseCase.swift
-//  Application
-//
-//  Use case for creating a new reading goal
-//
-
-import Foundation
 import CoreDomain
+import Foundation
 
 /// Input for creating a goal
 public struct CreateGoalInput {

@@ -1,10 +1,3 @@
-//
-//  GoalProgress.swift
-//  CoreDomain
-//
-//  Value object that encapsulates goal progress calculations and metrics
-//
-
 import Foundation
 
 /// Value object that manages goal progress calculations
@@ -22,37 +15,37 @@ public struct GoalProgress: Codable, Equatable, Hashable {
     /// Gets the progress percentage (0.0 - 100.0)
     /// - Returns: Progress percentage
     public func getProgressPercentage() -> Double {
-        return goal.progressPercentage * 100
+        goal.progressPercentage * 100
     }
 
     /// Gets the progress percentage as an integer (0-100)
     /// - Returns: Progress percentage as integer
     public func getProgressPercentageInt() -> Int {
-        return goal.progressPercentageInt
+        goal.progressPercentageInt
     }
 
     /// Checks if the goal is completed
     /// - Returns: True if goal is completed
     public func isCompleted() -> Bool {
-        return goal.completed
+        goal.completed
     }
 
     /// Checks if the goal is overdue
     /// - Returns: True if goal is past end date and not completed
     public func isOverdue() -> Bool {
-        return goal.isOverdue
+        goal.isOverdue
     }
 
     /// Gets the number of days remaining
     /// - Returns: Days remaining (negative if overdue)
     public func getDaysRemaining() -> Int {
-        return goal.daysRemaining
+        goal.daysRemaining
     }
 
     /// Gets the number of books remaining to reach the goal
     /// - Returns: Books remaining
     public func getBooksRemaining() -> Int {
-        return goal.booksRemaining
+        goal.booksRemaining
     }
 
     // MARK: - Status Tracking
@@ -60,13 +53,13 @@ public struct GoalProgress: Codable, Equatable, Hashable {
     /// Gets the current status of the goal
     /// - Returns: Goal status enum
     public func getStatus() -> GoalStatus {
-        return goal.status
+        goal.status
     }
 
     /// Checks if the goal should be auto-completed
     /// - Returns: True if current books >= target books
     public func shouldAutoComplete() -> Bool {
-        return goal.currentBooks >= goal.targetBooks
+        goal.currentBooks >= goal.targetBooks
     }
 
     // MARK: - Time-based Metrics
@@ -74,7 +67,7 @@ public struct GoalProgress: Codable, Equatable, Hashable {
     /// Gets the total duration of the goal in days
     /// - Returns: Duration in days
     public func getDurationInDays() -> Int {
-        return goal.durationInDays
+        goal.durationInDays
     }
 
     /// Gets the number of days elapsed since start
@@ -122,7 +115,7 @@ public struct GoalProgress: Codable, Equatable, Hashable {
     /// Checks if the current pace is on track
     /// - Returns: True if on track or ahead of schedule
     public func isOnTrack() -> Bool {
-        guard !isCompleted() && !isOverdue() else {
+        guard !isCompleted(), !isOverdue() else {
             return isCompleted()
         }
 
@@ -136,7 +129,7 @@ public struct GoalProgress: Codable, Equatable, Hashable {
     /// Converts to a JSON-compatible dictionary
     /// - Returns: Dictionary representation
     public func toJSON() -> [String: Any] {
-        return [
+        [
             "goalId": goal.id,
             "progressPercentage": getProgressPercentage(),
             "currentBooks": goal.currentBooks,
@@ -148,24 +141,24 @@ public struct GoalProgress: Codable, Equatable, Hashable {
             "completed": isCompleted(),
             "overdue": isOverdue(),
             "onTrack": isOnTrack(),
-            "timeRemainingFormatted": getTimeRemainingFormatted()
+            "timeRemainingFormatted": getTimeRemainingFormatted(),
         ]
     }
 }
 
 // MARK: - Codable Implementation
 
-extension GoalProgress {
-    enum CodingKeys: String, CodingKey {
+public extension GoalProgress {
+    internal enum CodingKeys: String, CodingKey {
         case goal
     }
 
-    public init(from decoder: Decoder) throws {
+    init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         goal = try container.decode(Goal.self, forKey: .goal)
     }
 
-    public func encode(to encoder: Encoder) throws {
+    func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(goal, forKey: .goal)
     }
@@ -176,36 +169,36 @@ extension GoalProgress {
 public extension GoalProgress {
     /// The underlying goal entity
     var underlyingGoal: Goal {
-        return goal
+        goal
     }
 
     /// Goal title
     var title: String {
-        return goal.title
+        goal.title
     }
 
     /// Goal description
     var description: String? {
-        return goal.description
+        goal.description
     }
 
     /// Current books count
     var currentBooks: Int {
-        return goal.currentBooks
+        goal.currentBooks
     }
 
     /// Target books count
     var targetBooks: Int {
-        return goal.targetBooks
+        goal.targetBooks
     }
 
     /// Start date
     var startDate: Date {
-        return goal.startDate
+        goal.startDate
     }
 
     /// End date
     var endDate: Date {
-        return goal.endDate
+        goal.endDate
     }
 }

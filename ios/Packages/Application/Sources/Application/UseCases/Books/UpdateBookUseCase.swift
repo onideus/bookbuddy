@@ -1,12 +1,5 @@
-//
-//  UpdateBookUseCase.swift
-//  Application
-//
-//  Use case for updating an existing book
-//
-
-import Foundation
 import CoreDomain
+import Foundation
 
 /// Input for updating a book
 public struct UpdateBookInput {

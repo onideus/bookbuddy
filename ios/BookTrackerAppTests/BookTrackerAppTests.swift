@@ -1,10 +1,3 @@
-//
-//  BookTrackerAppTests.swift
-//  BookTrackerTests
-//
-//  Created by BookTracker Team
-//
-
 import XCTest
 @testable import BookTrackerApp
 

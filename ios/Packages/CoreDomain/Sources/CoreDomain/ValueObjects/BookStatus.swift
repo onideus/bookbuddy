@@ -1,10 +1,3 @@
-//
-//  BookStatus.swift
-//  CoreDomain
-//
-//  Value object representing the reading status of a book
-//
-
 import Foundation
 
 /// Represents the current reading status of a book
@@ -13,20 +6,20 @@ public enum BookStatus: String, Codable, CaseIterable, Equatable, Hashable {
     case wantToRead = "want-to-read"
 
     /// User is currently reading this book
-    case reading = "reading"
+    case reading
 
     /// User has finished reading this book
-    case read = "read"
+    case read
 
     /// Display name for the status
     public var displayName: String {
         switch self {
         case .wantToRead:
-            return "Want to Read"
+            "Want to Read"
         case .reading:
-            return "Reading"
+            "Reading"
         case .read:
-            return "Read"
+            "Read"
         }
     }
 
@@ -34,11 +27,11 @@ public enum BookStatus: String, Codable, CaseIterable, Equatable, Hashable {
     public var iconName: String {
         switch self {
         case .wantToRead:
-            return "bookmark"
+            "bookmark"
         case .reading:
-            return "book"
+            "book"
         case .read:
-            return "checkmark.circle.fill"
+            "checkmark.circle.fill"
         }
     }
 
@@ -46,11 +39,11 @@ public enum BookStatus: String, Codable, CaseIterable, Equatable, Hashable {
     public var colorName: String {
         switch self {
         case .wantToRead:
-            return "blue"
+            "blue"
         case .reading:
-            return "orange"
+            "orange"
         case .read:
-            return "green"
+            "green"
         }
     }
 }

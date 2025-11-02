@@ -1,12 +1,5 @@
-//
-//  BooksListView.swift
-//  BookTracker
-//
-//  Main view for displaying the user's book collection
-//
-
-import SwiftUI
 import CoreDomain
+import SwiftUI
 
 struct BooksListView: View {
     @StateObject var viewModel: BooksListViewModel
@@ -14,7 +7,7 @@ struct BooksListView: View {
 
     var body: some View {
         ZStack {
-            if viewModel.isLoading && !viewModel.hasBooks {
+            if viewModel.isLoading, !viewModel.hasBooks {
                 // Loading state for initial load
                 ProgressView("Loading books...")
             } else if !viewModel.hasBooks {
@@ -40,7 +33,7 @@ struct BooksListView: View {
                             LazyVGrid(
                                 columns: [
                                     GridItem(.flexible()),
-                                    GridItem(.flexible())
+                                    GridItem(.flexible()),
                                 ],
                                 spacing: 16
                             ) {
@@ -290,22 +283,22 @@ class MockDeleteBookUseCase: DeleteBookUseCase {
 
 class MockBookRepository: BookRepositoryProtocol {
     func create(_ book: Book) async throws -> Book {
-        return book
+        book
     }
 
-    func findByUserId(_ userId: String) async throws -> [Book] {
-        return []
+    func findByUserId(_: String) async throws -> [Book] {
+        []
     }
 
-    func findById(_ id: String) async throws -> Book? {
-        return nil
+    func findById(_: String) async throws -> Book? {
+        nil
     }
 
-    func update(_ id: String, updates: BookUpdate) async throws -> Book? {
-        return nil
+    func update(_: String, updates _: BookUpdate) async throws -> Book? {
+        nil
     }
 
-    func delete(_ id: String) async throws -> Bool {
-        return true
+    func delete(_: String) async throws -> Bool {
+        true
     }
 }
