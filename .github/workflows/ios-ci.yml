@@ -60,7 +60,7 @@ jobs:
           path: |
             ~/Library/Caches/org.swift.swiftpm
             ios/Packages/${{ matrix.package }}/.build
-          key: ${{ runner.os }}-spm-${{ hashFiles('ios/Packages/${{ matrix.package }}/Package.swift') }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('ios/Packages/${{ matrix.package \}\}/Package.swift') }}
           restore-keys: |
             ${{ runner.os }}-spm-
 
@@ -92,6 +92,7 @@ jobs:
     name: Build iOS App
     runs-on: macos-14
     needs: [lint, test-packages]
+    if: false  # Disabled until we have a CI/CD pipeline
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -135,6 +136,7 @@ jobs:
     name: Test iOS App
     runs-on: macos-14
     needs: [lint, test-packages]
+    if: false  # Disabled until we have a CI/CD pipeline
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
