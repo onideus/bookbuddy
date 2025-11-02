@@ -1,0 +1,2 @@
+# This directory stores authenticated user session state for tests
+# user.json is generated during test setup and should not be committed
