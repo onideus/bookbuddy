@@ -52,6 +52,7 @@
 --exclude DerivedData
 --exclude Packages/*/Tests
 --exclude **/.build
+--exclude vendor
 
 # Line length (soft limit)
 --maxwidth 120
