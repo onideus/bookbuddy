@@ -29,15 +29,9 @@ struct BooksListView: View {
                         )
                         .padding(.horizontal)
 
-                        // Books grid
+                        // Books list
                         if viewModel.hasFilteredBooks {
-                            LazyVGrid(
-                                columns: [
-                                    GridItem(.flexible()),
-                                    GridItem(.flexible())
-                                ],
-                                spacing: 16
-                            ) {
+                            LazyVStack(spacing: 12) {
                                 ForEach(viewModel.filteredBooks) { book in
                                     BookCard(
                                         book: book,
