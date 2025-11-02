@@ -4,9 +4,9 @@ import { IGoalRepository } from '../../domain/interfaces/goal-repository';
 import { IPasswordHasher } from '../../domain/interfaces/password-hasher';
 import { IExternalBookSearch } from '../../domain/interfaces/external-book-search';
 
-import { MemoryUserRepository } from '../../infrastructure/persistence/memory/user-repository';
-import { MemoryBookRepository } from '../../infrastructure/persistence/memory/book-repository';
-import { MemoryGoalRepository } from '../../infrastructure/persistence/memory/goal-repository';
+import { PrismaUserRepository } from '../../infrastructure/persistence/prisma/user-repository';
+import { PrismaBookRepository } from '../../infrastructure/persistence/prisma/book-repository';
+import { PrismaGoalRepository } from '../../infrastructure/persistence/prisma/goal-repository';
 import { BcryptPasswordHasher } from '../../infrastructure/security/bcrypt-password-hasher';
 import { GoogleBooksClient } from '../../infrastructure/external/google-books-client';
 
@@ -24,21 +24,21 @@ export class Container {
 
   static getUserRepository(): IUserRepository {
     if (!this.userRepository) {
-      this.userRepository = new MemoryUserRepository();
+      this.userRepository = new PrismaUserRepository();
     }
     return this.userRepository;
   }
 
   static getBookRepository(): IBookRepository {
     if (!this.bookRepository) {
-      this.bookRepository = new MemoryBookRepository();
+      this.bookRepository = new PrismaBookRepository();
     }
     return this.bookRepository;
   }
 
   static getGoalRepository(): IGoalRepository {
     if (!this.goalRepository) {
-      this.goalRepository = new MemoryGoalRepository();
+      this.goalRepository = new PrismaGoalRepository();
     }
     return this.goalRepository;
   }
