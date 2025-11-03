@@ -11,14 +11,15 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String
-  createdAt DateTime @default(now())
+  id            String         @id @default(uuid())
+  email         String         @unique
+  password      String
+  name          String
+  createdAt     DateTime       @default(now())
 
-  books     Book[]
-  goals     Goal[]
+  books         Book[]
+  goals         Goal[]
+  refreshTokens RefreshToken[]
 
   @@map("users")
 }
@@ -62,4 +63,20 @@ model Goal {
   @@index([userId])
   @@index([completed])
   @@map("goals")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
 }

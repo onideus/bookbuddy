@@ -19,6 +19,13 @@ export class UnauthorizedError extends DomainError {
   }
 }
 
+export class ForbiddenError extends DomainError {
+  constructor(message: string = 'Forbidden') {
+    super(message);
+    this.name = 'ForbiddenError';
+  }
+}
+
 export class ValidationError extends DomainError {
   constructor(message: string) {
     super(message);

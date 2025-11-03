@@ -3,12 +3,15 @@ import { IBookRepository } from '../../domain/interfaces/book-repository';
 import { IGoalRepository } from '../../domain/interfaces/goal-repository';
 import { IPasswordHasher } from '../../domain/interfaces/password-hasher';
 import { IExternalBookSearch } from '../../domain/interfaces/external-book-search';
+import { IRefreshTokenRepository } from '../../domain/interfaces/refresh-token-repository';
 
 import { PrismaUserRepository } from '../../infrastructure/persistence/prisma/user-repository';
 import { PrismaBookRepository } from '../../infrastructure/persistence/prisma/book-repository';
 import { PrismaGoalRepository } from '../../infrastructure/persistence/prisma/goal-repository';
+import { PrismaRefreshTokenRepository } from '../../infrastructure/persistence/prisma/refresh-token-repository';
 import { BcryptPasswordHasher } from '../../infrastructure/security/bcrypt-password-hasher';
 import { GoogleBooksClient } from '../../infrastructure/external/google-books-client';
+import { prisma } from '../../infrastructure/persistence/prisma/client';
 
 import { BookService } from '../../domain/services/book-service';
 import { GoalService } from '../../domain/services/goal-service';
@@ -17,6 +20,7 @@ export class Container {
   private static userRepository: IUserRepository;
   private static bookRepository: IBookRepository;
   private static goalRepository: IGoalRepository;
+  private static refreshTokenRepository: IRefreshTokenRepository;
   private static passwordHasher: IPasswordHasher;
   private static externalBookSearch: IExternalBookSearch;
   private static bookService: BookService;
@@ -73,6 +77,13 @@ export class Container {
     }
     return this.goalService;
   }
+
+  static getRefreshTokenRepository(): IRefreshTokenRepository {
+    if (!this.refreshTokenRepository) {
+      this.refreshTokenRepository = new PrismaRefreshTokenRepository(prisma);
+    }
+    return this.refreshTokenRepository;
+  }
 }
 
 // Helper function for creating request-scoped container
@@ -81,6 +92,7 @@ export function createRequestContainer() {
     userRepository: Container.getUserRepository(),
     bookRepository: Container.getBookRepository(),
     goalRepository: Container.getGoalRepository(),
+    refreshTokenRepository: Container.getRefreshTokenRepository(),
     passwordHasher: Container.getPasswordHasher(),
     externalBookSearch: Container.getExternalBookSearch(),
     bookService: Container.getBookService(),
