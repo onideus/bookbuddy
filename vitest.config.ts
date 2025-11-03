@@ -1,9 +1,7 @@
 import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
-  plugins: [react()],
   test: {
     environment: 'happy-dom',
     setupFiles: ['./tests/setup.ts'],
@@ -49,13 +47,6 @@ export default defineConfig({
           functions: 75,
           lines: 75,
           statements: 75
-        },
-        // Components should have reasonable coverage
-        'components/**/*.{ts,tsx}': {
-          branches: 70,
-          functions: 70,
-          lines: 70,
-          statements: 70
         }
       }
     },
@@ -66,10 +57,10 @@ export default defineConfig({
       '@/domain': path.resolve(__dirname, './domain'),
       '@/application': path.resolve(__dirname, './application'),
       '@/infrastructure': path.resolve(__dirname, './infrastructure'),
-      '@/components': path.resolve(__dirname, './components'),
       '@/lib': path.resolve(__dirname, './lib'),
-      '@/app': path.resolve(__dirname, './app'),
       '@/types': path.resolve(__dirname, './types'),
+      '@/services': path.resolve(__dirname, './services'),
+      '@/tests': path.resolve(__dirname, './tests'),
     },
   },
 });

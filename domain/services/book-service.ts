@@ -1,7 +1,7 @@
 import { IBookRepository } from '../interfaces/book-repository';
 import { Book, BookStatus } from '../entities/book';
 import { ReadingStatus } from '../value-objects/reading-status';
-import { NotFoundError, UnauthorizedError, ValidationError } from '../errors/domain-errors';
+import { NotFoundError, UnauthorizedError } from '../errors/domain-errors';
 
 export class BookService {
   constructor(private bookRepository: IBookRepository) {}

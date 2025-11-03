@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { BookService } from '../book-service';
 import { IBookRepository } from '@/domain/interfaces/book-repository';
-import { Book, BookStatus } from '@/domain/entities/book';
+import { Book } from '@/domain/entities/book';
 import { NotFoundError, UnauthorizedError, ValidationError } from '@/domain/errors/domain-errors';
 import { createMockBookRepository, setupBookRepositoryMocks } from '@/tests/mocks/repositories';
 
@@ -88,7 +88,7 @@ describe('BookService', () => {
         finishedAt: new Date(),
       });
 
-      const result = await bookService.updateReadingProgress(book.id, userId, lastPage);
+      const _result = await bookService.updateReadingProgress(book.id, userId, lastPage);
 
       // Verify update was called with the page update
       // The service will check shouldAutoMarkAsRead and apply transition

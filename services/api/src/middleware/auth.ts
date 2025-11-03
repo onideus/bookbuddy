@@ -11,7 +11,7 @@ export interface AuthenticatedRequest extends FastifyRequest {
 
 export async function authenticate(
   request: AuthenticatedRequest,
-  reply: FastifyReply
+  _reply: FastifyReply
 ): Promise<void> {
   try {
     const authHeader = request.headers.authorization;

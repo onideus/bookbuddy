@@ -1,6 +1,7 @@
 import { IGoalRepository } from '../../../domain/interfaces/goal-repository';
 import { Goal } from '../../../domain/entities/goal';
 import { prisma } from './client';
+import type { Goal as PrismaGoal } from '@prisma/client';
 
 export class PrismaGoalRepository implements IGoalRepository {
   async create(goal: Goal): Promise<Goal> {
@@ -56,7 +57,7 @@ export class PrismaGoalRepository implements IGoalRepository {
       });
 
       return this.mapToGoal(updated);
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   }
@@ -67,12 +68,12 @@ export class PrismaGoalRepository implements IGoalRepository {
         where: { id },
       });
       return true;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }
 
-  private mapToGoal(prismaGoal: any): Goal {
+  private mapToGoal(prismaGoal: PrismaGoal): Goal {
     return {
       id: prismaGoal.id,
       userId: prismaGoal.userId,

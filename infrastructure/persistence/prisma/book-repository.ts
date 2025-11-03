@@ -1,6 +1,7 @@
 import { IBookRepository } from '../../../domain/interfaces/book-repository';
 import { Book } from '../../../domain/entities/book';
 import { prisma } from './client';
+import type { Book as PrismaBook } from '@prisma/client';
 
 export class PrismaBookRepository implements IBookRepository {
   async create(book: Book): Promise<Book> {
@@ -62,7 +63,7 @@ export class PrismaBookRepository implements IBookRepository {
       });
 
       return this.mapToBook(updated);
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   }
@@ -73,7 +74,7 @@ export class PrismaBookRepository implements IBookRepository {
         where: { id },
       });
       return true;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }
@@ -90,7 +91,7 @@ export class PrismaBookRepository implements IBookRepository {
     return books.map(this.mapToBook);
   }
 
-  private mapToBook(prismaBook: any): Book {
+  private mapToBook(prismaBook: PrismaBook): Book {
     return {
       id: prismaBook.id,
       userId: prismaBook.userId,

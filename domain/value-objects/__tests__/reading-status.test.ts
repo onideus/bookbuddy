@@ -5,7 +5,6 @@ import { ValidationError } from '../../errors/domain-errors';
 
 describe('ReadingStatus', () => {
   let baseBook: Book;
-  let readingStatus: ReadingStatus;
 
   beforeEach(() => {
     baseBook = {
@@ -23,8 +22,6 @@ describe('ReadingStatus', () => {
       addedAt: new Date('2024-01-01'),
       finishedAt: undefined,
     };
-
-    readingStatus = new ReadingStatus(baseBook);
   });
 
   describe('canTransitionTo', () => {
