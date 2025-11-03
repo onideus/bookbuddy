@@ -50,7 +50,7 @@ class PrismaGoalRepository {
             });
             return this.mapToGoal(updated);
         }
-        catch (error) {
+        catch (_error) {
             return null;
         }
     }
@@ -61,7 +61,7 @@ class PrismaGoalRepository {
             });
             return true;
         }
-        catch (error) {
+        catch (_error) {
             return false;
         }
     }

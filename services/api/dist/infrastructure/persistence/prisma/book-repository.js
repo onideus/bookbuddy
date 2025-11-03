@@ -56,7 +56,7 @@ class PrismaBookRepository {
             });
             return this.mapToBook(updated);
         }
-        catch (error) {
+        catch (_error) {
             return null;
         }
     }
@@ -67,7 +67,7 @@ class PrismaBookRepository {
             });
             return true;
         }
-        catch (error) {
+        catch (_error) {
             return false;
         }
     }

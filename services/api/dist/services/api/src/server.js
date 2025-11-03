@@ -4,8 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buildServer = buildServer;
+require("dotenv/config");
 const fastify_1 = __importDefault(require("fastify"));
+const auth_1 = require("./routes/auth");
 const books_1 = require("./routes/books");
+const goals_1 = require("./routes/goals");
+const search_1 = require("./routes/search");
 function buildServer() {
     const app = (0, fastify_1.default)({
         logger: {
@@ -16,7 +20,10 @@ function buildServer() {
         status: 'ok',
         timestamp: new Date().toISOString(),
     }));
+    (0, auth_1.registerAuthRoutes)(app);
     (0, books_1.registerBookRoutes)(app);
+    (0, goals_1.registerGoalRoutes)(app);
+    (0, search_1.registerSearchRoutes)(app);
     return app;
 }
 async function start() {
