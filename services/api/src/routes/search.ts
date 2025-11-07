@@ -15,7 +15,7 @@ export function registerSearchRoutes(app: FastifyInstance) {
   }>(
     '/search',
     wrapHandler(async (request, reply) => {
-      const { q: query } = request.query;
+      const { q: query } = request.query as SearchQuerystring;
 
       if (!query || query.trim().length === 0) {
         throw new ValidationError('Query parameter "q" is required');

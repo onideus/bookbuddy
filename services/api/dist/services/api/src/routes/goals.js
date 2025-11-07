@@ -43,14 +43,15 @@ function registerGoalRoutes(app) {
     }, (0, error_handler_1.wrapHandler)(async (request, reply) => {
         const userId = request.user.userId;
         const { id } = request.params;
-        const updates = { ...request.body };
-        // Convert date strings to Date objects if present
-        if (updates.startDate) {
-            updates.startDate = new Date(updates.startDate);
-        }
-        if (updates.endDate) {
-            updates.endDate = new Date(updates.endDate);
-        }
+        const body = request.body;
+        // Convert date strings to Date objects if present and build properly typed updates
+        const updates = {
+            ...(body.title !== undefined && { title: body.title }),
+            ...(body.description !== undefined && { description: body.description }),
+            ...(body.targetBooks !== undefined && { targetBooks: body.targetBooks }),
+            ...(body.startDate !== undefined && { startDate: new Date(body.startDate) }),
+            ...(body.endDate !== undefined && { endDate: new Date(body.endDate) }),
+        };
         const goalRepository = container_1.Container.getGoalRepository();
         const useCase = new update_goal_1.UpdateGoalUseCase(goalRepository);
         const goal = await useCase.execute({

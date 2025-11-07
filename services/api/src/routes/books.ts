@@ -38,7 +38,7 @@ export function registerBookRoutes(app: FastifyInstance) {
       const userId = request.user!.userId;
 
       const { googleBooksId, title, authors, thumbnail, description, pageCount, status } =
-        request.body;
+        request.body as AddBookRequest;
 
       const bookRepository = Container.getBookRepository();
       const useCase = new AddBookUseCase(bookRepository);
@@ -70,8 +70,8 @@ export function registerBookRoutes(app: FastifyInstance) {
     wrapHandler(async (request: AuthenticatedRequest, reply) => {
       const userId = request.user!.userId;
 
-      const { id } = request.params;
-      const updates = request.body;
+      const { id } = request.params as { id: string };
+      const updates = request.body as UpdateBookRequest;
 
       const bookRepository = Container.getBookRepository();
       const useCase = new UpdateBookUseCase(bookRepository);
@@ -97,7 +97,7 @@ export function registerBookRoutes(app: FastifyInstance) {
     wrapHandler(async (request: AuthenticatedRequest, reply) => {
       const userId = request.user!.userId;
 
-      const { id } = request.params;
+      const { id } = request.params as { id: string };
 
       const bookRepository = Container.getBookRepository();
       const useCase = new DeleteBookUseCase(bookRepository);

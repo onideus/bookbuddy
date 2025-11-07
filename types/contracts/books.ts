@@ -1,4 +1,4 @@
-import type { ReadingStatus } from '../../domain/value-objects/reading-status';
+import type { BookStatus } from '../../domain/entities/book';
 
 export interface BookDTO {
   id: string;
@@ -9,7 +9,7 @@ export interface BookDTO {
   thumbnail?: string;
   description?: string;
   pageCount?: number;
-  status: ReadingStatus;
+  status: BookStatus;
   currentPage?: number;
   createdAt: Date;
   updatedAt: Date;
@@ -30,7 +30,7 @@ export interface AddBookRequest {
   thumbnail?: string;
   description?: string;
   pageCount?: number;
-  status: ReadingStatus;
+  status: BookStatus;
 }
 
 export interface AddBookResponse {
@@ -38,7 +38,7 @@ export interface AddBookResponse {
 }
 
 export interface UpdateBookRequest {
-  status?: ReadingStatus;
+  status?: BookStatus;
   currentPage?: number;
 }
 

@@ -1,5 +1,5 @@
 import { IBookRepository } from '../../../domain/interfaces/book-repository';
-import { Book } from '../../../domain/entities/book';
+import { Book, BookStatus } from '../../../domain/entities/book';
 import { prisma } from './client';
 import type { Book as PrismaBook } from '@prisma/client';
 
@@ -101,7 +101,7 @@ export class PrismaBookRepository implements IBookRepository {
       thumbnail: prismaBook.thumbnail ?? undefined,
       description: prismaBook.description ?? undefined,
       pageCount: prismaBook.pageCount ?? undefined,
-      status: prismaBook.status,
+      status: prismaBook.status as BookStatus,
       currentPage: prismaBook.currentPage ?? undefined,
       rating: prismaBook.rating ?? undefined,
       addedAt: prismaBook.addedAt,

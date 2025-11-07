@@ -25,7 +25,7 @@ export function registerAuthRoutes(app: FastifyInstance) {
   }>(
     '/auth/register',
     wrapHandler(async (request, reply) => {
-      const { email, password, name } = request.body;
+      const { email, password, name } = request.body as RegisterRequest;
 
       const userRepository = Container.getUserRepository();
       const passwordHasher = Container.getPasswordHasher();
@@ -70,7 +70,7 @@ export function registerAuthRoutes(app: FastifyInstance) {
   }>(
     '/auth/login',
     wrapHandler(async (request, reply) => {
-      const { email, password } = request.body;
+      const { email, password } = request.body as LoginRequest;
 
       if (!email || !password) {
         throw new ValidationError('Email and password are required');
@@ -122,7 +122,7 @@ export function registerAuthRoutes(app: FastifyInstance) {
   }>(
     '/auth/refresh',
     wrapHandler(async (request, reply) => {
-      const { refreshToken } = request.body;
+      const { refreshToken } = request.body as RefreshTokenRequest;
 
       if (!refreshToken) {
         throw new ValidationError('Refresh token is required');
@@ -181,7 +181,7 @@ export function registerAuthRoutes(app: FastifyInstance) {
   }>(
     '/auth/logout',
     wrapHandler(async (request, reply) => {
-      const { refreshToken } = request.body;
+      const { refreshToken } = request.body as LogoutRequest;
 
       if (!refreshToken) {
         throw new ValidationError('Refresh token is required');

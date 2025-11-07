@@ -7,6 +7,7 @@ import { DeleteGoalUseCase } from '../../../../application/use-cases/goals/delet
 import { wrapHandler } from '../utils/error-handler';
 import { authenticate, type AuthenticatedRequest } from '../middleware/auth';
 import type { CreateGoalRequest, UpdateGoalRequest } from '../../../../types/contracts';
+import type { Goal } from '../../../../domain/entities/goal';
 
 export function registerGoalRoutes(app: FastifyInstance) {
   // GET /goals - List user's goals
@@ -37,7 +38,7 @@ export function registerGoalRoutes(app: FastifyInstance) {
     wrapHandler(async (request: AuthenticatedRequest, reply) => {
       const userId = request.user!.userId;
 
-      const { title, description, targetBooks, startDate, endDate } = request.body;
+      const { title, description, targetBooks, startDate, endDate } = request.body as CreateGoalRequest;
 
       const goalRepository = Container.getGoalRepository();
       const useCase = new CreateGoalUseCase(goalRepository);
@@ -67,16 +68,17 @@ export function registerGoalRoutes(app: FastifyInstance) {
     wrapHandler(async (request: AuthenticatedRequest, reply) => {
       const userId = request.user!.userId;
 
-      const { id } = request.params;
-      const updates = { ...request.body };
+      const { id } = request.params as { id: string };
+      const body = request.body as UpdateGoalRequest;
 
-      // Convert date strings to Date objects if present
-      if (updates.startDate) {
-        updates.startDate = new Date(updates.startDate);
-      }
-      if (updates.endDate) {
-        updates.endDate = new Date(updates.endDate);
-      }
+      // Convert date strings to Date objects if present and build properly typed updates
+      const updates: Partial<Goal> = {
+        ...(body.title !== undefined && { title: body.title }),
+        ...(body.description !== undefined && { description: body.description }),
+        ...(body.targetBooks !== undefined && { targetBooks: body.targetBooks }),
+        ...(body.startDate !== undefined && { startDate: new Date(body.startDate) }),
+        ...(body.endDate !== undefined && { endDate: new Date(body.endDate) }),
+      };
 
       const goalRepository = Container.getGoalRepository();
       const useCase = new UpdateGoalUseCase(goalRepository);
@@ -102,7 +104,7 @@ export function registerGoalRoutes(app: FastifyInstance) {
     wrapHandler(async (request: AuthenticatedRequest, reply) => {
       const userId = request.user!.userId;
 
-      const { id } = request.params;
+      const { id } = request.params as { id: string };
 
       const goalRepository = Container.getGoalRepository();
       const useCase = new DeleteGoalUseCase(goalRepository);
