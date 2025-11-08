@@ -1,5 +1,5 @@
-import Foundation
 import CoreDomain
+import Foundation
 
 /// Implementation of UserRepositoryProtocol using REST API
 /// Note: User operations are primarily handled through AuthenticationService

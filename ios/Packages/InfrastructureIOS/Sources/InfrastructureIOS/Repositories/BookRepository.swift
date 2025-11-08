@@ -1,5 +1,5 @@
-import Foundation
 import CoreDomain
+import Foundation
 
 /// Implementation of BookRepositoryProtocol using REST API
 public final class BookRepository: BookRepositoryProtocol {

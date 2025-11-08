@@ -1,5 +1,5 @@
-import SwiftUI
 import InfrastructureIOS
+import SwiftUI
 
 /// Main app container managing dependencies and app state
 @MainActor

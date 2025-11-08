@@ -1,6 +1,6 @@
-import SwiftUI
-import InfrastructureIOS
 import CoreDomain
+import InfrastructureIOS
+import SwiftUI
 
 @MainActor
 final class AuthViewModel: ObservableObject {

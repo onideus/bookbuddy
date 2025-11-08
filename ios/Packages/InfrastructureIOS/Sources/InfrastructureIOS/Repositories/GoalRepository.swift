@@ -1,5 +1,5 @@
-import Foundation
 import CoreDomain
+import Foundation
 
 /// Implementation of GoalRepositoryProtocol using REST API
 public final class GoalRepository: GoalRepositoryProtocol {

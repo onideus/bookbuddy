@@ -1,5 +1,5 @@
-import Foundation
 import CoreDomain
+import Foundation
 
 /// Service for managing authentication operations
 public final class AuthenticationService {

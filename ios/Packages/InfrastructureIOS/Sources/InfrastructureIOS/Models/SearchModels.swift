@@ -1,5 +1,5 @@
-import Foundation
 import CoreDomain
+import Foundation
 
 // MARK: - Response Models
 

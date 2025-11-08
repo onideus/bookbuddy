@@ -1,5 +1,5 @@
-import Foundation
 import CoreDomain
+import Foundation
 
 /// Implementation of ExternalBookSearchProtocol using the API's Google Books proxy
 public final class ExternalBookSearchService: ExternalBookSearchProtocol {
