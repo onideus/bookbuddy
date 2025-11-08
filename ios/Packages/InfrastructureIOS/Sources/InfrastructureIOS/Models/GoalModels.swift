@@ -132,9 +132,10 @@ extension GoalDTO {
             title: title,
             description: description,
             targetBooks: targetBooks,
+            currentBooks: booksRead,
             startDate: startDate,
             endDate: endDate,
-            booksRead: booksRead
+            completed: isComplete
         )
     }
 }
@@ -149,8 +150,8 @@ extension Goal {
             targetBooks: targetBooks,
             startDate: startDate,
             endDate: endDate,
-            booksRead: booksRead,
-            isComplete: isComplete,
+            booksRead: currentBooks,
+            isComplete: completed,
             createdAt: Date(), // These aren't tracked in domain model
             updatedAt: Date()
         )

@@ -11,12 +11,12 @@ struct MainTabView: View {
                     Label("Books", systemImage: "book.fill")
                 }
 
-            PlaceholderView(title: "Goals", icon: "target")
+            GoalsListView(viewModel: container.makeGoalsViewModel())
                 .tabItem {
                     Label("Goals", systemImage: "target")
                 }
 
-            PlaceholderView(title: "Search", icon: "magnifyingglass")
+            SearchView(viewModel: container.makeSearchViewModel())
                 .tabItem {
                     Label("Search", systemImage: "magnifyingglass")
                 }

@@ -43,6 +43,17 @@ final class AppContainer: ObservableObject {
         return BooksListViewModel(bookRepository: bookRepository)
     }
 
+    func makeGoalsViewModel() -> GoalsViewModel {
+        return GoalsViewModel(goalRepository: goalRepository)
+    }
+
+    func makeSearchViewModel() -> SearchViewModel {
+        return SearchViewModel(
+            searchService: searchService,
+            bookRepository: bookRepository
+        )
+    }
+
     // Update authentication state
     func updateAuthenticationState() {
         isAuthenticated = authService.isAuthenticated()
