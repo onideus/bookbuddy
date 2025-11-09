@@ -1,4 +1,5 @@
 import CoreDomain
+import InfrastructureIOS
 import SwiftUI
 
 struct SearchView: View {
