@@ -67,6 +67,19 @@ final class AuthViewModel: ObservableObject {
         isLoading = false
     }
 
+    // MARK: - Developer Methods
+
+    #if DEBUG
+    func loginAsTestUser() async {
+        // Use test credentials
+        email = "test@example.com"
+        password = "password"
+
+        // Perform login
+        await login()
+    }
+    #endif
+
     // MARK: - Private Methods
 
     private func checkAuthenticationStatus() {

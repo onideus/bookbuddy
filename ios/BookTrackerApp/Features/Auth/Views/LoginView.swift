@@ -63,6 +63,32 @@ struct LoginView: View {
                     .foregroundColor(.white)
                     .cornerRadius(10)
                     .disabled(viewModel.isLoading)
+
+                    // Developer Login Button
+                    #if DEBUG
+                    Button(action: {
+                        Task {
+                            await viewModel.loginAsTestUser()
+                        }
+                    }) {
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .progressViewStyle(.circular)
+                        } else {
+                            HStack {
+                                Image(systemName: "hammer.fill")
+                                Text("Developer Login")
+                            }
+                            .fontWeight(.medium)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.gray.opacity(0.2))
+                    .foregroundColor(.primary)
+                    .cornerRadius(10)
+                    .disabled(viewModel.isLoading)
+                    #endif
                 }
                 .padding(.horizontal, 32)
 
