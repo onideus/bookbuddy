@@ -58,4 +58,10 @@ final class AppContainer: ObservableObject {
     func updateAuthenticationState() {
         isAuthenticated = authService.isAuthenticated()
     }
+
+    // MARK: - Preview Support
+
+    static func mock() -> AppContainer {
+        return AppContainer(configuration: .development)
+    }
 }

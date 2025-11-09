@@ -91,11 +91,13 @@ public struct UserDTO: Codable {
     public let id: String
     public let email: String
     public let name: String
+    public let createdAt: Date?
 
-    public init(id: String, email: String, name: String) {
+    public init(id: String, email: String, name: String, createdAt: Date? = nil) {
         self.id = id
         self.email = email
         self.name = name
+        self.createdAt = createdAt
     }
 }
 
@@ -105,8 +107,9 @@ extension UserDTO {
         return User(
             id: id,
             email: email,
+            password: "", // Password is not included in responses for security
             name: name,
-            password: "" // Password is not included in responses for security
+            createdAt: createdAt ?? Date() // Use provided date or current date as fallback
         )
     }
 }

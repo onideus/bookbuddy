@@ -130,7 +130,7 @@ public struct BookDTO: Codable {
 extension BookDTO {
     public func toDomain() throws -> Book {
         guard let bookStatus = BookStatus(rawValue: status) else {
-            throw DomainError.validationError("Invalid book status: \(status)")
+            throw DomainError.validation("Invalid book status: \(status)")
         }
 
         return Book(
@@ -145,6 +145,7 @@ extension BookDTO {
             status: bookStatus,
             currentPage: currentPage,
             rating: rating,
+            addedAt: createdAt,
             finishedAt: finishedAt
         )
     }

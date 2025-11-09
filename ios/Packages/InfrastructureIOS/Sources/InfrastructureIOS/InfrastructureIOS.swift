@@ -6,22 +6,10 @@ import Foundation
 @_exported import CoreDomain
 @_exported import Application
 
-// Network Layer
-public typealias NetworkClient = InfrastructureIOS.NetworkClient
-public typealias APIError = InfrastructureIOS.APIError
-public typealias APIEndpoint = InfrastructureIOS.APIEndpoint
-
-// Security
-public typealias KeychainManager = InfrastructureIOS.KeychainManager
-
-// Services
-public typealias AuthenticationService = InfrastructureIOS.AuthenticationService
-public typealias ExternalBookSearchService = InfrastructureIOS.ExternalBookSearchService
-
-// Repositories
-public typealias BookRepository = InfrastructureIOS.BookRepository
-public typealias GoalRepository = InfrastructureIOS.GoalRepository
-public typealias UserRepository = InfrastructureIOS.UserRepository
+// Note: Types defined in this module (NetworkClient, APIError, APIEndpoint,
+// KeychainManager, AuthenticationService, ExternalBookSearchService, 
+// BookRepository, GoalRepository, UserRepository) are already directly 
+// accessible and don't need typealiases
 
 // MARK: - Configuration
 
