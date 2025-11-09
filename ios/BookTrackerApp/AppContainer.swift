@@ -39,6 +39,20 @@ final class AppContainer: ObservableObject {
         self.infrastructureFactory = InfrastructureFactory(configuration: configuration)
     }
     
+    // MARK: - Authentication State
+    
+    /// Check if user is currently authenticated
+    var isAuthenticated: Bool {
+        authenticationService.isAuthenticated()
+    }
+    
+    // MARK: - View Model Factories
+    
+    /// Creates an authentication view model
+    func makeAuthViewModel() -> AuthViewModel {
+        AuthViewModel(authService: authenticationService)
+    }
+    
     // MARK: - Convenience
     
     /// Creates a container for production use

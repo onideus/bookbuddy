@@ -29,14 +29,24 @@ final class AppContainer: ObservableObject {
         self.goalRepository = factory.makeGoalRepository()
         self.searchService = factory.makeExternalBookSearchService()
 
+        // Clear keychain in DEBUG builds to always show login screen
+        #if DEBUG
+        try? KeychainManager.shared.deleteTokens()
+        print("DEBUG: Cleared keychain tokens on app launch")
+        // Force unauthenticated state in DEBUG to always show login screen
+        self.isAuthenticated = false
+        #else
         // Check authentication status
         self.isAuthenticated = authService.isAuthenticated()
+        #endif
     }
 
     // MARK: - Factory Methods
 
     func makeAuthViewModel() -> AuthViewModel {
-        return AuthViewModel(authService: authService)
+        return AuthViewModel(authService: authService) { [weak self] in
+            self?.updateAuthenticationState()
+        }
     }
 
     func makeBooksViewModel() -> BooksListViewModel {

@@ -4,16 +4,22 @@ import SwiftUI
 /// Root view of the application
 /// Handles top-level navigation and state management
 struct RootView: View {
-    @EnvironmentObject private var container: AppContainer
-    
+    @EnvironmentObject var container: AppContainer
+
     var body: some View {
-        NavigationStack {
-            BooksListView(viewModel: makeBooksListViewModel())
+        Group {
+            if container.isAuthenticated {
+                NavigationStack {
+                    BooksListView(viewModel: makeBooksListViewModel())
+                }
+            } else {
+                LoginView(viewModel: container.makeAuthViewModel())
+            }
         }
     }
-    
+
     // MARK: - View Model Factories
-    
+
     private func makeBooksListViewModel() -> BooksListViewModel {
         BooksListViewModel(
             getUserBooksUseCase: GetUserBooksUseCase(bookRepository: container.bookRepository),

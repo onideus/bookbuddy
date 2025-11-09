@@ -1,4 +1,5 @@
 import SwiftUI
+import InfrastructureIOS
 
 struct LoginView: View {
     @ObservedObject var viewModel: AuthViewModel
@@ -116,8 +117,8 @@ struct LoginView: View {
 
 #Preview {
     LoginView(viewModel: AuthViewModel(
-        authService: InfrastructureIOS.InfrastructureFactory(
-            configuration: .development
+        authService: InfrastructureFactory(
+            configuration: InfrastructureConfiguration.development
         ).makeAuthenticationService()
     ))
 }

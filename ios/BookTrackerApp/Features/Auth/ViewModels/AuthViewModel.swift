@@ -12,9 +12,11 @@ final class AuthViewModel: ObservableObject {
     @Published var isAuthenticated = false
 
     private let authService: AuthenticationService
+    private var onAuthenticationChanged: (() -> Void)?
 
-    init(authService: AuthenticationService) {
+    init(authService: AuthenticationService, onAuthenticationChanged: (() -> Void)? = nil) {
         self.authService = authService
+        self.onAuthenticationChanged = onAuthenticationChanged
         checkAuthenticationStatus()
     }
 
@@ -29,6 +31,7 @@ final class AuthViewModel: ObservableObject {
         do {
             _ = try await authService.login(email: email, password: password)
             isAuthenticated = true
+            onAuthenticationChanged?()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -45,6 +48,7 @@ final class AuthViewModel: ObservableObject {
         do {
             _ = try await authService.register(email: email, password: password, name: name)
             isAuthenticated = true
+            onAuthenticationChanged?()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -59,6 +63,7 @@ final class AuthViewModel: ObservableObject {
         do {
             try await authService.logout()
             isAuthenticated = false
+            onAuthenticationChanged?()
             clearForm()
         } catch {
             errorMessage = error.localizedDescription

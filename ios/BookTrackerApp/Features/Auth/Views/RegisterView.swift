@@ -1,4 +1,5 @@
 import SwiftUI
+import InfrastructureIOS
 
 struct RegisterView: View {
     @ObservedObject var viewModel: AuthViewModel
@@ -96,8 +97,8 @@ struct RegisterView: View {
 
 #Preview {
     RegisterView(viewModel: AuthViewModel(
-        authService: InfrastructureIOS.InfrastructureFactory(
-            configuration: .development
+        authService: InfrastructureFactory(
+            configuration: InfrastructureConfiguration.development
         ).makeAuthenticationService()
     ))
 }
