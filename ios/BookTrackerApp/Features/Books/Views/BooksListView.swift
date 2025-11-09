@@ -6,6 +6,11 @@ struct BooksListView: View {
     @StateObject var viewModel: BooksListViewModel
     @State private var showingAddBook = false
 
+    // Dependencies for AddBookView
+    let searchBooksUseCase: SearchBooksUseCase
+    let addBookUseCase: AddBookUseCase
+    let currentUserId: String
+
     var body: some View {
         ZStack {
             if viewModel.isLoading, !viewModel.hasBooks {
@@ -78,8 +83,18 @@ struct BooksListView: View {
             }
         }
         .sheet(isPresented: $showingAddBook) {
-            // NOTE: Add book sheet will be implemented in future update
-            Text("Add Book - Coming Soon")
+            AddBookView(
+                viewModel: SearchBooksViewModel(
+                    searchBooksUseCase: searchBooksUseCase,
+                    addBookUseCase: addBookUseCase,
+                    currentUserId: currentUserId
+                ),
+                onBookAdded: {
+                    Task {
+                        await viewModel.refresh()
+                    }
+                }
+            )
         }
         .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
             Button("OK") {
@@ -244,6 +259,7 @@ struct NoResultsView: View {
 
 #Preview {
     let repository = MockBookRepository()
+    let externalBookSearch = MockExternalBookSearch()
     return NavigationView {
         BooksListView(
             viewModel: BooksListViewModel(
@@ -251,7 +267,10 @@ struct NoResultsView: View {
                 updateBookUseCase: UpdateBookUseCase(bookRepository: repository),
                 deleteBookUseCase: DeleteBookUseCase(bookRepository: repository),
                 currentUserId: "user1"
-            )
+            ),
+            searchBooksUseCase: SearchBooksUseCase(externalBookSearch: externalBookSearch),
+            addBookUseCase: AddBookUseCase(bookRepository: repository),
+            currentUserId: "user1"
         )
     }
 }
@@ -282,5 +301,16 @@ class MockBookRepository: BookRepositoryProtocol {
 
     func delete(_: String) async throws -> Bool {
         true
+    }
+}
+
+@MainActor
+class MockExternalBookSearch: ExternalBookSearchProtocol {
+    func search(_: String) async throws -> [BookSearchResult] {
+        []
+    }
+
+    func getById(_: String) async throws -> BookSearchResult? {
+        nil
     }
 }

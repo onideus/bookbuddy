@@ -11,6 +11,43 @@ struct BookCard: View {
     @State private var currentPageInput = ""
 
     var body: some View {
+        NavigationLink(
+            destination: BookDetailView(
+                book: book,
+                onUpdate: onUpdate,
+                onDelete: onDelete
+            )
+        ) {
+            cardContent
+        }
+        .buttonStyle(.plain)
+        .alert("Update Page", isPresented: $showingPageUpdate) {
+            TextField("Current Page", text: $currentPageInput)
+                .keyboardType(.numberPad)
+            Button("Cancel", role: .cancel) {}
+            Button("Update") {
+                updateCurrentPage()
+            }
+        } message: {
+            if let pageCount = book.pageCount {
+                Text("Enter your current page (out of \(pageCount))")
+            }
+        }
+        .confirmationDialog(
+            "Delete Book",
+            isPresented: $showingDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                onDelete(book)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Are you sure you want to delete \"\(book.title)\"?")
+        }
+    }
+
+    private var cardContent: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 12) {
                 // Book thumbnail
@@ -124,30 +161,6 @@ struct BookCard: View {
         .background(Color(.systemBackground))
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
-        .alert("Update Page", isPresented: $showingPageUpdate) {
-            TextField("Current Page", text: $currentPageInput)
-                .keyboardType(.numberPad)
-            Button("Cancel", role: .cancel) {}
-            Button("Update") {
-                updateCurrentPage()
-            }
-        } message: {
-            if let pageCount = book.pageCount {
-                Text("Enter your current page (out of \(pageCount))")
-            }
-        }
-        .confirmationDialog(
-            "Delete Book",
-            isPresented: $showingDeleteConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button("Delete", role: .destructive) {
-                onDelete(book)
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Are you sure you want to delete \"\(book.title)\"?")
-        }
     }
 
     // MARK: - Computed Properties
