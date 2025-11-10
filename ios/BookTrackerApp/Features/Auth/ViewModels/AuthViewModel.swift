@@ -76,9 +76,9 @@ final class AuthViewModel: ObservableObject {
 
     #if DEBUG
     func loginAsTestUser() async {
-        // Use test credentials
-        email = "test@example.com"
-        password = "password"
+        // Use developer credentials
+        email = "dev@booktracker.com"
+        password = "password123"
 
         // Perform login
         await login()
