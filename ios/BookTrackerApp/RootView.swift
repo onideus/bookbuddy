@@ -10,7 +10,12 @@ struct RootView: View {
         Group {
             if container.isAuthenticated {
                 NavigationStack {
-                    BooksListView(viewModel: makeBooksListViewModel())
+                    BooksListView(
+                        viewModel: makeBooksListViewModel(),
+                        searchBooksUseCase: makeSearchBooksUseCase(),
+                        addBookUseCase: makeAddBookUseCase(),
+                        currentUserId: "preview-user" // TODO: Get actual user ID from authentication
+                    )
                 }
             } else {
                 LoginView(viewModel: container.makeAuthViewModel())
@@ -27,6 +32,14 @@ struct RootView: View {
             deleteBookUseCase: DeleteBookUseCase(bookRepository: container.bookRepository),
             currentUserId: "preview-user" // TODO: Get actual user ID from authentication
         )
+    }
+
+    private func makeSearchBooksUseCase() -> SearchBooksUseCase {
+        SearchBooksUseCase(externalBookSearch: container.externalBookSearchService)
+    }
+
+    private func makeAddBookUseCase() -> AddBookUseCase {
+        AddBookUseCase(bookRepository: container.bookRepository)
     }
 }
 

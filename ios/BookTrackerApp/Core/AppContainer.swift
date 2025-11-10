@@ -64,6 +64,20 @@ final class AppContainer: ObservableObject {
         )
     }
 
+    func makeSearchBooksUseCase() -> SearchBooksUseCase {
+        return SearchBooksUseCase(externalBookSearch: searchService)
+    }
+
+    func makeAddBookUseCase() -> AddBookUseCase {
+        return AddBookUseCase(bookRepository: bookRepository)
+    }
+
+    func getCurrentUserId() -> String {
+        // TODO: Get actual user ID from auth service
+        // For now, return a placeholder
+        return "current-user-id"
+    }
+
     // Update authentication state
     func updateAuthenticationState() {
         isAuthenticated = authService.isAuthenticated()

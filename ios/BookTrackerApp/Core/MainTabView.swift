@@ -6,10 +6,15 @@ struct MainTabView: View {
 
     var body: some View {
         TabView {
-            BooksListView(viewModel: container.makeBooksViewModel())
-                .tabItem {
-                    Label("Books", systemImage: "book.fill")
-                }
+            BooksListView(
+                viewModel: container.makeBooksViewModel(),
+                searchBooksUseCase: container.makeSearchBooksUseCase(),
+                addBookUseCase: container.makeAddBookUseCase(),
+                currentUserId: container.getCurrentUserId()
+            )
+            .tabItem {
+                Label("Books", systemImage: "book.fill")
+            }
 
             GoalsListView(viewModel: container.makeGoalsViewModel())
                 .tabItem {
