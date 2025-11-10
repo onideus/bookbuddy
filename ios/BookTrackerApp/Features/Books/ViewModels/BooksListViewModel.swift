@@ -42,6 +42,20 @@ class BooksListViewModel: ObservableObject {
         setupSearchObserver()
     }
 
+    /// Convenience initializer that creates use cases from a repository
+    convenience init(bookRepository: BookRepositoryProtocol, currentUserId: String = "temp-user-id") {
+        let getUserBooksUseCase = GetUserBooksUseCase(bookRepository: bookRepository)
+        let updateBookUseCase = UpdateBookUseCase(bookRepository: bookRepository)
+        let deleteBookUseCase = DeleteBookUseCase(bookRepository: bookRepository)
+
+        self.init(
+            getUserBooksUseCase: getUserBooksUseCase,
+            updateBookUseCase: updateBookUseCase,
+            deleteBookUseCase: deleteBookUseCase,
+            currentUserId: currentUserId
+        )
+    }
+
     // MARK: - Public Methods
 
     func loadBooks() async {
