@@ -18,6 +18,7 @@ final class AppContainer: ObservableObject {
 
     // MARK: - App State
     @Published var isAuthenticated: Bool = false
+    @Published var currentUserId: String?
 
     init(configuration: InfrastructureConfiguration = .development) {
         self.configuration = configuration
@@ -35,6 +36,7 @@ final class AppContainer: ObservableObject {
         print("DEBUG: Cleared keychain tokens on app launch")
         // Force unauthenticated state in DEBUG to always show login screen
         self.isAuthenticated = false
+        self.currentUserId = nil
         #else
         // Check authentication status
         self.isAuthenticated = authService.isAuthenticated()
@@ -44,8 +46,8 @@ final class AppContainer: ObservableObject {
     // MARK: - Factory Methods
 
     func makeAuthViewModel() -> AuthViewModel {
-        return AuthViewModel(authService: authService) { [weak self] in
-            self?.updateAuthenticationState()
+        return AuthViewModel(authService: authService) { [weak self] userId in
+            self?.setCurrentUser(userId: userId)
         }
     }
 
@@ -60,7 +62,8 @@ final class AppContainer: ObservableObject {
     func makeSearchViewModel() -> SearchViewModel {
         return SearchViewModel(
             searchService: searchService,
-            bookRepository: bookRepository
+            bookRepository: bookRepository,
+            currentUserId: getCurrentUserId()
         )
     }
 
@@ -73,14 +76,31 @@ final class AppContainer: ObservableObject {
     }
 
     func getCurrentUserId() -> String {
-        // TODO: Get actual user ID from auth service
-        // For now, return a placeholder
-        return "current-user-id"
+        guard let userId = currentUserId else {
+            // This should not happen in normal flow, but provide fallback
+            print("WARNING: getCurrentUserId() called but no user is authenticated")
+            return ""
+        }
+        return userId
     }
 
-    // Update authentication state
+    // MARK: - Authentication State Management
+
+    /// Set the current authenticated user
+    func setCurrentUser(userId: String?) {
+        self.currentUserId = userId
+        self.isAuthenticated = userId != nil
+        print("DEBUG: User authentication state updated - userId: \(userId ?? "nil"), isAuthenticated: \(isAuthenticated)")
+    }
+
+    /// Update authentication state (for logout or token expiration)
     func updateAuthenticationState() {
-        isAuthenticated = authService.isAuthenticated()
+        let authenticated = authService.isAuthenticated()
+        if !authenticated {
+            // Clear user ID if not authenticated
+            self.currentUserId = nil
+        }
+        self.isAuthenticated = authenticated
     }
 
     // MARK: - Preview Support

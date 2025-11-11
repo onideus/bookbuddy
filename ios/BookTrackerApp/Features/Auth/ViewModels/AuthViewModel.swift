@@ -10,11 +10,12 @@ final class AuthViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var isAuthenticated = false
+    @Published var currentUser: User?
 
     private let authService: AuthenticationService
-    private var onAuthenticationChanged: (() -> Void)?
+    private var onAuthenticationChanged: ((String?) -> Void)?
 
-    init(authService: AuthenticationService, onAuthenticationChanged: (() -> Void)? = nil) {
+    init(authService: AuthenticationService, onAuthenticationChanged: ((String?) -> Void)? = nil) {
         self.authService = authService
         self.onAuthenticationChanged = onAuthenticationChanged
         checkAuthenticationStatus()
@@ -29,9 +30,10 @@ final class AuthViewModel: ObservableObject {
         errorMessage = nil
 
         do {
-            _ = try await authService.login(email: email, password: password)
+            let user = try await authService.login(email: email, password: password)
+            currentUser = user
             isAuthenticated = true
-            onAuthenticationChanged?()
+            onAuthenticationChanged?(user.id)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -46,9 +48,10 @@ final class AuthViewModel: ObservableObject {
         errorMessage = nil
 
         do {
-            _ = try await authService.register(email: email, password: password, name: name)
+            let user = try await authService.register(email: email, password: password, name: name)
+            currentUser = user
             isAuthenticated = true
-            onAuthenticationChanged?()
+            onAuthenticationChanged?(user.id)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -62,8 +65,9 @@ final class AuthViewModel: ObservableObject {
 
         do {
             try await authService.logout()
+            currentUser = nil
             isAuthenticated = false
-            onAuthenticationChanged?()
+            onAuthenticationChanged?(nil)
             clearForm()
         } catch {
             errorMessage = error.localizedDescription
