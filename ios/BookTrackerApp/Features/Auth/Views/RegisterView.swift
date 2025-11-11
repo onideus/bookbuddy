@@ -3,7 +3,7 @@ import InfrastructureIOS
 
 struct RegisterView: View {
     @ObservedObject var viewModel: AuthViewModel
-    @Environment(\.dismiss) var dismiss
+    var onShowLogin: (() -> Void)?
 
     var body: some View {
         NavigationView {
@@ -51,9 +51,6 @@ struct RegisterView: View {
                     Button(action: {
                         Task {
                             await viewModel.register()
-                            if viewModel.isAuthenticated {
-                                dismiss()
-                            }
                         }
                     }) {
                         if viewModel.isLoading {
@@ -75,22 +72,20 @@ struct RegisterView: View {
                 .padding(.horizontal, 32)
 
                 // Login link
-                Button(action: {
-                    dismiss()
-                }) {
-                    Text("Already have an account? ")
-                        .foregroundColor(.primary) +
-                    Text("Log In")
-                        .fontWeight(.semibold)
-                        .foregroundColor(.blue)
+                if let onShowLogin = onShowLogin {
+                    Button(action: onShowLogin) {
+                        Text("Already have an account? ")
+                            .foregroundColor(.primary) +
+                        Text("Log In")
+                            .fontWeight(.semibold)
+                            .foregroundColor(.blue)
+                    }
+                    .padding(.top, 8)
                 }
-                .padding(.top, 8)
 
                 Spacer()
             }
-            .navigationBarItems(trailing: Button("Cancel") {
-                dismiss()
-            })
+            .navigationBarHidden(true)
         }
     }
 }
