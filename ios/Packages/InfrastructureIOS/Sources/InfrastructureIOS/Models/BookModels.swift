@@ -90,8 +90,7 @@ public struct BookDTO: Codable {
     public let currentPage: Int?
     public let rating: Int?
     public let finishedAt: Date?
-    public let createdAt: Date
-    public let updatedAt: Date
+    public let addedAt: Date
 
     public init(
         id: String,
@@ -106,8 +105,7 @@ public struct BookDTO: Codable {
         currentPage: Int?,
         rating: Int?,
         finishedAt: Date?,
-        createdAt: Date,
-        updatedAt: Date
+        addedAt: Date
     ) {
         self.id = id
         self.userId = userId
@@ -121,8 +119,7 @@ public struct BookDTO: Codable {
         self.currentPage = currentPage
         self.rating = rating
         self.finishedAt = finishedAt
-        self.createdAt = createdAt
-        self.updatedAt = updatedAt
+        self.addedAt = addedAt
     }
 }
 
@@ -145,7 +142,7 @@ extension BookDTO {
             status: bookStatus,
             currentPage: currentPage,
             rating: rating,
-            addedAt: createdAt,
+            addedAt: addedAt,
             finishedAt: finishedAt
         )
     }
@@ -166,8 +163,7 @@ extension Book {
             currentPage: currentPage,
             rating: rating,
             finishedAt: finishedAt,
-            createdAt: Date(), // These aren't tracked in domain model
-            updatedAt: Date()
+            addedAt: addedAt
         )
     }
 }
