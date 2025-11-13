@@ -34,10 +34,14 @@ public struct AddBookRequest: Encodable {
 public struct UpdateBookRequest: Encodable {
     public let status: String?
     public let currentPage: Int?
+    public let rating: Int?
+    public let finishedAt: Date?
 
-    public init(status: BookStatus? = nil, currentPage: Int? = nil) {
+    public init(status: BookStatus? = nil, currentPage: Int? = nil, rating: Int? = nil, finishedAt: Date? = nil) {
         self.status = status?.rawValue
         self.currentPage = currentPage
+        self.rating = rating
+        self.finishedAt = finishedAt
     }
 }
 

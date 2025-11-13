@@ -52,7 +52,7 @@ final class AppContainer: ObservableObject {
     }
 
     func makeBooksViewModel() -> BooksListViewModel {
-        return BooksListViewModel(bookRepository: bookRepository)
+        return BooksListViewModel(bookRepository: bookRepository, currentUserId: getCurrentUserId())
     }
 
     func makeGoalsViewModel() -> GoalsViewModel {
