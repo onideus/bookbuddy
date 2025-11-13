@@ -1,0 +1,1 @@
+- Add the last command that you ran in Bash to memory, so that future sessions will use this default command
