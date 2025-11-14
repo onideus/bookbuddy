@@ -3,7 +3,7 @@ import InfrastructureIOS
 
 struct LoginView: View {
     @ObservedObject var viewModel: AuthViewModel
-    @State private var showingRegister = false
+    var onShowRegister: (() -> Void)?
 
     var body: some View {
         NavigationView {
@@ -94,23 +94,20 @@ struct LoginView: View {
                 .padding(.horizontal, 32)
 
                 // Register link
-                Button(action: {
-                    showingRegister = true
-                }) {
-                    Text("Don't have an account? ")
-                        .foregroundColor(.primary) +
-                    Text("Sign Up")
-                        .fontWeight(.semibold)
-                        .foregroundColor(.blue)
+                if let onShowRegister = onShowRegister {
+                    Button(action: onShowRegister) {
+                        Text("Don't have an account? ")
+                            .foregroundColor(.primary) +
+                        Text("Sign Up")
+                            .fontWeight(.semibold)
+                            .foregroundColor(.blue)
+                    }
+                    .padding(.top, 8)
                 }
-                .padding(.top, 8)
 
                 Spacer()
             }
             .navigationBarHidden(true)
-            .sheet(isPresented: $showingRegister) {
-                RegisterView(viewModel: viewModel)
-            }
         }
     }
 }
