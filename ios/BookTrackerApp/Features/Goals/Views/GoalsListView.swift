@@ -62,18 +62,27 @@ struct GoalsListView: View {
             .padding()
 
             // Goals list
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    ForEach(filteredGoals) { goal in
-                        GoalCard(goal: goal) {
+            List {
+                ForEach(filteredGoals) { goal in
+                    GoalCard(goal: goal) {
+                        Task {
+                            await viewModel.deleteGoal(goal)
+                        }
+                    }
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    .listRowSeparator(.hidden)
+                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                        Button(role: .destructive) {
                             Task {
                                 await viewModel.deleteGoal(goal)
                             }
+                        } label: {
+                            Label("Delete", systemImage: "trash")
                         }
                     }
                 }
-                .padding(.horizontal)
             }
+            .listStyle(.plain)
         }
     }
 

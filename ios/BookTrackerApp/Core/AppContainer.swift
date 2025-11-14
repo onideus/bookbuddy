@@ -56,7 +56,7 @@ final class AppContainer: ObservableObject {
     }
 
     func makeGoalsViewModel() -> GoalsViewModel {
-        return GoalsViewModel(goalRepository: goalRepository)
+        return GoalsViewModel(goalRepository: goalRepository, currentUserId: getCurrentUserId())
     }
 
     func makeSearchViewModel() -> SearchViewModel {
