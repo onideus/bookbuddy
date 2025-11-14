@@ -64,22 +64,18 @@ struct GoalsListView: View {
             // Goals list
             List {
                 ForEach(filteredGoals) { goal in
-                    GoalCard(goal: goal) {
-                        Task {
-                            await viewModel.deleteGoal(goal)
-                        }
-                    }
-                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                    .listRowSeparator(.hidden)
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        Button(role: .destructive) {
-                            Task {
-                                await viewModel.deleteGoal(goal)
+                    GoalCard(goal: goal)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                        .listRowSeparator(.hidden)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                Task {
+                                    await viewModel.deleteGoal(goal)
+                                }
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
-                        } label: {
-                            Label("Delete", systemImage: "trash")
                         }
-                    }
                 }
             }
             .listStyle(.plain)

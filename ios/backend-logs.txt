@@ -327,3 +327,7 @@
 {"level":30,"time":1763159426230,"pid":85659,"hostname":"Zachs-MacBook-Pro.local","reqId":"req-24","res":{"statusCode":200},"responseTime":5.427250027656555,"msg":"request completed"}
 {"level":30,"time":1763159436120,"pid":85659,"hostname":"Zachs-MacBook-Pro.local","reqId":"req-25","req":{"method":"GET","url":"/books","host":"localhost:4000","remoteAddress":"127.0.0.1","remotePort":64763},"msg":"incoming request"}
 {"level":30,"time":1763159436125,"pid":85659,"hostname":"Zachs-MacBook-Pro.local","reqId":"req-25","res":{"statusCode":200},"responseTime":5.488165974617004,"msg":"request completed"}
+{"level":30,"time":1763160237017,"pid":85659,"hostname":"Zachs-MacBook-Pro.local","reqId":"req-26","req":{"method":"POST","url":"/auth/login","host":"localhost:4000","remoteAddress":"127.0.0.1","remotePort":49217},"msg":"incoming request"}
+{"level":30,"time":1763160237119,"pid":85659,"hostname":"Zachs-MacBook-Pro.local","reqId":"req-26","res":{"statusCode":200},"responseTime":102.54620897769928,"msg":"request completed"}
+{"level":30,"time":1763160237244,"pid":85659,"hostname":"Zachs-MacBook-Pro.local","reqId":"req-27","req":{"method":"GET","url":"/books","host":"localhost:4000","remoteAddress":"127.0.0.1","remotePort":49217},"msg":"incoming request"}
+{"level":30,"time":1763160237249,"pid":85659,"hostname":"Zachs-MacBook-Pro.local","reqId":"req-27","res":{"statusCode":200},"responseTime":5.069000005722046,"msg":"request completed"}
