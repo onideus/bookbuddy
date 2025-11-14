@@ -9,43 +9,41 @@ struct GoalsListView: View {
     private let segments = ["Active", "All", "Completed"]
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                if viewModel.isLoading && viewModel.goals.isEmpty {
-                    ProgressView("Loading goals...")
-                } else if viewModel.hasGoals {
-                    goalsContent
-                } else {
-                    emptyState
+        ZStack {
+            if viewModel.isLoading && viewModel.goals.isEmpty {
+                ProgressView("Loading goals...")
+            } else if viewModel.hasGoals {
+                goalsContent
+            } else {
+                emptyState
+            }
+        }
+        .navigationTitle("Reading Goals")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    viewModel.showingCreateGoal = true
+                } label: {
+                    Image(systemName: "plus")
                 }
             }
-            .navigationTitle("Reading Goals")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        viewModel.showingCreateGoal = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                }
+        }
+        .sheet(isPresented: $viewModel.showingCreateGoal) {
+            CreateGoalView(viewModel: viewModel)
+        }
+        .task {
+            await viewModel.loadGoals()
+        }
+        .refreshable {
+            await viewModel.refresh()
+        }
+        .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
+            Button("OK") {
+                viewModel.errorMessage = nil
             }
-            .sheet(isPresented: $viewModel.showingCreateGoal) {
-                CreateGoalView(viewModel: viewModel)
-            }
-            .task {
-                await viewModel.loadGoals()
-            }
-            .refreshable {
-                await viewModel.refresh()
-            }
-            .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
-                Button("OK") {
-                    viewModel.errorMessage = nil
-                }
-            } message: {
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                }
+        } message: {
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
             }
         }
     }
