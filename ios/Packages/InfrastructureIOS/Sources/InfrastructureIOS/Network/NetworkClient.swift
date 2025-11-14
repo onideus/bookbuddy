@@ -150,13 +150,13 @@ extension NetworkClient {
     /// Create a NetworkClient with the default production configuration
     public static func production() -> NetworkClient {
         // TODO: Replace with actual production URL
-        let baseURL = URL(string: "http://localhost:4000")!
+        let baseURL = URL(string: "http://127.0.0.1:4000")!
         return NetworkClient(baseURL: baseURL)
     }
 
     /// Create a NetworkClient for development/testing
     public static func development() -> NetworkClient {
-        let baseURL = URL(string: "http://localhost:4000")!
+        let baseURL = URL(string: "http://127.0.0.1:4000")!
         return NetworkClient(baseURL: baseURL)
     }
 }
