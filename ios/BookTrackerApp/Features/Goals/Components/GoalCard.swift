@@ -143,11 +143,14 @@ struct GoalCard: View {
     }
 
     private var remainingDaysText: String {
-        let days = abs(goal.daysRemaining)
         if goal.isOverdue {
-            return "\(days) day\(days == 1 ? "" : "s") overdue"
+            // daysRemaining is negative when overdue, so negate to get positive days overdue
+            let daysOverdue = -goal.daysRemaining
+            return "\(daysOverdue) day\(daysOverdue == 1 ? "" : "s") overdue"
         } else {
-            return "\(days) day\(days == 1 ? "" : "s") left"
+            // daysRemaining is positive when active
+            let daysLeft = goal.daysRemaining
+            return "\(daysLeft) day\(daysLeft == 1 ? "" : "s") left"
         }
     }
 }
