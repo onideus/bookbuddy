@@ -26,9 +26,13 @@ export class BookService {
 
     const updates: Partial<Book> = { currentPage };
 
+    // Create a prospective book state to check auto-completion
+    const prospectiveBook = { ...book, currentPage };
+    const prospectiveStatus = new ReadingStatus(prospectiveBook);
+
     // Auto-mark as read if completed
-    if (readingStatus.shouldAutoMarkAsRead()) {
-      const statusUpdates = readingStatus.transitionTo('read');
+    if (prospectiveStatus.shouldAutoMarkAsRead()) {
+      const statusUpdates = prospectiveStatus.transitionTo('read');
       Object.assign(updates, statusUpdates);
     }
 
