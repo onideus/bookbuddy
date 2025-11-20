@@ -30,16 +30,14 @@ final class AppContainer: ObservableObject {
         self.goalRepository = factory.makeGoalRepository()
         self.searchService = factory.makeExternalBookSearchService()
 
-        // Clear keychain in DEBUG builds to always show login screen
-        #if DEBUG
-        try? KeychainManager.shared.deleteTokens()
-        print("DEBUG: Cleared keychain tokens on app launch")
-        // Force unauthenticated state in DEBUG to always show login screen
-        self.isAuthenticated = false
-        self.currentUserId = nil
-        #else
-        // Check authentication status
+        // Check authentication status on app launch
         self.isAuthenticated = authService.isAuthenticated()
+        
+        // If authenticated, we should retrieve the user ID from stored token
+        // For now, we'll set it when login/register succeeds via callback
+        
+        #if DEBUG
+        print("DEBUG: App launched - isAuthenticated: \(isAuthenticated)")
         #endif
     }
 
