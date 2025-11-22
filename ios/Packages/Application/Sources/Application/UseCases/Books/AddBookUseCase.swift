@@ -64,11 +64,10 @@ public final class AddBookUseCase: UseCase {
     }
 
     public func execute(_ input: Input) async throws -> Book {
-        // Check for duplicate books
-        let existingBooks = try await bookRepository.findByUserId(input.userId)
-        let hasDuplicate = existingBooks.contains { $0.googleBooksId == input.googleBooksId }
-
-        if hasDuplicate {
+        // Check for duplicate books using optimized exists() method
+        let bookExists = try await bookRepository.exists(userId: input.userId, googleBooksId: input.googleBooksId)
+        
+        if bookExists {
             throw DomainError.duplicate("You already have this book in your library")
         }
 

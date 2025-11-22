@@ -168,7 +168,7 @@ public extension Book {
             throw DomainError.validation("Google Books ID cannot be empty")
         }
 
-        guard !title.trimmingCharacters(in: .whitespaces).isEmpty else {
+        guard !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw DomainError.validation("Title cannot be empty")
         }
 
@@ -184,7 +184,7 @@ public extension Book {
             id: UUID().uuidString,
             userId: userId,
             googleBooksId: googleBooksId,
-            title: title.trimmingCharacters(in: .whitespaces),
+            title: title.trimmingCharacters(in: .whitespacesAndNewlines),
             authors: authors,
             thumbnail: thumbnail,
             description: description,
@@ -219,6 +219,11 @@ public extension Book {
         // Reset currentPage when moving to want-to-read
         if newStatus == .wantToRead {
             currentPage = nil
+        }
+        
+        // Set currentPage to 0 when transitioning to reading from wantToRead
+        if newStatus == .reading && status == .wantToRead {
+            currentPage = 0
         }
 
         return Book(
