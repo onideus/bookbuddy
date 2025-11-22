@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents a reading goal for tracking progress
-public struct Goal: Identifiable, Codable, Equatable, Hashable {
+public struct Goal: Identifiable, Codable, Equatable, Hashable, Sendable {
     /// Unique identifier for the goal
     public let id: String
 

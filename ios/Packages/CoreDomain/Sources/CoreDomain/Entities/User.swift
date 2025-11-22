@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents a user in the BookTracker application
-public struct User: Identifiable, Codable, Equatable, Hashable {
+public struct User: Identifiable, Codable, Equatable, Hashable, Sendable {
     /// Unique identifier for the user
     public let id: String
 

@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents a book in the user's reading library
-public struct Book: Identifiable, Codable, Equatable, Hashable {
+public struct Book: Identifiable, Codable, Equatable, Hashable, Sendable {
     /// Unique identifier for the book
     public let id: String
 

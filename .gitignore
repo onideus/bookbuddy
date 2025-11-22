@@ -64,10 +64,6 @@ node_modules/
 *.sw?
 # OS specific
 
-# Task files
-# tasks.json
-# tasks/ 
--e 
 # Compiled TypeScript files (should be in dist/ only)
 domain/**/*.js
 infrastructure/**/*.js

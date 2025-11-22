@@ -11,6 +11,3 @@ codex exec -s "$(your_query_here)"
 - Preparing comprehensive code reviews
 - Architectural decision validation
 
-## Task Master AI Instructions
-**Import Task Master's development workflow commands and guidelines, treat as if import is in the main CLAUDE.md file.**
-@./.taskmaster/CLAUDE.md
