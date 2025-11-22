@@ -97,6 +97,38 @@ describe('BookService', () => {
       expect(updateCall[1]).toHaveProperty('currentPage', lastPage);
     });
 
+    it('should auto-mark as read when updating to the last page (regression test)', async () => {
+      // This is the critical bug fix: when user enters page 400 on a 400-page book,
+      // the system should auto-transition to 'read' status
+      const book = {
+        ...testBooks[1],
+        currentPage: 399, // Currently on page 399
+        pageCount: 400,
+        status: 'reading' as const,
+      };
+
+      vi.mocked(mockBookRepository.findById).mockResolvedValueOnce(book);
+      vi.mocked(mockBookRepository.update).mockResolvedValueOnce({
+        ...book,
+        currentPage: 400,
+        status: 'read',
+        finishedAt: new Date(),
+      });
+
+      const result = await bookService.updateReadingProgress(book.id, userId, 400);
+
+      // Verify the update included auto-completion
+      const updateCall = vi.mocked(mockBookRepository.update).mock.calls[0];
+      expect(updateCall[0]).toBe(book.id);
+      expect(updateCall[1]).toMatchObject({
+        currentPage: 400,
+        status: 'read',
+        finishedAt: expect.any(Date),
+      });
+      expect(result.status).toBe('read');
+      expect(result.finishedAt).toBeDefined();
+    });
+
     it('should throw NotFoundError for non-existent book', async () => {
       const nonExistentId = 'non-existent';
       vi.mocked(mockBookRepository.findById).mockResolvedValueOnce(undefined);

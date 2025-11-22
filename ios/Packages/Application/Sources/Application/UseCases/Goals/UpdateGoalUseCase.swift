@@ -2,7 +2,7 @@ import CoreDomain
 import Foundation
 
 /// Input for updating a goal
-public struct UpdateGoalInput {
+public struct UpdateGoalInput: Sendable, Equatable {
     public let goalId: String
     public let userId: String
     public let updates: GoalUpdate
@@ -18,7 +18,38 @@ public struct UpdateGoalInput {
     }
 }
 
-/// Use case for updating a goal
+/// Use case for modifying an existing reading goal
+///
+/// This use case handles the business logic for updating goal properties
+/// with proper authorization and ownership validation.
+///
+/// **Business Rules:**
+/// - Only the goal's owner can update the goal (verified by userId)
+/// - Goal must exist before it can be updated
+/// - Updates are applied through the repository's update mechanism
+/// - Supports partial updates through the GoalUpdate structure
+/// - Goal progress and completion status are preserved during updates
+/// - Target modifications don't reset existing progress
+///
+/// **Authorization:**
+/// - Validates that the requesting user owns the goal being updated
+/// - Throws unauthorized error if user doesn't own the goal
+/// - Ensures data isolation between different users
+///
+/// **Data Integrity:**
+/// - Verifies goal existence before attempting updates
+/// - Uses repository's atomic update operations
+/// - Maintains referential integrity through proper error handling
+/// - Preserves goal history and creation metadata
+///
+/// **Update Types:**
+/// - Title, description, target books, and date range can be modified
+/// - Progress tracking and completion status remain unchanged
+/// - Updates validate business rules (positive targets, valid dates)
+///
+/// - Parameter input: `UpdateGoalInput` containing goal ID, user ID, and update data
+/// - Returns: The updated `Goal` entity with modified properties
+/// - Throws: `DomainError.entityNotFound` if goal doesn't exist, `DomainError.unauthorized` if user doesn't own goal
 public final class UpdateGoalUseCase: UseCase {
     public typealias Input = UpdateGoalInput
     public typealias Output = Goal

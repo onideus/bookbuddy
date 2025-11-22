@@ -13,6 +13,15 @@ public protocol GoalRepositoryProtocol {
     /// - Returns: Array of goals
     /// - Throws: DomainError if operation fails
     func findByUserId(_ userId: String) async throws -> [Goal]
+    
+    /// Finds goals for a user with pagination
+    /// - Parameters:
+    ///   - userId: User ID
+    ///   - offset: Number of records to skip
+    ///   - limit: Maximum number of records to return (nil for all records)
+    /// - Returns: Array of goals
+    /// - Throws: DomainError if operation fails
+    func findByUserId(_ userId: String, offset: Int, limit: Int?) async throws -> [Goal]
 
     /// Finds a goal by ID
     /// - Parameter id: Goal ID
@@ -39,6 +48,14 @@ public protocol GoalRepositoryProtocol {
     /// - Returns: Array of active goals
     /// - Throws: DomainError if operation fails
     func findActiveByUserId(_ userId: String) async throws -> [Goal]
+    
+    /// Checks if a goal exists for a user
+    /// - Parameters:
+    ///   - userId: User ID
+    ///   - goalId: Goal ID to check
+    /// - Returns: True if goal exists, false otherwise
+    /// - Throws: DomainError if operation fails
+    func exists(userId: String, goalId: String) async throws -> Bool
 }
 
 /// Struct representing partial goal updates

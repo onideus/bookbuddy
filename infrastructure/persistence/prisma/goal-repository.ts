@@ -5,6 +5,7 @@ import type { Goal as PrismaGoal } from '@prisma/client';
 
 export class PrismaGoalRepository implements IGoalRepository {
   async create(goal: Goal): Promise<Goal> {
+    console.log('[GoalRepository] Creating goal:', JSON.stringify(goal, null, 2));
     const created = await prisma.goal.create({
       data: {
         id: goal.id,
@@ -19,15 +20,18 @@ export class PrismaGoalRepository implements IGoalRepository {
       },
     });
 
+    console.log('[GoalRepository] Successfully created goal:', created.id);
     return this.mapToGoal(created);
   }
 
   async findByUserId(userId: string): Promise<Goal[]> {
+    console.log('[GoalRepository] Finding goals for user:', userId);
     const goals = await prisma.goal.findMany({
       where: { userId },
       orderBy: { startDate: 'desc' },
     });
 
+    console.log('[GoalRepository] Found', goals.length, 'goals for user:', userId);
     return goals.map(this.mapToGoal);
   }
 
@@ -43,6 +47,7 @@ export class PrismaGoalRepository implements IGoalRepository {
 
   async update(id: string, updates: Partial<Goal>): Promise<Goal | null> {
     try {
+      console.log('[GoalRepository] Updating goal:', id, 'with updates:', JSON.stringify(updates, null, 2));
       const updated = await prisma.goal.update({
         where: { id },
         data: {
@@ -56,19 +61,24 @@ export class PrismaGoalRepository implements IGoalRepository {
         },
       });
 
+      console.log('[GoalRepository] Successfully updated goal:', updated.id);
       return this.mapToGoal(updated);
-    } catch (_error) {
+    } catch (error) {
+      console.error('[GoalRepository] Error updating goal:', error);
       return null;
     }
   }
 
   async delete(id: string): Promise<boolean> {
     try {
+      console.log('[GoalRepository] Deleting goal:', id);
       await prisma.goal.delete({
         where: { id },
       });
+      console.log('[GoalRepository] Successfully deleted goal:', id);
       return true;
-    } catch (_error) {
+    } catch (error) {
+      console.error('[GoalRepository] Error deleting goal:', error);
       return false;
     }
   }

@@ -47,6 +47,7 @@ export class PrismaBookRepository implements IBookRepository {
 
   async update(id: string, updates: Partial<Book>): Promise<Book | null> {
     try {
+      console.log('[BookRepository] Updating book:', id, 'with updates:', JSON.stringify(updates, null, 2));
       const updated = await prisma.book.update({
         where: { id },
         data: {
@@ -62,8 +63,10 @@ export class PrismaBookRepository implements IBookRepository {
         },
       });
 
+      console.log('[BookRepository] Successfully updated book:', updated.id);
       return this.mapToBook(updated);
-    } catch (_error) {
+    } catch (error) {
+      console.error('[BookRepository] Error updating book:', error);
       return null;
     }
   }

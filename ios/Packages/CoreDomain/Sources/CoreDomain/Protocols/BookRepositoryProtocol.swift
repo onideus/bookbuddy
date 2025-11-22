@@ -13,6 +13,15 @@ public protocol BookRepositoryProtocol {
     /// - Returns: Array of books
     /// - Throws: DomainError if operation fails
     func findByUserId(_ userId: String) async throws -> [Book]
+    
+    /// Finds books for a user with pagination
+    /// - Parameters:
+    ///   - userId: User ID
+    ///   - offset: Number of records to skip
+    ///   - limit: Maximum number of records to return (nil for all records)
+    /// - Returns: Array of books
+    /// - Throws: DomainError if operation fails
+    func findByUserId(_ userId: String, offset: Int, limit: Int?) async throws -> [Book]
 
     /// Finds a book by ID
     /// - Parameter id: Book ID
@@ -41,6 +50,14 @@ public protocol BookRepositoryProtocol {
     /// - Returns: Array of books with the specified status
     /// - Throws: DomainError if operation fails
     func findByStatus(_ userId: String, status: BookStatus) async throws -> [Book]
+    
+    /// Checks if a book exists for a user
+    /// - Parameters:
+    ///   - userId: User ID
+    ///   - googleBooksId: Google Books ID to check
+    /// - Returns: True if book exists, false otherwise
+    /// - Throws: DomainError if operation fails
+    func exists(userId: String, googleBooksId: String) async throws -> Bool
 }
 
 /// Struct representing partial book updates

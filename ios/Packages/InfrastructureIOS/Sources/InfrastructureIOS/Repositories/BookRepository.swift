@@ -41,7 +41,9 @@ public final class BookRepository: BookRepositoryProtocol {
     public func update(_ id: String, updates: BookUpdate) async throws -> Book? {
         let request = UpdateBookRequest(
             status: updates.status,
-            currentPage: updates.currentPage
+            currentPage: updates.currentPage,
+            rating: updates.rating,
+            finishedAt: updates.finishedAt
         )
         let endpoint = try APIEndpoint.updateBook(id: id, request)
         let response: UpdateBookResponse = try await networkClient.request(endpoint)

@@ -48,6 +48,10 @@ targets:
     platform: iOS
     sources:
       - path: BookTrackerAppTests
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: true
+        PRODUCT_BUNDLE_IDENTIFIER: com.booktracker.ios.tests
     dependencies:
       - target: BookTrackerApp
       - package: CoreDomain

@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents a reading goal for tracking progress
-public struct Goal: Identifiable, Codable, Equatable, Hashable {
+public struct Goal: Identifiable, Codable, Equatable, Hashable, Sendable {
     /// Unique identifier for the goal
     public let id: String
 
@@ -88,7 +88,7 @@ public extension Goal {
             throw DomainError.validation("User ID cannot be empty")
         }
 
-        guard !title.trimmingCharacters(in: .whitespaces).isEmpty else {
+        guard !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw DomainError.validation("Title cannot be empty")
         }
 
@@ -103,7 +103,7 @@ public extension Goal {
         return Goal(
             id: UUID().uuidString,
             userId: userId,
-            title: title.trimmingCharacters(in: .whitespaces),
+            title: title.trimmingCharacters(in: .whitespacesAndNewlines),
             description: description,
             targetBooks: targetBooks,
             currentBooks: 0,

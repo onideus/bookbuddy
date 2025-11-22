@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents the current reading status of a book
-public enum BookStatus: String, Codable, CaseIterable, Equatable, Hashable {
+public enum BookStatus: String, Codable, CaseIterable, Equatable, Hashable, Sendable {
     /// User wants to read this book in the future
     case wantToRead = "want-to-read"
 

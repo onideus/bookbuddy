@@ -9,43 +9,41 @@ struct GoalsListView: View {
     private let segments = ["Active", "All", "Completed"]
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                if viewModel.isLoading && viewModel.goals.isEmpty {
-                    ProgressView("Loading goals...")
-                } else if viewModel.hasGoals {
-                    goalsContent
-                } else {
-                    emptyState
+        ZStack {
+            if viewModel.isLoading && viewModel.goals.isEmpty {
+                ProgressView("Loading goals...")
+            } else if viewModel.hasGoals {
+                goalsContent
+            } else {
+                emptyState
+            }
+        }
+        .navigationTitle("Reading Goals")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    viewModel.showingCreateGoal = true
+                } label: {
+                    Image(systemName: "plus")
                 }
             }
-            .navigationTitle("Reading Goals")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        viewModel.showingCreateGoal = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                }
+        }
+        .sheet(isPresented: $viewModel.showingCreateGoal) {
+            CreateGoalView(viewModel: viewModel)
+        }
+        .task {
+            await viewModel.loadGoals()
+        }
+        .refreshable {
+            await viewModel.refresh()
+        }
+        .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
+            Button("OK") {
+                viewModel.errorMessage = nil
             }
-            .sheet(isPresented: $viewModel.showingCreateGoal) {
-                CreateGoalView(viewModel: viewModel)
-            }
-            .task {
-                await viewModel.loadGoals()
-            }
-            .refreshable {
-                await viewModel.refresh()
-            }
-            .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
-                Button("OK") {
-                    viewModel.errorMessage = nil
-                }
-            } message: {
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                }
+        } message: {
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
             }
         }
     }
@@ -64,18 +62,23 @@ struct GoalsListView: View {
             .padding()
 
             // Goals list
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    ForEach(filteredGoals) { goal in
-                        GoalCard(goal: goal) {
-                            Task {
-                                await viewModel.deleteGoal(goal)
+            List {
+                ForEach(filteredGoals) { goal in
+                    GoalCard(goal: goal)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                        .listRowSeparator(.hidden)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                Task {
+                                    await viewModel.deleteGoal(goal)
+                                }
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
                         }
-                    }
                 }
-                .padding(.horizontal)
             }
+            .listStyle(.plain)
         }
     }
 

@@ -22,7 +22,7 @@ let package = Package(
         ),
         .testTarget(
             name: "ApplicationTests",
-            dependencies: ["Application"]
+            dependencies: ["Application", "CoreDomain"]
         )
     ]
 )

@@ -6,20 +6,31 @@ struct MainTabView: View {
 
     var body: some View {
         TabView {
-            BooksListView(viewModel: container.makeBooksViewModel())
-                .tabItem {
-                    Label("Books", systemImage: "book.fill")
-                }
+            NavigationStack {
+                BooksListView(
+                    viewModel: container.makeBooksViewModel(),
+                    searchBooksUseCase: container.makeSearchBooksUseCase(),
+                    addBookUseCase: container.makeAddBookUseCase(),
+                    currentUserId: container.getCurrentUserId()
+                )
+            }
+            .tabItem {
+                Label("Books", systemImage: "book.fill")
+            }
 
-            GoalsListView(viewModel: container.makeGoalsViewModel())
-                .tabItem {
-                    Label("Goals", systemImage: "target")
-                }
+            NavigationStack {
+                GoalsListView(viewModel: container.makeGoalsViewModel())
+            }
+            .tabItem {
+                Label("Goals", systemImage: "target")
+            }
 
-            SearchView(viewModel: container.makeSearchViewModel())
-                .tabItem {
-                    Label("Search", systemImage: "magnifyingglass")
-                }
+            NavigationStack {
+                SearchView(viewModel: container.makeSearchViewModel())
+            }
+            .tabItem {
+                Label("Search", systemImage: "magnifyingglass")
+            }
 
             SettingsView()
                 .tabItem {

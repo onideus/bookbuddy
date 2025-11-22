@@ -41,6 +41,11 @@ export class GoalService {
     if (progress.shouldAutoComplete()) {
       updates.completed = true;
     }
+    
+    // Un-complete if progress drops below target
+    if (goal.completed && !progress.isCompleted()) {
+      updates.completed = false;
+    }
 
     const updated = await this.goalRepository.update(goalId, updates);
 
@@ -106,6 +111,11 @@ export class GoalService {
     // Auto-complete if target reached
     if (progress.shouldAutoComplete()) {
       updates.completed = true;
+    }
+    
+    // Un-complete if progress drops below target
+    if (goal.completed && !progress.isCompleted()) {
+      updates.completed = false;
     }
 
     const updated = await this.goalRepository.update(goalId, updates);

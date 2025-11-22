@@ -187,7 +187,7 @@ struct SuccessOverlay: View {
     let mockSearch = MockExternalBookSearch()
     let mockRepository = MockBookRepository()
 
-    return AddBookView(
+    AddBookView(
         viewModel: SearchBooksViewModel(
             searchBooksUseCase: SearchBooksUseCase(externalBookSearch: mockSearch),
             addBookUseCase: AddBookUseCase(bookRepository: mockRepository),
@@ -200,12 +200,43 @@ struct SuccessOverlay: View {
 // MARK: - Mock implementations (for preview)
 
 @MainActor
-class MockExternalBookSearch: ExternalBookSearchProtocol {
+private class MockExternalBookSearch: ExternalBookSearchProtocol {
     func search(_: String) async throws -> [BookSearchResult] {
         []
     }
 
     func getById(_: String) async throws -> BookSearchResult? {
         nil
+    }
+}
+
+@MainActor
+private class MockBookRepository: BookRepositoryProtocol {
+    func create(_ book: Book) async throws -> Book {
+        book
+    }
+
+    func findByUserId(_: String) async throws -> [Book] {
+        []
+    }
+
+    func findById(_: String) async throws -> Book? {
+        nil
+    }
+
+    func findByStatus(_: String, status _: BookStatus) async throws -> [Book] {
+        []
+    }
+
+    func update(_: String, updates _: BookUpdate) async throws -> Book? {
+        nil
+    }
+
+    func delete(_: String) async throws -> Bool {
+        true
+    }
+
+    func exists(_: String) async throws -> Bool {
+        false
     }
 }
