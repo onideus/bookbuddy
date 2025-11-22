@@ -23,8 +23,6 @@ struct SearchView: View {
                 // Success toast
                 if showingSuccessToast {
                     VStack {
-                        Spacer()
-
                         HStack {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.green)
@@ -63,7 +61,7 @@ struct SearchView: View {
 
     private var searchResults: some View {
         ScrollView {
-            LazyVStack(spacing: 16) {
+            LazyVStack(spacing: 12) {
                 ForEach(viewModel.searchResults, id: \.id) { book in
                     SearchResultCard(book: book) { status in
                         Task {
@@ -72,7 +70,9 @@ struct SearchView: View {
                     }
                 }
             }
-            .padding()
+            .padding(.horizontal)
+            .padding(.top, 8)
+            .padding(.bottom)
         }
     }
 
