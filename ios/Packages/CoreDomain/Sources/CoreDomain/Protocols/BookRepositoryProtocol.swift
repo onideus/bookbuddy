@@ -61,7 +61,7 @@ public protocol BookRepositoryProtocol {
 }
 
 /// Struct representing partial book updates
-public struct BookUpdate: Equatable {
+public struct BookUpdate: Equatable, Sendable {
     public let status: BookStatus?
     public let currentPage: Int?
     public let rating: Int?

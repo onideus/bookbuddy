@@ -22,6 +22,15 @@ public final class BookRepository: BookRepositoryProtocol {
         let response: GetBooksResponse = try await networkClient.request(endpoint)
         return try response.books.map { try $0.toDomain() }
     }
+    
+    public func findByUserId(_ userId: String, offset: Int, limit: Int?) async throws -> [Book] {
+        // For now, get all books and apply pagination in memory
+        // TODO: Update API to support pagination query parameters
+        let allBooks = try await findByUserId(userId)
+        let startIndex = min(offset, allBooks.count)
+        let endIndex = limit.map { min(startIndex + $0, allBooks.count) } ?? allBooks.count
+        return Array(allBooks[startIndex..<endIndex])
+    }
 
     public func create(_ book: Book) async throws -> Book {
         let request = AddBookRequest(
@@ -59,5 +68,10 @@ public final class BookRepository: BookRepositoryProtocol {
     public func findByStatus(_ userId: String, status: BookStatus) async throws -> [Book] {
         let allBooks = try await findByUserId(userId)
         return allBooks.filter { $0.status == status }
+    }
+    
+    public func exists(userId: String, googleBooksId: String) async throws -> Bool {
+        let userBooks = try await findByUserId(userId)
+        return userBooks.contains { $0.googleBooksId == googleBooksId }
     }
 }

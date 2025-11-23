@@ -7,6 +7,7 @@ public protocol NetworkClientProtocol {
 }
 
 /// Network client for making HTTP requests
+@available(iOS 15.0, macOS 12.0, *)
 public final class NetworkClient: NetworkClientProtocol {
     private let baseURL: URL
     private let session: URLSession
@@ -35,6 +36,7 @@ public final class NetworkClient: NetworkClientProtocol {
     // MARK: - Public API
 
     /// Make a request and decode the response
+    @available(iOS 15.0, macOS 12.0, *)
     public func request<T: Decodable>(_ endpoint: APIEndpoint) async throws -> T {
         let urlRequest = try buildURLRequest(for: endpoint)
 
@@ -55,6 +57,7 @@ public final class NetworkClient: NetworkClientProtocol {
     }
 
     /// Make a request without expecting a decoded response (for DELETE, etc.)
+    @available(iOS 15.0, macOS 12.0, *)
     public func request(_ endpoint: APIEndpoint) async throws {
         let urlRequest = try buildURLRequest(for: endpoint)
 
@@ -146,6 +149,7 @@ public final class NetworkClient: NetworkClientProtocol {
 }
 
 // MARK: - Configuration
+@available(iOS 15.0, macOS 12.0, *)
 extension NetworkClient {
     /// Create a NetworkClient with the default production configuration
     public static func production() -> NetworkClient {

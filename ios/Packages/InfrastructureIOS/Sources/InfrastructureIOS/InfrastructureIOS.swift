@@ -44,6 +44,7 @@ public struct InfrastructureConfiguration {
 // MARK: - Factory
 
 /// Factory for creating infrastructure components
+@available(iOS 15.0, macOS 12.0, *)
 public struct InfrastructureFactory {
     private let configuration: InfrastructureConfiguration
     private let networkClient: NetworkClientProtocol

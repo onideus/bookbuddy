@@ -59,7 +59,7 @@ public protocol GoalRepositoryProtocol {
 }
 
 /// Struct representing partial goal updates
-public struct GoalUpdate: Equatable {
+public struct GoalUpdate: Equatable, Sendable {
     public let title: String?
     public let description: String?
     public let targetBooks: Int?
