@@ -3,7 +3,6 @@ import SwiftUI
 
 struct GoalCard: View {
     let goal: Goal
-    let onDelete: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -72,13 +71,6 @@ struct GoalCard: View {
         .background(Color(.systemBackground))
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
-        .contextMenu {
-            Button(role: .destructive) {
-                onDelete()
-            } label: {
-                Label("Delete", systemImage: "trash")
-            }
-        }
     }
 
     // MARK: - Subviews
@@ -151,11 +143,14 @@ struct GoalCard: View {
     }
 
     private var remainingDaysText: String {
-        let days = abs(goal.daysRemaining)
         if goal.isOverdue {
-            return "\(days) day\(days == 1 ? "" : "s") overdue"
+            // daysRemaining is negative when overdue, so negate to get positive days overdue
+            let daysOverdue = -goal.daysRemaining
+            return "\(daysOverdue) day\(daysOverdue == 1 ? "" : "s") overdue"
         } else {
-            return "\(days) day\(days == 1 ? "" : "s") left"
+            // daysRemaining is positive when active
+            let daysLeft = goal.daysRemaining
+            return "\(daysLeft) day\(daysLeft == 1 ? "" : "s") left"
         }
     }
 }
@@ -174,8 +169,7 @@ struct GoalCard: View {
             startDate: Date().addingTimeInterval(-30 * 24 * 60 * 60),
             endDate: Date().addingTimeInterval(60 * 24 * 60 * 60),
             completed: false
-        ),
-        onDelete: {}
+        )
     )
     .padding()
 }
@@ -192,8 +186,7 @@ struct GoalCard: View {
             startDate: Date().addingTimeInterval(-90 * 24 * 60 * 60),
             endDate: Date().addingTimeInterval(-10 * 24 * 60 * 60),
             completed: true
-        ),
-        onDelete: {}
+        )
     )
     .padding()
 }
@@ -210,8 +203,7 @@ struct GoalCard: View {
             startDate: Date().addingTimeInterval(-45 * 24 * 60 * 60),
             endDate: Date().addingTimeInterval(-5 * 24 * 60 * 60),
             completed: false
-        ),
-        onDelete: {}
+        )
     )
     .padding()
 }

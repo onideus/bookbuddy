@@ -260,7 +260,7 @@ struct NoResultsView: View {
 #Preview {
     let repository = MockBookRepository()
     let externalBookSearch = MockExternalBookSearch()
-    return NavigationView {
+    NavigationView {
         BooksListView(
             viewModel: BooksListViewModel(
                 getUserBooksUseCase: GetUserBooksUseCase(bookRepository: repository),
@@ -278,7 +278,7 @@ struct NoResultsView: View {
 // MARK: - Mock implementations (for preview)
 
 @MainActor
-class MockBookRepository: BookRepositoryProtocol {
+private class MockBookRepository: BookRepositoryProtocol {
     func create(_ book: Book) async throws -> Book {
         book
     }
@@ -305,7 +305,7 @@ class MockBookRepository: BookRepositoryProtocol {
 }
 
 @MainActor
-class MockExternalBookSearch: ExternalBookSearchProtocol {
+private class MockExternalBookSearch: ExternalBookSearchProtocol {
     func search(_: String) async throws -> [BookSearchResult] {
         []
     }

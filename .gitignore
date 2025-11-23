@@ -45,3 +45,28 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .idea/
+
+# Logs
+logs
+*.log
+dev-debug.log
+# Dependency directories
+node_modules/
+# Environment variables
+.env
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+# OS specific
+
+# Compiled TypeScript files (should be in dist/ only)
+domain/**/*.js
+infrastructure/**/*.js
+lib/**/*.js
+application/**/*.js
+ios/backend-logs.txt

@@ -101,7 +101,9 @@ extension APIEndpoint {
     }
 
     public static func addBook(_ request: Encodable) throws -> APIEndpoint {
-        let body = try JSONEncoder().encode(request)
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let body = try encoder.encode(request)
 
         return APIEndpoint(
             path: "/books",
@@ -113,7 +115,9 @@ extension APIEndpoint {
     }
 
     public static func updateBook(id: String, _ request: Encodable) throws -> APIEndpoint {
-        let body = try JSONEncoder().encode(request)
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let body = try encoder.encode(request)
 
         return APIEndpoint(
             path: "/books/\(id)",
@@ -144,7 +148,9 @@ extension APIEndpoint {
     }
 
     public static func createGoal(_ request: Encodable) throws -> APIEndpoint {
-        let body = try JSONEncoder().encode(request)
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let body = try encoder.encode(request)
 
         return APIEndpoint(
             path: "/goals",
@@ -156,7 +162,9 @@ extension APIEndpoint {
     }
 
     public static func updateGoal(id: String, _ request: Encodable) throws -> APIEndpoint {
-        let body = try JSONEncoder().encode(request)
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let body = try encoder.encode(request)
 
         return APIEndpoint(
             path: "/goals/\(id)",

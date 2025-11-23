@@ -22,6 +22,7 @@ final class SearchViewModel: ObservableObject {
     // MARK: - Cancellables
 
     private var cancellables = Set<AnyCancellable>()
+    private var searchTask: Task<Void, Never>?
 
     // MARK: - Initialization
 
@@ -56,24 +57,50 @@ final class SearchViewModel: ObservableObject {
     // MARK: - Public Methods
 
     func search() async {
-        guard !searchQuery.trimmingCharacters(in: .whitespaces).isEmpty else {
+        // Cancel any existing search task
+        searchTask?.cancel()
+
+        let query = searchQuery.trimmingCharacters(in: .whitespaces)
+
+        guard !query.isEmpty else {
             searchResults = []
+            isSearching = false
+            errorMessage = nil
             return
         }
 
-        isSearching = true
-        errorMessage = nil
+        // Create new search task
+        searchTask = Task { @MainActor in
+            isSearching = true
+            errorMessage = nil
 
-        do {
-            let input = SearchBooksInput(query: searchQuery)
-            let results = try await searchBooksUseCase.execute(input)
-            searchResults = results
-        } catch {
-            errorMessage = "Search failed: \(error.localizedDescription)"
-            searchResults = []
+            do {
+                // Check for cancellation before making request
+                try Task.checkCancellation()
+
+                let input = SearchBooksInput(query: query)
+                let results = try await searchBooksUseCase.execute(input)
+
+                // Check for cancellation before updating UI
+                try Task.checkCancellation()
+
+                searchResults = results
+                isSearching = false
+            } catch is CancellationError {
+                // Task was cancelled, don't update UI or show error
+                // Just clean up the loading state
+                isSearching = false
+            } catch {
+                // Only show error if task wasn't cancelled
+                if !Task.isCancelled {
+                    errorMessage = "Search failed: \(error.localizedDescription)"
+                    searchResults = []
+                }
+                isSearching = false
+            }
         }
 
-        isSearching = false
+        await searchTask?.value
     }
 
     func addBookToLibrary(_ searchResult: BookSearchResult, status: BookStatus) async -> Bool {
@@ -100,16 +127,18 @@ final class SearchViewModel: ObservableObject {
     }
 
     func clearSearch() {
+        searchTask?.cancel()
         searchQuery = ""
         searchResults = []
         errorMessage = nil
+        isSearching = false
     }
 
     // MARK: - Private Methods
 
     private func setupSearchDebounce() {
         $searchQuery
-            .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
+            .debounce(for: .milliseconds(800), scheduler: RunLoop.main)
             .removeDuplicates()
             .sink { [weak self] _ in
                 Task {

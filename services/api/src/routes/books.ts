@@ -74,7 +74,8 @@ export function registerBookRoutes(app: FastifyInstance) {
       const updates = request.body as UpdateBookRequest;
 
       const bookRepository = Container.getBookRepository();
-      const useCase = new UpdateBookUseCase(bookRepository);
+      const goalRepository = Container.getGoalRepository();
+      const useCase = new UpdateBookUseCase(bookRepository, goalRepository);
 
       const book = await useCase.execute({
         bookId: id,

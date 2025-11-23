@@ -3,31 +3,25 @@ import SwiftUI
 /// Root view that handles navigation based on authentication state
 struct RootView: View {
     @EnvironmentObject var container: AppContainer
-    @StateObject private var authViewModel: AuthViewModel
-
-    init() {
-        // Note: We'll get the actual container from the environment,
-        // but we need a placeholder for @StateObject initialization
-        // This will be properly initialized when the view appears
-        let tempContainer = AppContainer()
-        _authViewModel = StateObject(wrappedValue: tempContainer.makeAuthViewModel())
-    }
+    @State private var showingRegister = false
 
     var body: some View {
         Group {
-            if authViewModel.isAuthenticated {
+            if container.isAuthenticated {
                 MainTabView()
-                    .environmentObject(container)
             } else {
-                LoginView(viewModel: authViewModel)
+                if showingRegister {
+                    RegisterView(
+                        viewModel: container.makeAuthViewModel(),
+                        onShowLogin: { showingRegister = false }
+                    )
+                } else {
+                    LoginView(
+                        viewModel: container.makeAuthViewModel(),
+                        onShowRegister: { showingRegister = true }
+                    )
+                }
             }
-        }
-        .onAppear {
-            // Update authentication state when view appears
-            container.updateAuthenticationState()
-        }
-        .onChange(of: authViewModel.isAuthenticated) { newValue in
-            container.isAuthenticated = newValue
         }
     }
 }

@@ -91,10 +91,8 @@ public struct GoalDTO: Codable {
     public let targetBooks: Int
     public let startDate: Date
     public let endDate: Date
-    public let booksRead: Int
-    public let isComplete: Bool
-    public let createdAt: Date
-    public let updatedAt: Date
+    public let currentBooks: Int
+    public let completed: Bool
 
     public init(
         id: String,
@@ -104,10 +102,8 @@ public struct GoalDTO: Codable {
         targetBooks: Int,
         startDate: Date,
         endDate: Date,
-        booksRead: Int,
-        isComplete: Bool,
-        createdAt: Date,
-        updatedAt: Date
+        currentBooks: Int,
+        completed: Bool
     ) {
         self.id = id
         self.userId = userId
@@ -116,10 +112,8 @@ public struct GoalDTO: Codable {
         self.targetBooks = targetBooks
         self.startDate = startDate
         self.endDate = endDate
-        self.booksRead = booksRead
-        self.isComplete = isComplete
-        self.createdAt = createdAt
-        self.updatedAt = updatedAt
+        self.currentBooks = currentBooks
+        self.completed = completed
     }
 }
 
@@ -132,10 +126,10 @@ extension GoalDTO {
             title: title,
             description: description,
             targetBooks: targetBooks,
-            currentBooks: booksRead,
+            currentBooks: currentBooks,
             startDate: startDate,
             endDate: endDate,
-            completed: isComplete
+            completed: completed
         )
     }
 }
@@ -150,10 +144,8 @@ extension Goal {
             targetBooks: targetBooks,
             startDate: startDate,
             endDate: endDate,
-            booksRead: currentBooks,
-            isComplete: completed,
-            createdAt: Date(), // These aren't tracked in domain model
-            updatedAt: Date()
+            currentBooks: currentBooks,
+            completed: completed
         )
     }
 }

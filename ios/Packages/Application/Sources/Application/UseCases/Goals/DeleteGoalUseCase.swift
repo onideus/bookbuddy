@@ -2,7 +2,7 @@ import CoreDomain
 import Foundation
 
 /// Input for deleting a goal
-public struct DeleteGoalInput {
+public struct DeleteGoalInput: Sendable, Equatable {
     public let goalId: String
     public let userId: String
 
@@ -12,7 +12,38 @@ public struct DeleteGoalInput {
     }
 }
 
-/// Use case for deleting a goal
+/// Use case for permanently removing a reading goal from the user's collection
+///
+/// This use case handles the business logic for deleting goal entries
+/// with proper authorization and data integrity checks.
+///
+/// **Business Rules:**
+/// - Only the goal's owner can delete the goal (verified by userId)
+/// - Goal must exist before it can be deleted
+/// - Deletion is permanent and cannot be undone
+/// - Operation is atomic - either succeeds completely or fails with error
+/// - Goal progress and history are permanently lost upon deletion
+/// - No cascading deletions - related data should be handled separately
+///
+/// **Authorization:**
+/// - Validates that the requesting user owns the goal being deleted
+/// - Throws unauthorized error if user doesn't own the goal
+/// - Ensures users cannot delete goals belonging to other users
+///
+/// **Data Safety:**
+/// - Verifies goal existence before attempting deletion
+/// - Uses repository's atomic delete operations
+/// - Returns success confirmation to prevent silent failures
+/// - Maintains data consistency through proper error handling
+///
+/// **Impact:**
+/// - Removes goal from user's tracking system permanently
+/// - Does not affect book collection or reading progress outside of goal context
+/// - May impact overall user statistics and progress tracking
+///
+/// - Parameter input: `DeleteGoalInput` containing goal ID and user ID for authorization
+/// - Returns: Void upon successful deletion
+/// - Throws: `DomainError.entityNotFound` if goal doesn't exist, `DomainError.unauthorized` if user doesn't own goal
 public final class DeleteGoalUseCase: VoidOutputUseCase {
     public typealias Input = DeleteGoalInput
 

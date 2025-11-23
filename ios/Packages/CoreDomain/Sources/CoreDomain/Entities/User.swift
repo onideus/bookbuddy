@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents a user in the BookTracker application
-public struct User: Identifiable, Codable, Equatable, Hashable {
+public struct User: Identifiable, Codable, Equatable, Hashable, Sendable {
     /// Unique identifier for the user
     public let id: String
 
@@ -75,7 +75,7 @@ public extension User {
             throw DomainError.validation("Invalid email format")
         }
 
-        guard !name.trimmingCharacters(in: .whitespaces).isEmpty else {
+        guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw DomainError.validation("Name cannot be empty")
         }
 
@@ -83,7 +83,7 @@ public extension User {
             id: UUID().uuidString,
             email: email.lowercased(),
             password: password,
-            name: name.trimmingCharacters(in: .whitespaces),
+            name: name.trimmingCharacters(in: .whitespacesAndNewlines),
             createdAt: Date()
         )
     }

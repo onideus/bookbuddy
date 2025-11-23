@@ -8,53 +8,60 @@ struct SearchResultCard: View {
     @State private var showingAddOptions = false
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            // Book cover
-            if let thumbnail = book.volumeInfo.imageLinks?.thumbnail,
-               let url = URL(string: thumbnail) {
-                AsyncImage(url: url) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 12) {
+                // Book thumbnail - matching BookCard dimensions
+                if let thumbnail = book.volumeInfo.imageLinks?.thumbnail,
+                   let url = URL(string: thumbnail) {
+                    AsyncImage(url: url) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        placeholderCover
+                    }
+                    .frame(width: 80, height: 112)
+                    .cornerRadius(8)
+                } else {
                     placeholderCover
-                }
-                .frame(width: 60, height: 90)
-                .cornerRadius(8)
-            } else {
-                placeholderCover
-            }
-
-            // Book info
-            VStack(alignment: .leading, spacing: 4) {
-                Text(book.volumeInfo.title)
-                    .font(.headline)
-                    .lineLimit(2)
-
-                if let authors = book.volumeInfo.authors, !authors.isEmpty {
-                    Text(authors.joined(separator: ", "))
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
+                        .frame(width: 80, height: 112)
+                        .cornerRadius(8)
                 }
 
-                if let pageCount = book.volumeInfo.pageCount {
-                    Text("\(pageCount) pages")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                // Book info - matching BookCard layout
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(book.volumeInfo.title)
+                        .font(.headline)
+                        .lineLimit(2)
+
+                    if let authors = book.volumeInfo.authors, !authors.isEmpty {
+                        Text(authors.joined(separator: ", "))
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                    }
+
+                    if let pageCount = book.volumeInfo.pageCount {
+                        Text("\(pageCount) pages")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+
+                    Spacer()
+
+                    // Add to Library button
+                    Button {
+                        showingAddOptions = true
+                    } label: {
+                        Label("Add to Library", systemImage: "plus.circle.fill")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
                 }
 
                 Spacer()
-
-                Button {
-                    showingAddOptions = true
-                } label: {
-                    Label("Add to Library", systemImage: "plus.circle.fill")
-                        .font(.caption)
-                        .fontWeight(.medium)
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
             }
         }
         .padding()
@@ -84,14 +91,11 @@ struct SearchResultCard: View {
 
     private var placeholderCover: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.gray.opacity(0.2))
-
+            Color.gray.opacity(0.2)
             Image(systemName: "book.fill")
-                .font(.title3)
-                .foregroundColor(.gray)
+                .font(.largeTitle)
+                .foregroundColor(.gray.opacity(0.5))
         }
-        .frame(width: 60, height: 90)
     }
 }
 
