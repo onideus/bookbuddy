@@ -26,7 +26,10 @@ const getStreakSchema = {
         currentStreak: { type: 'number' },
         longestStreak: { type: 'number' },
         totalDaysRead: { type: 'number' },
-        lastReadDate: { type: 'string', format: 'date-time' },
+        lastActivityDate: { type: ['string', 'null'], format: 'date-time' },
+        isActiveToday: { type: 'boolean' },
+        isAtRisk: { type: 'boolean' },
+        message: { type: 'string' },
       },
     },
   },
@@ -47,12 +50,18 @@ const recordActivitySchema = {
     201: {
       type: 'object',
       properties: {
-        id: { type: 'string', format: 'uuid' },
-        userId: { type: 'string', format: 'uuid' },
-        bookId: { type: 'string' },
-        pagesRead: { type: 'number' },
-        minutesRead: { type: 'number' },
-        date: { type: 'string', format: 'date-time' },
+        activity: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            userId: { type: 'string', format: 'uuid' },
+            bookId: { type: ['string', 'null'] },
+            activityDate: { type: 'string', format: 'date-time' },
+            pagesRead: { type: 'number' },
+            minutesRead: { type: 'number' },
+            createdAt: { type: 'string', format: 'date-time' },
+          },
+        },
       },
     },
   },
@@ -112,7 +121,8 @@ export function registerStreakRoutes(app: FastifyInstance) {
         date: date ? new Date(date) : undefined,
       });
 
-      reply.code(201).send(activity);
+      // Wrap activity in expected response format for iOS
+      reply.code(201).send({ activity });
     })
   );
 
