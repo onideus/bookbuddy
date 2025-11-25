@@ -18,12 +18,24 @@ import type {
   LogoutRequest,
 } from '../../../../types/contracts';
 
+// Stricter rate limit config for auth endpoints to prevent brute-force attacks
+const authRateLimitConfig = {
+  max: 5, // 5 attempts
+  timeWindow: '1 minute',
+  errorResponseBuilder: () => ({
+    statusCode: 429,
+    error: 'Too Many Requests',
+    message: 'Too many authentication attempts. Please wait before trying again.',
+  }),
+};
+
 export function registerAuthRoutes(app: FastifyInstance) {
   // POST /auth/register - Register a new user
   app.post<{
     Body: RegisterRequest;
   }>(
     '/auth/register',
+    { config: { rateLimit: authRateLimitConfig } },
     wrapHandler(async (request, reply) => {
       const { email, password, name } = request.body as RegisterRequest;
 
@@ -69,6 +81,7 @@ export function registerAuthRoutes(app: FastifyInstance) {
     Body: LoginRequest;
   }>(
     '/auth/login',
+    { config: { rateLimit: authRateLimitConfig } },
     wrapHandler(async (request, reply) => {
       const { email, password } = request.body as LoginRequest;
 

@@ -33,6 +33,10 @@ class GoalService {
         if (progress.shouldAutoComplete()) {
             updates.completed = true;
         }
+        // Un-complete if progress drops below target
+        if (goal.completed && !progress.isCompleted()) {
+            updates.completed = false;
+        }
         const updated = await this.goalRepository.update(goalId, updates);
         if (!updated) {
             throw new domain_errors_1.NotFoundError('Goal', goalId);
@@ -78,6 +82,10 @@ class GoalService {
         // Auto-complete if target reached
         if (progress.shouldAutoComplete()) {
             updates.completed = true;
+        }
+        // Un-complete if progress drops below target
+        if (goal.completed && !progress.isCompleted()) {
+            updates.completed = false;
         }
         const updated = await this.goalRepository.update(goalId, updates);
         if (!updated) {

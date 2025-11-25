@@ -18,9 +18,12 @@ class BookService {
         const readingStatus = new reading_status_1.ReadingStatus(book);
         readingStatus.validatePageProgress(currentPage);
         const updates = { currentPage };
+        // Create a prospective book state to check auto-completion
+        const prospectiveBook = { ...book, currentPage };
+        const prospectiveStatus = new reading_status_1.ReadingStatus(prospectiveBook);
         // Auto-mark as read if completed
-        if (readingStatus.shouldAutoMarkAsRead()) {
-            const statusUpdates = readingStatus.transitionTo('read');
+        if (prospectiveStatus.shouldAutoMarkAsRead()) {
+            const statusUpdates = prospectiveStatus.transitionTo('read');
             Object.assign(updates, statusUpdates);
         }
         const updated = await this.bookRepository.update(bookId, updates);

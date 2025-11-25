@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PrismaBookRepository = void 0;
 const client_1 = require("./client");
+const logging_1 = require("../../logging");
+const log = (0, logging_1.createLogger)('BookRepository');
 class PrismaBookRepository {
     async create(book) {
         const created = await client_1.prisma.book.create({
@@ -40,6 +42,7 @@ class PrismaBookRepository {
     }
     async update(id, updates) {
         try {
+            log.debug('Updating book', { bookId: id, fields: Object.keys(updates) });
             const updated = await client_1.prisma.book.update({
                 where: { id },
                 data: {
@@ -54,9 +57,11 @@ class PrismaBookRepository {
                     ...(updates.pageCount !== undefined && { pageCount: updates.pageCount }),
                 },
             });
+            log.info('Book updated successfully', { bookId: updated.id });
             return this.mapToBook(updated);
         }
-        catch (_error) {
+        catch (error) {
+            log.error('Failed to update book', { bookId: id, error: error.message });
             return null;
         }
     }

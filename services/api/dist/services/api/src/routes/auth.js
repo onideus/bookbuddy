@@ -6,9 +6,19 @@ const register_user_1 = require("../../../../application/use-cases/auth/register
 const error_handler_1 = require("../utils/error-handler");
 const jwt_1 = require("../utils/jwt");
 const domain_errors_1 = require("../../../../domain/errors/domain-errors");
+// Stricter rate limit config for auth endpoints to prevent brute-force attacks
+const authRateLimitConfig = {
+    max: 5, // 5 attempts
+    timeWindow: '1 minute',
+    errorResponseBuilder: () => ({
+        statusCode: 429,
+        error: 'Too Many Requests',
+        message: 'Too many authentication attempts. Please wait before trying again.',
+    }),
+};
 function registerAuthRoutes(app) {
     // POST /auth/register - Register a new user
-    app.post('/auth/register', (0, error_handler_1.wrapHandler)(async (request, reply) => {
+    app.post('/auth/register', { config: { rateLimit: authRateLimitConfig } }, (0, error_handler_1.wrapHandler)(async (request, reply) => {
         const { email, password, name } = request.body;
         const userRepository = container_1.Container.getUserRepository();
         const passwordHasher = container_1.Container.getPasswordHasher();
@@ -41,7 +51,7 @@ function registerAuthRoutes(app) {
         });
     }));
     // POST /auth/login - Login and receive JWT tokens
-    app.post('/auth/login', (0, error_handler_1.wrapHandler)(async (request, reply) => {
+    app.post('/auth/login', { config: { rateLimit: authRateLimitConfig } }, (0, error_handler_1.wrapHandler)(async (request, reply) => {
         const { email, password } = request.body;
         if (!email || !password) {
             throw new domain_errors_1.ValidationError('Email and password are required');

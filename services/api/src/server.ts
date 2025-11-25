@@ -1,15 +1,27 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
+import rateLimit from '@fastify/rate-limit';
 import { registerAuthRoutes } from './routes/auth';
 import { registerBookRoutes } from './routes/books';
 import { registerGoalRoutes } from './routes/goals';
 import { registerSearchRoutes } from './routes/search';
 
-export function buildServer() {
+export async function buildServer() {
   const app = Fastify({
     logger: {
       level: process.env.LOG_LEVEL ?? 'info',
     },
+  });
+
+  // Global rate limiting - 100 requests per minute per IP
+  await app.register(rateLimit, {
+    max: 100,
+    timeWindow: '1 minute',
+    errorResponseBuilder: () => ({
+      statusCode: 429,
+      error: 'Too Many Requests',
+      message: 'Rate limit exceeded. Please try again later.',
+    }),
   });
 
   app.get('/health', async () => ({
@@ -26,7 +38,7 @@ export function buildServer() {
 }
 
 async function start() {
-  const app = buildServer();
+  const app = await buildServer();
   const port = Number(process.env.PORT ?? 4000);
 
   try {

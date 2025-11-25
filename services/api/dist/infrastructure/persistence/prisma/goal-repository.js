@@ -2,8 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PrismaGoalRepository = void 0;
 const client_1 = require("./client");
+const logging_1 = require("../../logging");
+const log = (0, logging_1.createLogger)('GoalRepository');
 class PrismaGoalRepository {
     async create(goal) {
+        log.debug('Creating goal', { goalId: goal.id, userId: goal.userId, title: goal.title });
         const created = await client_1.prisma.goal.create({
             data: {
                 id: goal.id,
@@ -17,13 +20,16 @@ class PrismaGoalRepository {
                 completed: goal.completed,
             },
         });
+        log.info('Goal created successfully', { goalId: created.id });
         return this.mapToGoal(created);
     }
     async findByUserId(userId) {
+        log.debug('Finding goals for user', { userId });
         const goals = await client_1.prisma.goal.findMany({
             where: { userId },
             orderBy: { startDate: 'desc' },
         });
+        log.debug('Found goals', { userId, count: goals.length });
         return goals.map(this.mapToGoal);
     }
     async findById(id) {
@@ -36,6 +42,7 @@ class PrismaGoalRepository {
     }
     async update(id, updates) {
         try {
+            log.debug('Updating goal', { goalId: id, fields: Object.keys(updates) });
             const updated = await client_1.prisma.goal.update({
                 where: { id },
                 data: {
@@ -48,20 +55,25 @@ class PrismaGoalRepository {
                     ...(updates.completed !== undefined && { completed: updates.completed }),
                 },
             });
+            log.info('Goal updated successfully', { goalId: updated.id });
             return this.mapToGoal(updated);
         }
-        catch (_error) {
+        catch (error) {
+            log.error('Failed to update goal', { goalId: id, error: error.message });
             return null;
         }
     }
     async delete(id) {
         try {
+            log.debug('Deleting goal', { goalId: id });
             await client_1.prisma.goal.delete({
                 where: { id },
             });
+            log.info('Goal deleted successfully', { goalId: id });
             return true;
         }
-        catch (_error) {
+        catch (error) {
+            log.error('Failed to delete goal', { goalId: id, error: error.message });
             return false;
         }
     }

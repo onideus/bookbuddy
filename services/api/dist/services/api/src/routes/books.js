@@ -47,7 +47,8 @@ function registerBookRoutes(app) {
         const { id } = request.params;
         const updates = request.body;
         const bookRepository = container_1.Container.getBookRepository();
-        const useCase = new update_book_1.UpdateBookUseCase(bookRepository);
+        const goalRepository = container_1.Container.getGoalRepository();
+        const useCase = new update_book_1.UpdateBookUseCase(bookRepository, goalRepository);
         const book = await useCase.execute({
             bookId: id,
             userId,

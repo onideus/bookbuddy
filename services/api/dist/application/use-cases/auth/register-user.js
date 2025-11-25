@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RegisterUserUseCase = void 0;
 const domain_errors_1 = require("../../../domain/errors/domain-errors");
+const password_requirements_1 = require("../../../domain/value-objects/password-requirements");
 const crypto_1 = require("crypto");
 class RegisterUserUseCase {
     constructor(userRepository, passwordHasher) {
@@ -9,12 +10,19 @@ class RegisterUserUseCase {
         this.passwordHasher = passwordHasher;
     }
     async execute(input) {
-        // Validation
+        // Basic field validation
         if (!input.email || !input.password || !input.name) {
             throw new domain_errors_1.ValidationError('Email, password, and name are required');
         }
-        if (input.password.length < 6) {
-            throw new domain_errors_1.ValidationError('Password must be at least 6 characters');
+        // Email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(input.email)) {
+            throw new domain_errors_1.ValidationError('Invalid email format');
+        }
+        // Password strength validation
+        const passwordValidation = password_requirements_1.PasswordRequirements.validate(input.password);
+        if (!passwordValidation.isValid) {
+            throw new domain_errors_1.ValidationError(passwordValidation.errors.join('. '));
         }
         // Check for existing user
         const existingUser = await this.userRepository.findByEmail(input.email);
