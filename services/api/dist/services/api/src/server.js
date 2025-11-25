@@ -11,6 +11,8 @@ const auth_1 = require("./routes/auth");
 const books_1 = require("./routes/books");
 const goals_1 = require("./routes/goals");
 const search_1 = require("./routes/search");
+const streaks_1 = require("./routes/streaks");
+const export_1 = require("./routes/export");
 async function buildServer() {
     const app = (0, fastify_1.default)({
         logger: {
@@ -35,6 +37,8 @@ async function buildServer() {
     (0, books_1.registerBookRoutes)(app);
     (0, goals_1.registerGoalRoutes)(app);
     (0, search_1.registerSearchRoutes)(app);
+    (0, streaks_1.registerStreakRoutes)(app);
+    (0, export_1.registerExportRoutes)(app);
     return app;
 }
 async function start() {

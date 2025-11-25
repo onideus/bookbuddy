@@ -11,6 +11,7 @@ export interface BookDTO {
   pageCount?: number;
   status: BookStatus;
   currentPage?: number;
+  genres: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -31,6 +32,7 @@ export interface AddBookRequest {
   description?: string;
   pageCount?: number;
   status: BookStatus;
+  genres?: string[];
 }
 
 export interface AddBookResponse {
@@ -40,6 +42,8 @@ export interface AddBookResponse {
 export interface UpdateBookRequest {
   status?: BookStatus;
   currentPage?: number;
+  rating?: number;
+  genres?: string[];
 }
 
 export interface UpdateBookResponse {

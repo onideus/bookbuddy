@@ -2,22 +2,30 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerGoalRoutes = registerGoalRoutes;
 const container_1 = require("../../../../lib/di/container");
-const get_user_goals_1 = require("../../../../application/use-cases/goals/get-user-goals");
 const create_goal_1 = require("../../../../application/use-cases/goals/create-goal");
 const update_goal_1 = require("../../../../application/use-cases/goals/update-goal");
 const delete_goal_1 = require("../../../../application/use-cases/goals/delete-goal");
 const error_handler_1 = require("../utils/error-handler");
 const auth_1 = require("../middleware/auth");
 function registerGoalRoutes(app) {
-    // GET /goals - List user's goals
+    // GET /goals - List user's goals with pagination
     app.get('/goals', {
         preHandler: auth_1.authenticate,
     }, (0, error_handler_1.wrapHandler)(async (request, reply) => {
         const userId = request.user.userId;
+        const query = request.query;
+        const { cursor, limit: limitStr } = query;
         const goalRepository = container_1.Container.getGoalRepository();
-        const useCase = new get_user_goals_1.GetUserGoalsUseCase(goalRepository);
-        const goals = await useCase.execute({ userId });
-        reply.send({ goals });
+        const limit = limitStr ? Math.min(parseInt(limitStr, 10) || 20, 100) : 20;
+        const result = await goalRepository.findByUserIdPaginated(userId, { cursor, limit });
+        reply.send({
+            goals: result.goals,
+            pagination: {
+                nextCursor: result.nextCursor,
+                hasMore: result.hasMore,
+                totalCount: result.totalCount,
+            },
+        });
     }));
     // POST /goals - Create a goal
     app.post('/goals', {

@@ -87,6 +87,10 @@ public struct InfrastructureFactory {
         return UserRepository(authService: authService)
     }
 
+    public func makeStreakRepository() -> StreakRepositoryProtocol {
+        return StreakRepository(networkClient: networkClient)
+    }
+
     // MARK: - Network
 
     public func makeNetworkClient() -> NetworkClientProtocol {

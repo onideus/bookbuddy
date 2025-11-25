@@ -14,4 +14,5 @@ export interface Book {
   rating?: number;
   addedAt: Date;
   finishedAt?: Date;
+  genres: string[];
 }

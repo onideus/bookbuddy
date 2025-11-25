@@ -197,3 +197,86 @@ extension APIEndpoint {
         )
     }
 }
+
+// MARK: - Streak Endpoints
+extension APIEndpoint {
+    /// Get user's current streak stats
+    public static func getStreak() -> APIEndpoint {
+        return APIEndpoint(
+            path: "/streaks",
+            method: .get,
+            requiresAuth: true
+        )
+    }
+
+    /// Record a reading activity
+    public static func recordActivity(_ request: Encodable) throws -> APIEndpoint {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let body = try encoder.encode(request)
+
+        return APIEndpoint(
+            path: "/streaks/activity",
+            method: .post,
+            body: body,
+            headers: ["Content-Type": "application/json"],
+            requiresAuth: true
+        )
+    }
+
+    /// Get activity history with optional date range
+    public static func getActivityHistory(startDate: Date?, endDate: Date?) -> APIEndpoint {
+        var queryItems: [URLQueryItem] = []
+
+        let formatter = ISO8601DateFormatter()
+        if let startDate {
+            queryItems.append(URLQueryItem(name: "startDate", value: formatter.string(from: startDate)))
+        }
+        if let endDate {
+            queryItems.append(URLQueryItem(name: "endDate", value: formatter.string(from: endDate)))
+        }
+
+        return APIEndpoint(
+            path: "/streaks/history",
+            method: .get,
+            queryItems: queryItems.isEmpty ? nil : queryItems,
+            requiresAuth: true
+        )
+    }
+}
+
+// MARK: - Export Endpoints
+extension APIEndpoint {
+    /// Export books data
+    public static func exportBooks(format: String) -> APIEndpoint {
+        let queryItem = URLQueryItem(name: "format", value: format)
+
+        return APIEndpoint(
+            path: "/export/books",
+            method: .get,
+            queryItems: [queryItem],
+            requiresAuth: true
+        )
+    }
+
+    /// Export goals data
+    public static func exportGoals(format: String) -> APIEndpoint {
+        let queryItem = URLQueryItem(name: "format", value: format)
+
+        return APIEndpoint(
+            path: "/export/goals",
+            method: .get,
+            queryItems: [queryItem],
+            requiresAuth: true
+        )
+    }
+
+    /// Export all user data
+    public static func exportAll() -> APIEndpoint {
+        return APIEndpoint(
+            path: "/export/all",
+            method: .get,
+            requiresAuth: true
+        )
+    }
+}

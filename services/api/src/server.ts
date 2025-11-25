@@ -5,6 +5,8 @@ import { registerAuthRoutes } from './routes/auth';
 import { registerBookRoutes } from './routes/books';
 import { registerGoalRoutes } from './routes/goals';
 import { registerSearchRoutes } from './routes/search';
+import { registerStreakRoutes } from './routes/streaks';
+import { registerExportRoutes } from './routes/export';
 
 export async function buildServer() {
   const app = Fastify({
@@ -33,6 +35,8 @@ export async function buildServer() {
   registerBookRoutes(app);
   registerGoalRoutes(app);
   registerSearchRoutes(app);
+  registerStreakRoutes(app);
+  registerExportRoutes(app);
 
   return app;
 }

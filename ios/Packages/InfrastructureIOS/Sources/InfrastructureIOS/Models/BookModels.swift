@@ -95,6 +95,7 @@ public struct BookDTO: Codable {
     public let rating: Int?
     public let finishedAt: Date?
     public let addedAt: Date
+    public let genres: [String]?
 
     public init(
         id: String,
@@ -109,7 +110,8 @@ public struct BookDTO: Codable {
         currentPage: Int?,
         rating: Int?,
         finishedAt: Date?,
-        addedAt: Date
+        addedAt: Date,
+        genres: [String]? = nil
     ) {
         self.id = id
         self.userId = userId
@@ -124,6 +126,7 @@ public struct BookDTO: Codable {
         self.rating = rating
         self.finishedAt = finishedAt
         self.addedAt = addedAt
+        self.genres = genres
     }
 }
 
@@ -147,7 +150,8 @@ extension BookDTO {
             currentPage: currentPage,
             rating: rating,
             addedAt: addedAt,
-            finishedAt: finishedAt
+            finishedAt: finishedAt,
+            genres: genres ?? []
         )
     }
 }
@@ -167,7 +171,8 @@ extension Book {
             currentPage: currentPage,
             rating: rating,
             finishedAt: finishedAt,
-            addedAt: addedAt
+            addedAt: addedAt,
+            genres: genres
         )
     }
 }

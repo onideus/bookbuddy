@@ -4,6 +4,7 @@ exports.PrismaBookRepository = void 0;
 const client_1 = require("./client");
 const logging_1 = require("../../logging");
 const log = (0, logging_1.createLogger)('BookRepository');
+const DEFAULT_PAGE_SIZE = 20;
 class PrismaBookRepository {
     async create(book) {
         const created = await client_1.prisma.book.create({
@@ -21,6 +22,7 @@ class PrismaBookRepository {
                 rating: book.rating,
                 addedAt: book.addedAt,
                 finishedAt: book.finishedAt,
+                genres: book.genres ?? [],
             },
         });
         return this.mapToBook(created);
@@ -31,6 +33,40 @@ class PrismaBookRepository {
             orderBy: { addedAt: 'desc' },
         });
         return books.map(this.mapToBook);
+    }
+    async findByUserIdPaginated(userId, options) {
+        const limit = options.limit ?? DEFAULT_PAGE_SIZE;
+        // Get total count
+        const totalCount = await client_1.prisma.book.count({ where: { userId } });
+        let books;
+        if (options.cursor) {
+            books = await client_1.prisma.book.findMany({
+                where: { userId },
+                orderBy: { addedAt: 'desc' },
+                take: limit + 1,
+                cursor: { id: options.cursor },
+                skip: 1,
+            });
+        }
+        else {
+            books = await client_1.prisma.book.findMany({
+                where: { userId },
+                orderBy: { addedAt: 'desc' },
+                take: limit + 1,
+            });
+        }
+        const hasMore = books.length > limit;
+        const resultBooks = hasMore ? books.slice(0, limit) : books;
+        const nextCursor = hasMore ? resultBooks[resultBooks.length - 1]?.id ?? null : null;
+        return {
+            books: resultBooks.map(this.mapToBook),
+            nextCursor,
+            hasMore,
+            totalCount,
+        };
+    }
+    async countByUserId(userId) {
+        return client_1.prisma.book.count({ where: { userId } });
     }
     async findById(id) {
         const book = await client_1.prisma.book.findUnique({
@@ -55,6 +91,7 @@ class PrismaBookRepository {
                     ...(updates.thumbnail !== undefined && { thumbnail: updates.thumbnail }),
                     ...(updates.description !== undefined && { description: updates.description }),
                     ...(updates.pageCount !== undefined && { pageCount: updates.pageCount }),
+                    ...(updates.genres !== undefined && { genres: updates.genres }),
                 },
             });
             log.info('Book updated successfully', { bookId: updated.id });
@@ -86,6 +123,25 @@ class PrismaBookRepository {
         });
         return books.map(this.mapToBook);
     }
+    async findByGenre(userId, genre) {
+        const books = await client_1.prisma.book.findMany({
+            where: {
+                userId,
+                genres: { has: genre },
+            },
+            orderBy: { addedAt: 'desc' },
+        });
+        return books.map(this.mapToBook);
+    }
+    async getUniqueGenres(userId) {
+        const books = await client_1.prisma.book.findMany({
+            where: { userId },
+            select: { genres: true },
+        });
+        const allGenres = books.flatMap((book) => book.genres);
+        const uniqueGenres = [...new Set(allGenres)].sort();
+        return uniqueGenres;
+    }
     mapToBook(prismaBook) {
         return {
             id: prismaBook.id,
@@ -101,6 +157,7 @@ class PrismaBookRepository {
             rating: prismaBook.rating ?? undefined,
             addedAt: prismaBook.addedAt,
             finishedAt: prismaBook.finishedAt ?? undefined,
+            genres: prismaBook.genres ?? [],
         };
     }
 }

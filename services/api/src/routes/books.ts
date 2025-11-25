@@ -8,10 +8,59 @@ import { wrapHandler } from '../utils/error-handler';
 import { authenticate, type AuthenticatedRequest } from '../middleware/auth';
 import type { AddBookRequest, UpdateBookRequest } from '../../../../types/contracts';
 
+interface BookQuerystring {
+  status?: string;
+  genre?: string;
+  cursor?: string;
+  limit?: string;
+}
+
 export function registerBookRoutes(app: FastifyInstance) {
-  // GET /books - List user's books
-  app.get(
+  // GET /books - List user's books (optionally filter by status or genre)
+  // Supports cursor-based pagination with ?cursor=<id>&limit=<number>
+  app.get<{ Querystring: BookQuerystring }>(
     '/books',
+    {
+      preHandler: authenticate,
+    },
+    wrapHandler(async (request: AuthenticatedRequest, reply) => {
+      const userId = request.user!.userId;
+      const query = request.query as BookQuerystring;
+      const { status, genre, cursor, limit: limitStr } = query;
+
+      const bookRepository = Container.getBookRepository();
+      const limit = limitStr ? Math.min(parseInt(limitStr, 10) || 20, 100) : 20;
+
+      // If filtering by status or genre, return all (no pagination for filters yet)
+      if (status) {
+        const books = await bookRepository.findByStatus(userId, status);
+        reply.send({ books });
+        return;
+      }
+
+      if (genre) {
+        const books = await bookRepository.findByGenre(userId, genre);
+        reply.send({ books });
+        return;
+      }
+
+      // Use paginated query
+      const result = await bookRepository.findByUserIdPaginated(userId, { cursor, limit });
+
+      reply.send({
+        books: result.books,
+        pagination: {
+          nextCursor: result.nextCursor,
+          hasMore: result.hasMore,
+          totalCount: result.totalCount,
+        },
+      });
+    })
+  );
+
+  // GET /books/genres - Get all unique genres for user's books
+  app.get(
+    '/books/genres',
     {
       preHandler: authenticate,
     },
@@ -19,10 +68,9 @@ export function registerBookRoutes(app: FastifyInstance) {
       const userId = request.user!.userId;
 
       const bookRepository = Container.getBookRepository();
-      const useCase = new GetUserBooksUseCase(bookRepository);
-      const books = await useCase.execute({ userId });
+      const genres = await bookRepository.getUniqueGenres(userId);
 
-      reply.send({ books });
+      reply.send({ genres });
     })
   );
 
@@ -37,7 +85,7 @@ export function registerBookRoutes(app: FastifyInstance) {
     wrapHandler(async (request: AuthenticatedRequest, reply) => {
       const userId = request.user!.userId;
 
-      const { googleBooksId, title, authors, thumbnail, description, pageCount, status } =
+      const { googleBooksId, title, authors, thumbnail, description, pageCount, status, genres } =
         request.body as AddBookRequest;
 
       const bookRepository = Container.getBookRepository();
@@ -52,6 +100,7 @@ export function registerBookRoutes(app: FastifyInstance) {
         description,
         pageCount,
         status,
+        genres,
       });
 
       reply.code(201).send({ book });

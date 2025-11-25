@@ -6,7 +6,7 @@ import SwiftUI
 final class AppContainer: ObservableObject {
     // MARK: - Configuration
     private let configuration: InfrastructureConfiguration
-    private let factory: InfrastructureFactory
+    let factory: InfrastructureFactory
 
     // MARK: - Services
     let authService: AuthenticationService
@@ -14,6 +14,7 @@ final class AppContainer: ObservableObject {
     // MARK: - Repositories
     let bookRepository: BookRepositoryProtocol
     let goalRepository: GoalRepositoryProtocol
+    let streakRepository: StreakRepositoryProtocol
     let searchService: ExternalBookSearchService
 
     // MARK: - App State
@@ -28,6 +29,7 @@ final class AppContainer: ObservableObject {
         self.authService = factory.makeAuthenticationService()
         self.bookRepository = factory.makeBookRepository()
         self.goalRepository = factory.makeGoalRepository()
+        self.streakRepository = factory.makeStreakRepository()
         self.searchService = factory.makeExternalBookSearchService()
 
         // Check authentication status on app launch
@@ -71,6 +73,18 @@ final class AppContainer: ObservableObject {
 
     func makeAddBookUseCase() -> AddBookUseCase {
         return AddBookUseCase(bookRepository: bookRepository)
+    }
+
+    func makeStreakViewModel() -> StreakViewModel {
+        return StreakViewModel(streakRepository: streakRepository)
+    }
+
+    func makeDashboardViewModel() -> DashboardViewModel {
+        return DashboardViewModel(
+            streakRepository: streakRepository,
+            bookRepository: bookRepository,
+            goalRepository: goalRepository
+        )
     }
 
     func getCurrentUserId() -> String {

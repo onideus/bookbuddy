@@ -12,6 +12,7 @@ export interface AddBookInput {
   description?: string;
   pageCount?: number;
   status: BookStatus;
+  genres?: string[];
 }
 
 export class AddBookUseCase {
@@ -39,6 +40,7 @@ export class AddBookUseCase {
       pageCount: input.pageCount,
       status: input.status,
       addedAt: new Date(),
+      genres: input.genres ?? [],
     };
 
     return this.bookRepository.create(book);

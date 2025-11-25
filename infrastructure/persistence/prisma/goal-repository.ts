@@ -1,10 +1,15 @@
-import { IGoalRepository } from '../../../domain/interfaces/goal-repository';
+import {
+  IGoalRepository,
+  GoalPaginationOptions,
+  PaginatedGoals,
+} from '../../../domain/interfaces/goal-repository';
 import { Goal } from '../../../domain/entities/goal';
 import { prisma } from './client';
 import type { Goal as PrismaGoal } from '@prisma/client';
 import { createLogger } from '../../logging';
 
 const log = createLogger('GoalRepository');
+const DEFAULT_PAGE_SIZE = 20;
 
 export class PrismaGoalRepository implements IGoalRepository {
   async create(goal: Goal): Promise<Goal> {
@@ -36,6 +41,47 @@ export class PrismaGoalRepository implements IGoalRepository {
 
     log.debug('Found goals', { userId, count: goals.length });
     return goals.map(this.mapToGoal);
+  }
+
+  async findByUserIdPaginated(
+    userId: string,
+    options: GoalPaginationOptions
+  ): Promise<PaginatedGoals> {
+    const limit = options.limit ?? DEFAULT_PAGE_SIZE;
+
+    const totalCount = await prisma.goal.count({ where: { userId } });
+
+    let goals;
+    if (options.cursor) {
+      goals = await prisma.goal.findMany({
+        where: { userId },
+        orderBy: { startDate: 'desc' },
+        take: limit + 1,
+        cursor: { id: options.cursor },
+        skip: 1,
+      });
+    } else {
+      goals = await prisma.goal.findMany({
+        where: { userId },
+        orderBy: { startDate: 'desc' },
+        take: limit + 1,
+      });
+    }
+
+    const hasMore = goals.length > limit;
+    const resultGoals = hasMore ? goals.slice(0, limit) : goals;
+    const nextCursor = hasMore ? resultGoals[resultGoals.length - 1]?.id ?? null : null;
+
+    return {
+      goals: resultGoals.map(this.mapToGoal),
+      nextCursor,
+      hasMore,
+      totalCount,
+    };
+  }
+
+  async countByUserId(userId: string): Promise<number> {
+    return prisma.goal.count({ where: { userId } });
   }
 
   async findById(id: string): Promise<Goal | undefined> {

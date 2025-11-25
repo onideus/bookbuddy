@@ -6,6 +6,7 @@ const user_repository_1 = require("../../infrastructure/persistence/prisma/user-
 const book_repository_1 = require("../../infrastructure/persistence/prisma/book-repository");
 const goal_repository_1 = require("../../infrastructure/persistence/prisma/goal-repository");
 const refresh_token_repository_1 = require("../../infrastructure/persistence/prisma/refresh-token-repository");
+const reading_activity_repository_1 = require("../../infrastructure/persistence/prisma/reading-activity-repository");
 const bcrypt_password_hasher_1 = require("../../infrastructure/security/bcrypt-password-hasher");
 const google_books_client_1 = require("../../infrastructure/external/google-books-client");
 const client_1 = require("../../infrastructure/persistence/prisma/client");
@@ -60,6 +61,12 @@ class Container {
         }
         return this.refreshTokenRepository;
     }
+    static getReadingActivityRepository() {
+        if (!this.readingActivityRepository) {
+            this.readingActivityRepository = new reading_activity_repository_1.PrismaReadingActivityRepository();
+        }
+        return this.readingActivityRepository;
+    }
 }
 exports.Container = Container;
 // Helper function for creating request-scoped container
@@ -69,6 +76,7 @@ function createRequestContainer() {
         bookRepository: Container.getBookRepository(),
         goalRepository: Container.getGoalRepository(),
         refreshTokenRepository: Container.getRefreshTokenRepository(),
+        readingActivityRepository: Container.getReadingActivityRepository(),
         passwordHasher: Container.getPasswordHasher(),
         externalBookSearch: Container.getExternalBookSearch(),
         bookService: Container.getBookService(),

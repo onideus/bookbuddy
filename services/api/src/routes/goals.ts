@@ -1,6 +1,5 @@
 import type { FastifyInstance } from 'fastify';
 import { Container } from '../../../../lib/di/container';
-import { GetUserGoalsUseCase } from '../../../../application/use-cases/goals/get-user-goals';
 import { CreateGoalUseCase } from '../../../../application/use-cases/goals/create-goal';
 import { UpdateGoalUseCase } from '../../../../application/use-cases/goals/update-goal';
 import { DeleteGoalUseCase } from '../../../../application/use-cases/goals/delete-goal';
@@ -9,21 +8,36 @@ import { authenticate, type AuthenticatedRequest } from '../middleware/auth';
 import type { CreateGoalRequest, UpdateGoalRequest } from '../../../../types/contracts';
 import type { Goal } from '../../../../domain/entities/goal';
 
+interface GoalQuerystring {
+  cursor?: string;
+  limit?: string;
+}
+
 export function registerGoalRoutes(app: FastifyInstance) {
-  // GET /goals - List user's goals
-  app.get(
+  // GET /goals - List user's goals with pagination
+  app.get<{ Querystring: GoalQuerystring }>(
     '/goals',
     {
       preHandler: authenticate,
     },
     wrapHandler(async (request: AuthenticatedRequest, reply) => {
       const userId = request.user!.userId;
+      const query = request.query as GoalQuerystring;
+      const { cursor, limit: limitStr } = query;
 
       const goalRepository = Container.getGoalRepository();
-      const useCase = new GetUserGoalsUseCase(goalRepository);
-      const goals = await useCase.execute({ userId });
+      const limit = limitStr ? Math.min(parseInt(limitStr, 10) || 20, 100) : 20;
 
-      reply.send({ goals });
+      const result = await goalRepository.findByUserIdPaginated(userId, { cursor, limit });
+
+      reply.send({
+        goals: result.goals,
+        pagination: {
+          nextCursor: result.nextCursor,
+          hasMore: result.hasMore,
+          totalCount: result.totalCount,
+        },
+      });
     })
   );
 

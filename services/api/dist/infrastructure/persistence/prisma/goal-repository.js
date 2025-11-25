@@ -4,6 +4,7 @@ exports.PrismaGoalRepository = void 0;
 const client_1 = require("./client");
 const logging_1 = require("../../logging");
 const log = (0, logging_1.createLogger)('GoalRepository');
+const DEFAULT_PAGE_SIZE = 20;
 class PrismaGoalRepository {
     async create(goal) {
         log.debug('Creating goal', { goalId: goal.id, userId: goal.userId, title: goal.title });
@@ -31,6 +32,39 @@ class PrismaGoalRepository {
         });
         log.debug('Found goals', { userId, count: goals.length });
         return goals.map(this.mapToGoal);
+    }
+    async findByUserIdPaginated(userId, options) {
+        const limit = options.limit ?? DEFAULT_PAGE_SIZE;
+        const totalCount = await client_1.prisma.goal.count({ where: { userId } });
+        let goals;
+        if (options.cursor) {
+            goals = await client_1.prisma.goal.findMany({
+                where: { userId },
+                orderBy: { startDate: 'desc' },
+                take: limit + 1,
+                cursor: { id: options.cursor },
+                skip: 1,
+            });
+        }
+        else {
+            goals = await client_1.prisma.goal.findMany({
+                where: { userId },
+                orderBy: { startDate: 'desc' },
+                take: limit + 1,
+            });
+        }
+        const hasMore = goals.length > limit;
+        const resultGoals = hasMore ? goals.slice(0, limit) : goals;
+        const nextCursor = hasMore ? resultGoals[resultGoals.length - 1]?.id ?? null : null;
+        return {
+            goals: resultGoals.map(this.mapToGoal),
+            nextCursor,
+            hasMore,
+            totalCount,
+        };
+    }
+    async countByUserId(userId) {
+        return client_1.prisma.goal.count({ where: { userId } });
     }
     async findById(id) {
         const goal = await client_1.prisma.goal.findUnique({

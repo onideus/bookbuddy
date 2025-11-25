@@ -1,9 +1,10 @@
 import Foundation
 
 /// Protocol for network client to enable testing
-public protocol NetworkClientProtocol {
+public protocol NetworkClientProtocol: Sendable {
     func request<T: Decodable>(_ endpoint: APIEndpoint) async throws -> T
     func request(_ endpoint: APIEndpoint) async throws
+    func requestRaw(_ endpoint: APIEndpoint) async throws -> Data
 }
 
 /// Network client for making HTTP requests
@@ -68,6 +69,21 @@ public final class NetworkClient: NetworkClientProtocol {
         }
 
         try validateResponse(httpResponse, data: data)
+    }
+
+    /// Make a request and return raw data (for exports, etc.)
+    @available(iOS 15.0, macOS 12.0, *)
+    public func requestRaw(_ endpoint: APIEndpoint) async throws -> Data {
+        let urlRequest = try buildURLRequest(for: endpoint)
+
+        let (data, response) = try await session.data(for: urlRequest)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+
+        try validateResponse(httpResponse, data: data)
+        return data
     }
 
     // MARK: - Private Helpers

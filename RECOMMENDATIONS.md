@@ -341,6 +341,10 @@ Standardize error response format:
 | Logging framework | ✅ Complete | 2025-11-25 | Added `infrastructure/logging/` with configurable levels |
 | Rate limiting | ✅ Complete | 2025-11-25 | Global 100/min + Auth 5/min |
 | Password validation | ✅ Complete | 2025-11-25 | 8 chars, upper/lower/number, common password check |
+| Reading streaks | ✅ Complete | 2025-11-25 | New ReadingActivity model, streak calculations, API endpoints |
+| Book genres/tags | ✅ Complete | 2025-11-25 | Added genres field to books, filter by genre |
+| Export data | ✅ Complete | 2025-11-25 | JSON/CSV export for books, goals, and full data |
+| API pagination | ✅ Complete | 2025-11-25 | Cursor-based pagination for books and goals
 
 ---
 
