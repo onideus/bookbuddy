@@ -6,6 +6,7 @@ import SwiftUI
 @MainActor
 final class StreakViewModel: ObservableObject {
     // MARK: - Published State
+
     @Published var streak: ReadingStreak = .empty
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -13,9 +14,11 @@ final class StreakViewModel: ObservableObject {
     @Published var activityLogged = false
 
     // MARK: - Dependencies
+
     private let streakRepository: StreakRepositoryProtocol
 
     // MARK: - Initialization
+
     init(streakRepository: StreakRepositoryProtocol) {
         self.streakRepository = streakRepository
     }

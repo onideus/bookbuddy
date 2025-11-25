@@ -48,13 +48,13 @@ public extension ReadingStreak {
     /// Returns the streak status for UI display
     var streakStatus: StreakStatus {
         if currentStreak == 0 {
-            return .noStreak
+            .noStreak
         } else if isActiveToday {
-            return .active
+            .active
         } else if isAtRisk {
-            return .atRisk
+            .atRisk
         } else {
-            return .broken
+            .broken
         }
     }
 
@@ -62,11 +62,11 @@ public extension ReadingStreak {
     var iconName: String {
         switch streakStatus {
         case .active:
-            return "flame.fill"
+            "flame.fill"
         case .atRisk:
-            return "flame"
+            "flame"
         case .noStreak, .broken:
-            return "flame"
+            "flame"
         }
     }
 
@@ -74,11 +74,11 @@ public extension ReadingStreak {
     var colorName: String {
         switch streakStatus {
         case .active:
-            return "orange"
+            "orange"
         case .atRisk:
-            return "yellow"
+            "yellow"
         case .noStreak, .broken:
-            return "gray"
+            "gray"
         }
     }
 

@@ -229,11 +229,11 @@ struct GoalProgressCard: View {
 
     private var progressColor: Color {
         if progress >= 1.0 {
-            return .green
+            .green
         } else if progress >= 0.5 {
-            return .blue
+            .blue
         } else {
-            return .orange
+            .orange
         }
     }
 
@@ -344,14 +344,14 @@ private class PreviewStreakRepository: StreakRepositoryProtocol {
         )
     }
 
-    func getActivityHistory(startDate: Date?, endDate: Date?) async throws -> [ReadingActivity] {
+    func getActivityHistory(startDate _: Date?, endDate _: Date?) async throws -> [ReadingActivity] {
         []
     }
 }
 
 private class PreviewBookRepository: BookRepositoryProtocol {
-    func findById(_ id: String) async throws -> Book? { nil }
-    func findByUserId(_ userId: String) async throws -> [Book] {
+    func findById(_: String) async throws -> Book? { nil }
+    func findByUserId(_: String) async throws -> [Book] {
         [
             Book(
                 id: "1",
@@ -366,19 +366,21 @@ private class PreviewBookRepository: BookRepositoryProtocol {
             )
         ]
     }
-    func findByUserId(_ userId: String, offset: Int, limit: Int?) async throws -> [Book] {
+
+    func findByUserId(_ userId: String, offset _: Int, limit _: Int?) async throws -> [Book] {
         try await findByUserId(userId)
     }
+
     func create(_ book: Book) async throws -> Book { book }
-    func update(_ id: String, updates: BookUpdate) async throws -> Book? { nil }
-    func delete(_ id: String) async throws -> Bool { true }
-    func findByStatus(_ userId: String, status: BookStatus) async throws -> [Book] { [] }
-    func exists(userId: String, googleBooksId: String) async throws -> Bool { false }
+    func update(_: String, updates _: BookUpdate) async throws -> Book? { nil }
+    func delete(_: String) async throws -> Bool { true }
+    func findByStatus(_: String, status _: BookStatus) async throws -> [Book] { [] }
+    func exists(userId _: String, googleBooksId _: String) async throws -> Bool { false }
 }
 
 private class PreviewGoalRepository: GoalRepositoryProtocol {
-    func findById(_ id: String) async throws -> Goal? { nil }
-    func findByUserId(_ userId: String) async throws -> [Goal] {
+    func findById(_: String) async throws -> Goal? { nil }
+    func findByUserId(_: String) async throws -> [Goal] {
         [
             Goal(
                 id: "1",
@@ -392,14 +394,17 @@ private class PreviewGoalRepository: GoalRepositoryProtocol {
             )
         ]
     }
-    func findByUserId(_ userId: String, offset: Int, limit: Int?) async throws -> [Goal] {
+
+    func findByUserId(_ userId: String, offset _: Int, limit _: Int?) async throws -> [Goal] {
         try await findByUserId(userId)
     }
+
     func findActiveByUserId(_ userId: String) async throws -> [Goal] {
         try await findByUserId(userId).filter { !$0.completed }
     }
-    func exists(userId: String, goalId: String) async throws -> Bool { true }
+
+    func exists(userId _: String, goalId _: String) async throws -> Bool { true }
     func create(_ goal: Goal) async throws -> Goal { goal }
-    func update(_ id: String, updates: GoalUpdate) async throws -> Goal? { nil }
-    func delete(_ id: String) async throws -> Bool { true }
+    func update(_: String, updates _: GoalUpdate) async throws -> Goal? { nil }
+    func delete(_: String) async throws -> Bool { true }
 }

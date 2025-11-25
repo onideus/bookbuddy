@@ -36,8 +36,9 @@ public struct APIEndpoint {
 }
 
 // MARK: - Authentication Endpoints
-extension APIEndpoint {
-    public static func register(email: String, password: String, name: String) throws -> APIEndpoint {
+
+public extension APIEndpoint {
+    static func register(email: String, password: String, name: String) throws -> APIEndpoint {
         let request = ["email": email, "password": password, "name": name]
         let body = try JSONEncoder().encode(request)
 
@@ -50,7 +51,7 @@ extension APIEndpoint {
         )
     }
 
-    public static func login(email: String, password: String) throws -> APIEndpoint {
+    static func login(email: String, password: String) throws -> APIEndpoint {
         let request = ["email": email, "password": password]
         let body = try JSONEncoder().encode(request)
 
@@ -63,7 +64,7 @@ extension APIEndpoint {
         )
     }
 
-    public static func refreshToken(refreshToken: String) throws -> APIEndpoint {
+    static func refreshToken(refreshToken: String) throws -> APIEndpoint {
         let request = ["refreshToken": refreshToken]
         let body = try JSONEncoder().encode(request)
 
@@ -76,7 +77,7 @@ extension APIEndpoint {
         )
     }
 
-    public static func logout(refreshToken: String) throws -> APIEndpoint {
+    static func logout(refreshToken: String) throws -> APIEndpoint {
         let request = ["refreshToken": refreshToken]
         let body = try JSONEncoder().encode(request)
 
@@ -91,16 +92,17 @@ extension APIEndpoint {
 }
 
 // MARK: - Book Endpoints
-extension APIEndpoint {
-    public static func getBooks() -> APIEndpoint {
-        return APIEndpoint(
+
+public extension APIEndpoint {
+    static func getBooks() -> APIEndpoint {
+        APIEndpoint(
             path: "/books",
             method: .get,
             requiresAuth: true
         )
     }
 
-    public static func addBook(_ request: Encodable) throws -> APIEndpoint {
+    static func addBook(_ request: Encodable) throws -> APIEndpoint {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         let body = try encoder.encode(request)
@@ -114,7 +116,7 @@ extension APIEndpoint {
         )
     }
 
-    public static func updateBook(id: String, _ request: Encodable) throws -> APIEndpoint {
+    static func updateBook(id: String, _ request: Encodable) throws -> APIEndpoint {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         let body = try encoder.encode(request)
@@ -128,8 +130,8 @@ extension APIEndpoint {
         )
     }
 
-    public static func deleteBook(id: String) -> APIEndpoint {
-        return APIEndpoint(
+    static func deleteBook(id: String) -> APIEndpoint {
+        APIEndpoint(
             path: "/books/\(id)",
             method: .delete,
             requiresAuth: true
@@ -138,16 +140,17 @@ extension APIEndpoint {
 }
 
 // MARK: - Goal Endpoints
-extension APIEndpoint {
-    public static func getGoals() -> APIEndpoint {
-        return APIEndpoint(
+
+public extension APIEndpoint {
+    static func getGoals() -> APIEndpoint {
+        APIEndpoint(
             path: "/goals",
             method: .get,
             requiresAuth: true
         )
     }
 
-    public static func createGoal(_ request: Encodable) throws -> APIEndpoint {
+    static func createGoal(_ request: Encodable) throws -> APIEndpoint {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         let body = try encoder.encode(request)
@@ -161,7 +164,7 @@ extension APIEndpoint {
         )
     }
 
-    public static func updateGoal(id: String, _ request: Encodable) throws -> APIEndpoint {
+    static func updateGoal(id: String, _ request: Encodable) throws -> APIEndpoint {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         let body = try encoder.encode(request)
@@ -175,8 +178,8 @@ extension APIEndpoint {
         )
     }
 
-    public static func deleteGoal(id: String) -> APIEndpoint {
-        return APIEndpoint(
+    static func deleteGoal(id: String) -> APIEndpoint {
+        APIEndpoint(
             path: "/goals/\(id)",
             method: .delete,
             requiresAuth: true
@@ -185,8 +188,9 @@ extension APIEndpoint {
 }
 
 // MARK: - Search Endpoints
-extension APIEndpoint {
-    public static func searchBooks(query: String) -> APIEndpoint {
+
+public extension APIEndpoint {
+    static func searchBooks(query: String) -> APIEndpoint {
         let queryItem = URLQueryItem(name: "q", value: query)
 
         return APIEndpoint(
@@ -199,10 +203,11 @@ extension APIEndpoint {
 }
 
 // MARK: - Streak Endpoints
-extension APIEndpoint {
+
+public extension APIEndpoint {
     /// Get user's current streak stats
-    public static func getStreak() -> APIEndpoint {
-        return APIEndpoint(
+    static func getStreak() -> APIEndpoint {
+        APIEndpoint(
             path: "/streaks",
             method: .get,
             requiresAuth: true
@@ -210,7 +215,7 @@ extension APIEndpoint {
     }
 
     /// Record a reading activity
-    public static func recordActivity(_ request: Encodable) throws -> APIEndpoint {
+    static func recordActivity(_ request: Encodable) throws -> APIEndpoint {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         let body = try encoder.encode(request)
@@ -225,7 +230,7 @@ extension APIEndpoint {
     }
 
     /// Get activity history with optional date range
-    public static func getActivityHistory(startDate: Date?, endDate: Date?) -> APIEndpoint {
+    static func getActivityHistory(startDate: Date?, endDate: Date?) -> APIEndpoint {
         var queryItems: [URLQueryItem] = []
 
         let formatter = ISO8601DateFormatter()
@@ -246,9 +251,10 @@ extension APIEndpoint {
 }
 
 // MARK: - Export Endpoints
-extension APIEndpoint {
+
+public extension APIEndpoint {
     /// Export books data
-    public static func exportBooks(format: String) -> APIEndpoint {
+    static func exportBooks(format: String) -> APIEndpoint {
         let queryItem = URLQueryItem(name: "format", value: format)
 
         return APIEndpoint(
@@ -260,7 +266,7 @@ extension APIEndpoint {
     }
 
     /// Export goals data
-    public static func exportGoals(format: String) -> APIEndpoint {
+    static func exportGoals(format: String) -> APIEndpoint {
         let queryItem = URLQueryItem(name: "format", value: format)
 
         return APIEndpoint(
@@ -272,8 +278,8 @@ extension APIEndpoint {
     }
 
     /// Export all user data
-    public static func exportAll() -> APIEndpoint {
-        return APIEndpoint(
+    static func exportAll() -> APIEndpoint {
+        APIEndpoint(
             path: "/export/all",
             method: .get,
             requiresAuth: true

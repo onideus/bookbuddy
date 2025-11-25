@@ -226,9 +226,9 @@ public extension Book {
         if newStatus == .wantToRead {
             currentPage = nil
         }
-        
+
         // Set currentPage to 0 when transitioning to reading from wantToRead
-        if newStatus == .reading && status == .wantToRead {
+        if newStatus == .reading, status == .wantToRead {
             currentPage = 0
         }
 
@@ -316,7 +316,7 @@ public extension Book {
     /// - Parameter newGenres: New genres list
     /// - Returns: Updated book instance
     func withGenres(_ newGenres: [String]) -> Book {
-        return Book(
+        Book(
             id: id,
             userId: userId,
             googleBooksId: googleBooksId,

@@ -13,7 +13,7 @@ public protocol BookRepositoryProtocol {
     /// - Returns: Array of books
     /// - Throws: DomainError if operation fails
     func findByUserId(_ userId: String) async throws -> [Book]
-    
+
     /// Finds books for a user with pagination
     /// - Parameters:
     ///   - userId: User ID
@@ -50,7 +50,7 @@ public protocol BookRepositoryProtocol {
     /// - Returns: Array of books with the specified status
     /// - Throws: DomainError if operation fails
     func findByStatus(_ userId: String, status: BookStatus) async throws -> [Book]
-    
+
     /// Checks if a book exists for a user
     /// - Parameters:
     ///   - userId: User ID

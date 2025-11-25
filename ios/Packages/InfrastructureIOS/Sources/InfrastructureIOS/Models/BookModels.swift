@@ -131,8 +131,9 @@ public struct BookDTO: Codable {
 }
 
 // MARK: - Domain Conversion
-extension BookDTO {
-    public func toDomain() throws -> Book {
+
+public extension BookDTO {
+    func toDomain() throws -> Book {
         guard let bookStatus = BookStatus(rawValue: status) else {
             throw DomainError.validation("Invalid book status: \(status)")
         }
@@ -156,9 +157,9 @@ extension BookDTO {
     }
 }
 
-extension Book {
-    public func toDTO() -> BookDTO {
-        return BookDTO(
+public extension Book {
+    func toDTO() -> BookDTO {
+        BookDTO(
             id: id,
             userId: userId,
             googleBooksId: googleBooksId,

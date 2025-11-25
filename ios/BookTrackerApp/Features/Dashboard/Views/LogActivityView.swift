@@ -6,8 +6,8 @@ struct LogActivityView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject var viewModel: StreakViewModel
 
-    @State private var pagesRead: String = ""
-    @State private var minutesRead: String = ""
+    @State private var pagesRead = ""
+    @State private var minutesRead = ""
 
     var onActivityLogged: (() -> Void)?
 
@@ -166,7 +166,7 @@ private class MockStreakRepository: StreakRepositoryProtocol {
         )
     }
 
-    func getActivityHistory(startDate: Date?, endDate: Date?) async throws -> [ReadingActivity] {
+    func getActivityHistory(startDate _: Date?, endDate _: Date?) async throws -> [ReadingActivity] {
         []
     }
 }

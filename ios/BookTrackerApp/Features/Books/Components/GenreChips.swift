@@ -21,11 +21,13 @@ struct GenreChips: View {
 /// A single genre chip
 struct GenreChip: View {
     let genre: String
-    var isSelected: Bool = false
+    var isSelected = false
     var onTap: ((String) -> Void)?
 
     var body: some View {
-        Button(action: { onTap?(genre) }) {
+        Button {
+            onTap?(genre)
+        } label: {
             Text(genre)
                 .font(.caption2)
                 .fontWeight(.medium)
@@ -44,7 +46,7 @@ struct GenreChip: View {
 struct GenreSelector: View {
     @Binding var selectedGenres: [String]
     let availableGenres: [String]
-    @State private var newGenre: String = ""
+    @State private var newGenre = ""
     @State private var showingAddGenre = false
 
     private let commonGenres = [
@@ -79,9 +81,9 @@ struct GenreSelector: View {
 
                 FlowLayout(spacing: 8) {
                     ForEach(genresToShow, id: \.self) { genre in
-                        Button(action: {
+                        Button {
                             selectedGenres.append(genre)
-                        }) {
+                        } label: {
                             Text(genre)
                                 .font(.caption)
                                 .padding(.horizontal, 10)
@@ -102,7 +104,7 @@ struct GenreSelector: View {
 
                 Button("Add") {
                     let trimmed = newGenre.trimmingCharacters(in: .whitespacesAndNewlines)
-                    if !trimmed.isEmpty && !selectedGenres.contains(trimmed) {
+                    if !trimmed.isEmpty, !selectedGenres.contains(trimmed) {
                         selectedGenres.append(trimmed)
                         newGenre = ""
                     }
@@ -144,7 +146,7 @@ private struct SelectedGenreChip: View {
 struct FlowLayout: Layout {
     var spacing: CGFloat = 8
 
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache _: inout ()) -> CGSize {
         let result = FlowResult(
             in: proposal.replacingUnspecifiedDimensions().width,
             subviews: subviews,
@@ -153,16 +155,20 @@ struct FlowLayout: Layout {
         return result.size
     }
 
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+    func placeSubviews(in bounds: CGRect, proposal _: ProposedViewSize, subviews: Subviews, cache _: inout ()) {
         let result = FlowResult(
             in: bounds.width,
             subviews: subviews,
             spacing: spacing
         )
         for (index, subview) in subviews.enumerated() {
-            subview.place(at: CGPoint(x: bounds.minX + result.positions[index].x,
-                                      y: bounds.minY + result.positions[index].y),
-                         proposal: .unspecified)
+            subview.place(
+                at: CGPoint(
+                    x: bounds.minX + result.positions[index].x,
+                    y: bounds.minY + result.positions[index].y
+                ),
+                proposal: .unspecified
+            )
         }
     }
 
@@ -177,7 +183,7 @@ struct FlowLayout: Layout {
 
             for subview in subviews {
                 let size = subview.sizeThatFits(.unspecified)
-                if x + size.width > maxWidth && x > 0 {
+                if x + size.width > maxWidth, x > 0 {
                     x = 0
                     y += rowHeight + spacing
                     rowHeight = 0
@@ -186,7 +192,7 @@ struct FlowLayout: Layout {
                 rowHeight = max(rowHeight, size.height)
                 x += size.width + spacing
             }
-            self.size = CGSize(width: maxWidth, height: y + rowHeight)
+            size = CGSize(width: maxWidth, height: y + rowHeight)
         }
     }
 }

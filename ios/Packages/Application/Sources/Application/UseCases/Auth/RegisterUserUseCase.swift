@@ -54,7 +54,8 @@ public struct RegisterUserInput: Sendable, Equatable {
 ///
 /// - Parameter input: `RegisterUserInput` containing email, password, and name for new account
 /// - Returns: The newly created `User` entity with hashed password and assigned ID
-/// - Throws: `DomainError.duplicateEntry` if email exists, `DomainError.validation` for invalid inputs, or hashing/repository errors
+/// - Throws: `DomainError.duplicateEntry` if email exists, `DomainError.validation` for invalid inputs, or
+/// hashing/repository errors
 public final class RegisterUserUseCase: UseCase {
     public typealias Input = RegisterUserInput
     public typealias Output = User
@@ -72,7 +73,7 @@ public final class RegisterUserUseCase: UseCase {
 
     public func execute(_ input: Input) async throws -> User {
         // Validate inputs
-        guard !input.email.trimmingCharacters(in: .whitespaces).isEmpty else {
+        guard !input.email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw DomainError.validation("Email is required")
         }
 
@@ -84,7 +85,7 @@ public final class RegisterUserUseCase: UseCase {
             throw DomainError.validation("Password must be at least 6 characters")
         }
 
-        guard !input.name.trimmingCharacters(in: .whitespaces).isEmpty else {
+        guard !input.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw DomainError.validation("Name is required")
         }
 

@@ -19,11 +19,11 @@ struct CreateGoalView: View {
                         .textInputAutocapitalization(.words)
 
                     TextField("Description (optional)", text: $description, axis: .vertical)
-                        .lineLimit(3...6)
+                        .lineLimit(3 ... 6)
                 }
 
                 Section("Target") {
-                    Stepper(value: $targetBooks, in: 1...100) {
+                    Stepper(value: $targetBooks, in: 1 ... 100) {
                         HStack {
                             Text("Books to read")
                             Spacer()
@@ -58,7 +58,9 @@ struct CreateGoalView: View {
                 } header: {
                     Text("Summary")
                 } footer: {
-                    Text("You'll need to read about \(booksPerWeek) book\(booksPerWeek == 1.0 ? "" : "s") per week to reach your goal.")
+                    Text(
+                        "You'll need to read about \(booksPerWeek) book\(booksPerWeek == 1.0 ? "" : "s") per week to reach your goal."
+                    )
                 }
             }
             .navigationTitle("New Reading Goal")
@@ -102,8 +104,8 @@ struct CreateGoalView: View {
 
     private var isValid: Bool {
         !title.trimmingCharacters(in: .whitespaces).isEmpty &&
-        targetBooks > 0 &&
-        endDate > startDate
+            targetBooks > 0 &&
+            endDate > startDate
     }
 
     private var durationInDays: Int {

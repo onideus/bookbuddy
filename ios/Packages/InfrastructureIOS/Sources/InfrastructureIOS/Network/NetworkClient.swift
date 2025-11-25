@@ -26,11 +26,11 @@ public final class NetworkClient: NetworkClientProtocol {
         self.keychainManager = keychainManager
 
         // Configure JSON decoder to handle ISO8601 dates
-        self.decoder = JSONDecoder()
+        decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
 
         // Configure JSON encoder for ISO8601 dates
-        self.encoder = JSONEncoder()
+        encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
     }
 
@@ -128,7 +128,7 @@ public final class NetworkClient: NetworkClientProtocol {
 
     private func validateResponse(_ response: HTTPURLResponse, data: Data) throws {
         switch response.statusCode {
-        case 200...299:
+        case 200 ... 299:
             // Success
             return
 
@@ -138,7 +138,7 @@ public final class NetworkClient: NetworkClientProtocol {
         case 404:
             throw APIError.notFound
 
-        case 400...499:
+        case 400 ... 499:
             // Try to decode error message
             if let errorResponse = try? decoder.decode(ErrorResponse.self, from: data) {
                 throw APIError.httpError(
@@ -148,7 +148,7 @@ public final class NetworkClient: NetworkClientProtocol {
             }
             throw APIError.httpError(statusCode: response.statusCode, message: nil)
 
-        case 500...599:
+        case 500 ... 599:
             // Server error
             if let errorResponse = try? decoder.decode(ErrorResponse.self, from: data) {
                 throw APIError.httpError(
@@ -165,17 +165,18 @@ public final class NetworkClient: NetworkClientProtocol {
 }
 
 // MARK: - Configuration
+
 @available(iOS 15.0, macOS 12.0, *)
-extension NetworkClient {
+public extension NetworkClient {
     /// Create a NetworkClient with the default production configuration
-    public static func production() -> NetworkClient {
-        // TODO: Replace with actual production URL
+    static func production() -> NetworkClient {
+        // Note: Replace with actual production URL when deploying
         let baseURL = URL(string: "http://127.0.0.1:4000")!
         return NetworkClient(baseURL: baseURL)
     }
 
     /// Create a NetworkClient for development/testing
-    public static func development() -> NetworkClient {
+    static func development() -> NetworkClient {
         let baseURL = URL(string: "http://127.0.0.1:4000")!
         return NetworkClient(baseURL: baseURL)
     }

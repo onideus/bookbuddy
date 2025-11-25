@@ -219,9 +219,9 @@ private class MockBookRepository: BookRepositoryProtocol {
     func findByUserId(_: String) async throws -> [Book] {
         []
     }
-    
+
     // Pagination overload
-    func findByUserId(_ userId: String, offset: Int, limit: Int?) async throws -> [Book] {
+    func findByUserId(_: String, offset _: Int, limit _: Int?) async throws -> [Book] {
         []
     }
 
@@ -232,9 +232,9 @@ private class MockBookRepository: BookRepositoryProtocol {
     func findByStatus(_: String, status _: BookStatus) async throws -> [Book] {
         []
     }
-    
+
     // Performance optimization method with correct signature
-    func exists(userId: String, googleBooksId: String) async throws -> Bool {
+    func exists(userId _: String, googleBooksId _: String) async throws -> Bool {
         false
     }
 

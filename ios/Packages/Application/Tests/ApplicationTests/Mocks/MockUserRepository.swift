@@ -109,15 +109,46 @@ final class MockUserRepository: UserRepositoryProtocol, @unchecked Sendable {
     func findById(_ id: String) async throws -> User? {
         findByIdCallCount += 1
         lastQueriedId = id
-        
+
         if let error = findByIdError {
             throw error
         }
-        
+
         if shouldReturnNilOnFindById {
             return nil
         }
-        
+
         return users[id]
+    }
+
+    func update(_ id: String, updates: UserUpdate) async throws -> User? {
+        guard let existingUser = users[id] else {
+            return nil
+        }
+
+        let updatedUser = User(
+            id: existingUser.id,
+            email: updates.email ?? existingUser.email,
+            password: updates.password ?? existingUser.password,
+            name: updates.name ?? existingUser.name,
+            createdAt: existingUser.createdAt
+        )
+
+        // Update both dictionaries
+        users[id] = updatedUser
+        usersByEmail.removeValue(forKey: existingUser.email)
+        usersByEmail[updatedUser.email] = updatedUser
+
+        return updatedUser
+    }
+
+    func delete(_ id: String) async throws -> Bool {
+        guard let user = users[id] else {
+            return false
+        }
+
+        users.removeValue(forKey: id)
+        usersByEmail.removeValue(forKey: user.email)
+        return true
     }
 }

@@ -56,7 +56,7 @@ struct GoalCard: View {
 
                 Spacer()
 
-                if !goal.completed && goal.hasStarted {
+                if !goal.completed, goal.hasStarted {
                     Label {
                         Text(remainingDaysText)
                     } icon: {
@@ -95,39 +95,39 @@ struct GoalCard: View {
 
     private var progressColor: Color {
         if goal.completed {
-            return .green
+            .green
         } else if goal.isOverdue {
-            return .red
+            .red
         } else if goal.progressPercentage > 0.7 {
-            return .orange
+            .orange
         } else {
-            return .blue
+            .blue
         }
     }
 
     private var statusBackgroundColor: Color {
         switch goal.status {
         case .completed:
-            return .green.opacity(0.2)
+            .green.opacity(0.2)
         case .inProgress:
-            return .blue.opacity(0.2)
+            .blue.opacity(0.2)
         case .overdue:
-            return .red.opacity(0.2)
+            .red.opacity(0.2)
         case .notStarted:
-            return .gray.opacity(0.2)
+            .gray.opacity(0.2)
         }
     }
 
     private var statusForegroundColor: Color {
         switch goal.status {
         case .completed:
-            return .green
+            .green
         case .inProgress:
-            return .blue
+            .blue
         case .overdue:
-            return .red
+            .red
         case .notStarted:
-            return .gray
+            .gray
         }
     }
 

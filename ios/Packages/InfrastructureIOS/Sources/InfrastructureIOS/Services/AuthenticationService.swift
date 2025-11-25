@@ -85,6 +85,6 @@ public final class AuthenticationService {
 
     /// Get the current access token
     public func getAccessToken() throws -> String? {
-        return try keychainManager.getAccessToken()
+        try keychainManager.getAccessToken()
     }
 }

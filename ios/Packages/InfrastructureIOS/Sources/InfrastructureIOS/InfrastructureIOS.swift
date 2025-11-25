@@ -2,13 +2,14 @@ import Foundation
 
 // MARK: - Module Exports
 
-// Re-export commonly used types for convenience
-@_exported import CoreDomain
 @_exported import Application
 
+// Re-export commonly used types for convenience
+@_exported import CoreDomain
+
 // Note: Types defined in this module (NetworkClient, APIError, APIEndpoint,
-// KeychainManager, AuthenticationService, ExternalBookSearchService, 
-// BookRepository, GoalRepository, UserRepository) are already directly 
+// KeychainManager, AuthenticationService, ExternalBookSearchService,
+// BookRepository, GoalRepository, UserRepository) are already directly
 // accessible and don't need typealiases
 
 // MARK: - Configuration
@@ -32,7 +33,7 @@ public struct InfrastructureConfiguration {
     }
 
     /// Production configuration
-    /// TODO: Replace with actual production URL
+    /// Note: Update URL when production server is deployed
     public static var production: InfrastructureConfiguration {
         InfrastructureConfiguration(
             baseURL: URL(string: "https://api.bookbuddy.app")!,
@@ -52,8 +53,8 @@ public struct InfrastructureFactory {
 
     public init(configuration: InfrastructureConfiguration) {
         self.configuration = configuration
-        self.keychainManager = .shared
-        self.networkClient = NetworkClient(
+        keychainManager = .shared
+        networkClient = NetworkClient(
             baseURL: configuration.baseURL,
             keychainManager: keychainManager
         )
@@ -62,24 +63,24 @@ public struct InfrastructureFactory {
     // MARK: - Services
 
     public func makeAuthenticationService() -> AuthenticationService {
-        return AuthenticationService(
+        AuthenticationService(
             networkClient: networkClient,
             keychainManager: keychainManager
         )
     }
 
     public func makeExternalBookSearchService() -> ExternalBookSearchService {
-        return ExternalBookSearchService(networkClient: networkClient)
+        ExternalBookSearchService(networkClient: networkClient)
     }
 
     // MARK: - Repositories
 
     public func makeBookRepository() -> BookRepositoryProtocol {
-        return BookRepository(networkClient: networkClient)
+        BookRepository(networkClient: networkClient)
     }
 
     public func makeGoalRepository() -> GoalRepositoryProtocol {
-        return GoalRepository(networkClient: networkClient)
+        GoalRepository(networkClient: networkClient)
     }
 
     public func makeUserRepository() -> UserRepositoryProtocol {
@@ -88,12 +89,12 @@ public struct InfrastructureFactory {
     }
 
     public func makeStreakRepository() -> StreakRepositoryProtocol {
-        return StreakRepository(networkClient: networkClient)
+        StreakRepository(networkClient: networkClient)
     }
 
     // MARK: - Network
 
     public func makeNetworkClient() -> NetworkClientProtocol {
-        return networkClient
+        networkClient
     }
 }

@@ -231,7 +231,7 @@ final class GetUserBooksUseCaseTests: XCTestCase {
             authors: ["Test Author\(suffix)"],
             thumbnail: "https://example.com/thumb\(suffix).jpg",
             description: "Test description\(suffix)",
-            pageCount: 300 + Int(suffix) ?? 0,
+            pageCount: 300 + (Int(suffix) ?? 0),
             status: status,
             currentPage: 0,
             rating: nil,

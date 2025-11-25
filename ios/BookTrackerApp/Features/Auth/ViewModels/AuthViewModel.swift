@@ -105,7 +105,7 @@ final class AuthViewModel: ObservableObject {
             return false
         }
 
-        guard email.contains("@") && email.contains(".") else {
+        guard email.contains("@"), email.contains(".") else {
             errorMessage = "Invalid email format"
             return false
         }
@@ -122,7 +122,7 @@ final class AuthViewModel: ObservableObject {
         }
 
         // Validate name if registering
-        if let name = name {
+        if let name {
             guard !name.trimmingCharacters(in: .whitespaces).isEmpty else {
                 errorMessage = "Name is required"
                 return false

@@ -4,7 +4,7 @@ import SwiftUI
 /// A badge displaying the current reading streak with a flame icon
 struct StreakBadge: View {
     let streak: ReadingStreak
-    var compact: Bool = false
+    var compact = false
 
     var body: some View {
         HStack(spacing: compact ? 4 : 8) {
@@ -38,22 +38,22 @@ struct StreakBadge: View {
     private var streakColor: Color {
         switch streak.streakStatus {
         case .active:
-            return .orange
+            .orange
         case .atRisk:
-            return .yellow
+            .yellow
         case .noStreak, .broken:
-            return .gray
+            .gray
         }
     }
 
     private var streakBackgroundColor: Color {
         switch streak.streakStatus {
         case .active:
-            return .orange.opacity(0.15)
+            .orange.opacity(0.15)
         case .atRisk:
-            return .yellow.opacity(0.15)
+            .yellow.opacity(0.15)
         case .noStreak, .broken:
-            return .gray.opacity(0.1)
+            .gray.opacity(0.1)
         }
     }
 }
@@ -130,11 +130,11 @@ struct StreakCard: View {
     private var streakColor: Color {
         switch streak.streakStatus {
         case .active:
-            return .orange
+            .orange
         case .atRisk:
-            return .yellow
+            .yellow
         case .noStreak, .broken:
-            return .gray
+            .gray
         }
     }
 }

@@ -10,14 +10,14 @@ public struct RecordActivityRequest: Encodable {
     public let date: String?
 
     public init(input: RecordActivityInput) {
-        self.pagesRead = input.pagesRead
-        self.minutesRead = input.minutesRead
-        self.bookId = input.bookId
+        pagesRead = input.pagesRead
+        minutesRead = input.minutesRead
+        bookId = input.bookId
         if let date = input.date {
             let formatter = ISO8601DateFormatter()
             self.date = formatter.string(from: date)
         } else {
-            self.date = nil
+            date = nil
         }
     }
 }
@@ -100,8 +100,8 @@ public struct ReadingActivityDTO: Codable {
 
 // MARK: - Domain Conversion
 
-extension GetStreakResponse {
-    public func toDomain() -> ReadingStreak {
+public extension GetStreakResponse {
+    func toDomain() -> ReadingStreak {
         ReadingStreak(
             currentStreak: currentStreak,
             longestStreak: longestStreak,
@@ -114,8 +114,8 @@ extension GetStreakResponse {
     }
 }
 
-extension ReadingActivityDTO {
-    public func toDomain() -> ReadingActivity {
+public extension ReadingActivityDTO {
+    func toDomain() -> ReadingActivity {
         ReadingActivity(
             id: id,
             userId: userId,
@@ -128,8 +128,8 @@ extension ReadingActivityDTO {
     }
 }
 
-extension ReadingActivity {
-    public func toDTO() -> ReadingActivityDTO {
+public extension ReadingActivity {
+    func toDTO() -> ReadingActivityDTO {
         ReadingActivityDTO(
             id: id,
             userId: userId,

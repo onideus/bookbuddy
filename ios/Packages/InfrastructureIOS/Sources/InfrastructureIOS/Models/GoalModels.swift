@@ -118,9 +118,10 @@ public struct GoalDTO: Codable {
 }
 
 // MARK: - Domain Conversion
-extension GoalDTO {
-    public func toDomain() -> Goal {
-        return Goal(
+
+public extension GoalDTO {
+    func toDomain() -> Goal {
+        Goal(
             id: id,
             userId: userId,
             title: title,
@@ -134,9 +135,9 @@ extension GoalDTO {
     }
 }
 
-extension Goal {
-    public func toDTO() -> GoalDTO {
-        return GoalDTO(
+public extension Goal {
+    func toDTO() -> GoalDTO {
+        GoalDTO(
             id: id,
             userId: userId,
             title: title,

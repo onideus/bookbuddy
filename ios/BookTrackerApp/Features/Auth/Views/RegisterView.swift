@@ -1,5 +1,5 @@
-import SwiftUI
 import InfrastructureIOS
+import SwiftUI
 
 struct RegisterView: View {
     @ObservedObject var viewModel: AuthViewModel
@@ -48,11 +48,11 @@ struct RegisterView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
-                    Button(action: {
+                    Button {
                         Task {
                             await viewModel.register()
                         }
-                    }) {
+                    } label: {
                         if viewModel.isLoading {
                             ProgressView()
                                 .progressViewStyle(.circular)
@@ -72,11 +72,11 @@ struct RegisterView: View {
                 .padding(.horizontal, 32)
 
                 // Login link
-                if let onShowLogin = onShowLogin {
+                if let onShowLogin {
                     Button(action: onShowLogin) {
                         Text("Already have an account? ")
                             .foregroundColor(.primary) +
-                        Text("Log In")
+                            Text("Log In")
                             .fontWeight(.semibold)
                             .foregroundColor(.blue)
                     }

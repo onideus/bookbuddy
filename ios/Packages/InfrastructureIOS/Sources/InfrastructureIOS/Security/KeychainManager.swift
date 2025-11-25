@@ -116,35 +116,37 @@ public final class KeychainManager {
 }
 
 // MARK: - Token Storage Convenience Methods
-extension KeychainManager {
+
+public extension KeychainManager {
     private enum Keys {
         static let accessToken = "accessToken"
         static let refreshToken = "refreshToken"
     }
 
-    public func saveAccessToken(_ token: String) throws {
+    func saveAccessToken(_ token: String) throws {
         try save(token, for: Keys.accessToken)
     }
 
-    public func getAccessToken() throws -> String? {
+    func getAccessToken() throws -> String? {
         try getString(for: Keys.accessToken)
     }
 
-    public func saveRefreshToken(_ token: String) throws {
+    func saveRefreshToken(_ token: String) throws {
         try save(token, for: Keys.refreshToken)
     }
 
-    public func getRefreshToken() throws -> String? {
+    func getRefreshToken() throws -> String? {
         try getString(for: Keys.refreshToken)
     }
 
-    public func deleteTokens() throws {
+    func deleteTokens() throws {
         try delete(Keys.accessToken)
         try delete(Keys.refreshToken)
     }
 }
 
 // MARK: - Keychain Errors
+
 public enum KeychainError: LocalizedError {
     case invalidData
     case saveFailed(OSStatus)
@@ -154,13 +156,13 @@ public enum KeychainError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .invalidData:
-            return "Invalid data format"
+            "Invalid data format"
         case .saveFailed(let status):
-            return "Failed to save to Keychain (status: \(status))"
+            "Failed to save to Keychain (status: \(status))"
         case .retrievalFailed(let status):
-            return "Failed to retrieve from Keychain (status: \(status))"
+            "Failed to retrieve from Keychain (status: \(status))"
         case .deletionFailed(let status):
-            return "Failed to delete from Keychain (status: \(status))"
+            "Failed to delete from Keychain (status: \(status))"
         }
     }
 }

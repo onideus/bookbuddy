@@ -85,19 +85,21 @@ struct SettingsView: View {
         NavigationView {
             List {
                 Section("Data") {
-                    Button(action: { showingExportSheet = true }) {
+                    Button {
+                        showingExportSheet = true
+                    } label: {
                         Label("Export My Data", systemImage: "square.and.arrow.up")
                     }
                 }
 
                 Section("Account") {
-                    Button(role: .destructive, action: {
+                    Button(role: .destructive) {
                         Task {
                             let authViewModel = container.makeAuthViewModel()
                             await authViewModel.logout()
                             container.updateAuthenticationState()
                         }
-                    }) {
+                    } label: {
                         Label("Log Out", systemImage: "arrow.right.square")
                     }
                 }
@@ -238,11 +240,11 @@ struct ExportData: Identifiable {
 struct ShareSheet: UIViewControllerRepresentable {
     let items: [Any]
 
-    func makeUIViewController(context: Context) -> UIActivityViewController {
+    func makeUIViewController(context _: Context) -> UIActivityViewController {
         UIActivityViewController(activityItems: items, applicationActivities: nil)
     }
 
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+    func updateUIViewController(_: UIActivityViewController, context _: Context) {}
 }
 
 #Preview {

@@ -6,6 +6,7 @@ import SwiftUI
 @MainActor
 final class DashboardViewModel: ObservableObject {
     // MARK: - Published State
+
     @Published var streak: ReadingStreak = .empty
     @Published var currentlyReadingBooks: [Book] = []
     @Published var activeGoals: [Goal] = []
@@ -13,6 +14,7 @@ final class DashboardViewModel: ObservableObject {
     @Published var errorMessage: String?
 
     // MARK: - Dependencies
+
     private let streakRepository: StreakRepositoryProtocol
     private let bookRepository: BookRepositoryProtocol
     private let goalRepository: GoalRepositoryProtocol
@@ -32,6 +34,7 @@ final class DashboardViewModel: ObservableObject {
     }
 
     // MARK: - Initialization
+
     init(
         streakRepository: StreakRepositoryProtocol,
         bookRepository: BookRepositoryProtocol,
