@@ -13,6 +13,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.logger = void 0;
 exports.createLogger = createLogger;
+const config_1 = require("../../lib/config");
 const LOG_LEVEL_PRIORITY = {
     debug: 0,
     info: 1,
@@ -20,12 +21,7 @@ const LOG_LEVEL_PRIORITY = {
     error: 3,
 };
 function getLogLevelFromEnv() {
-    const envLevel = process.env.LOG_LEVEL?.toLowerCase();
-    if (envLevel && envLevel in LOG_LEVEL_PRIORITY) {
-        return envLevel;
-    }
-    // Default to 'info' in production, 'debug' in development
-    return process.env.NODE_ENV === 'production' ? 'info' : 'debug';
+    return config_1.config.logging.level;
 }
 function shouldLog(level, minLevel) {
     return LOG_LEVEL_PRIORITY[level] >= LOG_LEVEL_PRIORITY[minLevel];
@@ -33,7 +29,7 @@ function shouldLog(level, minLevel) {
 function formatLogEntry(entry) {
     const { timestamp, level, message, context } = entry;
     const levelUpper = level.toUpperCase().padEnd(5);
-    if (process.env.LOG_FORMAT === 'json') {
+    if (config_1.config.logging.format === 'json') {
         return JSON.stringify(entry);
     }
     // Human-readable format for development

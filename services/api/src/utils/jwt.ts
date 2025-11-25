@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
+import { getJWTSecret, config } from '../../../../lib/config';
 
 export interface JWTPayload {
   userId: string;
@@ -11,14 +12,6 @@ export interface JWTPayload {
 export interface TokenPair {
   accessToken: string;
   refreshToken: string;
-}
-
-function getJWTSecret(): string {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    throw new Error('JWT_SECRET environment variable is not set');
-  }
-  return secret;
 }
 
 function parseExpiry(expiry: string): number {
@@ -41,8 +34,7 @@ function parseExpiry(expiry: string): number {
 }
 
 export function generateAccessToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): string {
-  const expiry = process.env.JWT_ACCESS_TOKEN_EXPIRY || '15m';
-  const expiresIn = parseExpiry(expiry);
+  const expiresIn = parseExpiry(config.jwt.accessTokenExpiry);
 
   return jwt.sign(payload, getJWTSecret(), {
     expiresIn,
@@ -69,7 +61,6 @@ export function verifyAccessToken(token: string): JWTPayload {
 }
 
 export function calculateRefreshTokenExpiry(): Date {
-  const expiry = process.env.JWT_REFRESH_TOKEN_EXPIRY || '7d';
-  const expiresInSeconds = parseExpiry(expiry);
+  const expiresInSeconds = parseExpiry(config.jwt.refreshTokenExpiry);
   return new Date(Date.now() + expiresInSeconds * 1000);
 }

@@ -1,153 +1,47 @@
 # BookTracker
 
-A modern, mobile-friendly book tracking application built with Next.js that helps you manage your reading journey.
+A modern book tracking application with a Fastify REST API backend and native iOS SwiftUI app, helping you manage your reading journey.
 
 ## Features
 
 ### Core Features
-- **User Authentication**: Secure login and registration with NextAuth.js and bcryptjs password hashing
+- **User Authentication**: Secure JWT-based authentication with bcryptjs password hashing
 - **Book Management**: Track books across three statuses (want-to-read, reading, read)
 - **Google Books Integration**: Search and add books by title, author, or ISBN
 - **Reading Progress**: Track page progress with visual progress bars and automatic status updates
 - **Star Ratings**: Rate finished books with a 5-star system
 - **Reading Goals**: Create goals with target books, deadlines, and automatic progress tracking
-- **Dashboard**: Overview with statistics, currently reading books, and active goals
-- **Mobile Responsive**: Fully optimized for all screen sizes with bottom navigation on mobile
-- **Dark Mode**: Built-in dark/light theme support
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ installed
-- npm or yarn package manager
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone <your-repo-url>
-cd repo
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Set up environment variables:
-
-Edit the `.env` file and update the following variables:
-
-```env
-# NextAuth Secret - Generate a secure random string
-NEXTAUTH_SECRET=your-secret-key-change-this-in-production
-
-# NextAuth URL - Your app's URL
-NEXTAUTH_URL=http://localhost:3000
-
-# Google Books API Key (Optional but recommended)
-NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY=your-google-books-api-key
-```
-
-To get a Google Books API key:
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Enable the "Books API"
-4. Create credentials (API Key)
-5. Copy the API key to your `.env` file
-
-### Running the Application
-
-Development mode:
-```bash
-npm run dev
-```
-
-The application will be available at [http://localhost:3000](http://localhost:3000)
-
-Production build:
-```bash
-npm run build
-npm start
-```
-
-## Usage
-
-### First Time Setup
-
-1. Navigate to `http://localhost:3000`
-2. Click "Sign up" to create a new account
-3. Fill in your name, email, and password
-4. Log in with your credentials
-
-### Adding Books
-
-1. Navigate to the "Search" page
-2. Search for books by title, author, or ISBN
-3. Click one of the action buttons to add a book:
-   - "Want to Read" - Books you plan to read
-   - "Reading" - Books you're currently reading
-   - "Read" - Books you've finished
-
-### Managing Books
-
-1. Go to "My Books" to see all your books
-2. Filter by status using the tabs
-3. For books you're reading:
-   - Click "Update" to track your progress
-   - Enter your current page number
-4. For books you've finished:
-   - Rate them using the star rating system
-5. Change book status using the dropdown
-6. Delete books using the trash icon
-
-### Creating Goals
-
-1. Navigate to the "Goals" page
-2. Click "New Goal"
-3. Fill in the goal details:
-   - Title (e.g., "Read 12 books this year")
-   - Description (optional)
-   - Target number of books
-   - Start and end dates
-4. Track progress with visual progress bars
-
-### Dashboard
-
-The dashboard provides an overview of:
-- Total books in your library
-- Books currently reading
-- Books you've finished
-- Active goals
-- Quick access to currently reading books
-- Goal progress
-
-## Technology Stack
-
-- **Framework**: Next.js 16 with App Router
-- **Authentication**: NextAuth.js with credentials provider
-- **Styling**: Tailwind CSS
-- **Icons**: Lucide React
-- **API**: Google Books API
-- **Language**: TypeScript
-- **Password Hashing**: bcryptjs
+- **Reading Streaks**: Track consecutive days of reading for gamification
+- **Book Genres/Tags**: Categorize books for filtering
+- **Data Export**: Export your reading data in JSON or CSV format
+- **API Rate Limiting**: Protection against brute-force and DoS attacks
 
 ## Architecture
 
-This application has been refactored to follow **Clean Architecture** and **SOLID principles**. It demonstrates professional software engineering practices with clear separation of concerns.
+This application follows **Clean Architecture** and **SOLID principles** with clear separation of concerns.
+
+### Tech Stack
+
+| Component | Technology |
+|-----------|------------|
+| **Backend API** | Fastify (Node.js) |
+| **Database** | PostgreSQL with Prisma ORM |
+| **iOS App** | SwiftUI |
+| **Authentication** | JWT (JSON Web Tokens) |
+| **Language** | TypeScript (backend), Swift (iOS) |
+| **External API** | Google Books API |
 
 ### 🏗️ Clean Architecture Layers
 
 ```
 ┌─────────────────────────────────────┐
-│     UI Layer (Next.js Pages)        │  ← User Interface
+│     UI Layer (iOS SwiftUI App)       │  ← User Interface
 ├─────────────────────────────────────┤
-│  Application Layer (Use Cases)      │  ← Business Logic
+│  Application Layer (Use Cases)       │  ← Business Logic
 ├─────────────────────────────────────┤
-│  Domain Layer (Entities, Services)  │  ← Core Business Rules
+│  Domain Layer (Entities, Services)   │  ← Core Business Rules
 ├─────────────────────────────────────┤
-│  Infrastructure (Repositories, API) │  ← External Concerns
+│  Infrastructure (Repositories, API)  │  ← External Concerns
 └─────────────────────────────────────┘
 ```
 
@@ -159,75 +53,219 @@ This application has been refactored to follow **Clean Architecture** and **SOLI
 - **I**nterface Segregation: Focused, specific interfaces
 - **D**ependency Inversion: Depend on abstractions, not concretions
 
-### 📚 Documentation
+## Getting Started
 
-| Document | Description | Audience |
-|----------|-------------|----------|
-| **[README.md](./README.md)** (this file) | Quick start guide, features, and setup | Everyone |
-| **[ARCHITECTURE.md](./ARCHITECTURE.md)** | Detailed architecture documentation, design patterns, SOLID principles | Developers/Architects |
-| **[DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)** | Step-by-step guide for adding features, testing examples, best practices | Developers |
-| **[REFACTORING_SUMMARY.md](./REFACTORING_SUMMARY.md)** | Complete refactoring history and achievements | Technical Leads |
+### Prerequisites
 
-## Database
+- Node.js 18+ installed
+- npm package manager
+- Docker (for PostgreSQL) or PostgreSQL installed locally
+- Xcode 15+ (for iOS development)
 
-Currently uses an in-memory database for demo purposes. Thanks to the repository pattern, you can easily swap to a real database by implementing new repositories:
+### Backend Setup
 
-**To switch to PostgreSQL with Prisma:**
-1. Implement `PrismaBookRepository` implementing `IBookRepository`
-2. Update `lib/di/container.ts` bindings
-3. **No other changes needed!** Use cases, services, and UI remain unchanged.
+1. Clone the repository:
+```bash
+git clone <your-repo-url>
+cd bookbuddy-mk3
+```
 
-Supported databases:
-- PostgreSQL with Prisma
-- MongoDB with Mongoose
-- Supabase
-- Firebase
-- Redis (for caching)
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Set up environment variables:
+
+Copy `.env.example` to `.env` and configure:
+
+```env
+# Database
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/bookbuddy
+
+# JWT Configuration
+JWT_SECRET=your-secret-key-change-in-production
+JWT_ACCESS_TOKEN_EXPIRY=15m
+JWT_REFRESH_TOKEN_EXPIRY=7d
+
+# Server
+PORT=4000
+HOST=0.0.0.0
+
+# Google Books API (Optional but recommended)
+GOOGLE_BOOKS_API_KEY=your-google-books-api-key
+
+# Logging
+LOG_LEVEL=debug
+LOG_FORMAT=human
+```
+
+4. Start the database:
+```bash
+npm run db:setup
+```
+
+5. Run database migrations:
+```bash
+npm run db:migrate
+```
+
+6. Start the development server:
+```bash
+npm run dev
+```
+
+The API will be available at [http://localhost:4000](http://localhost:4000)
+
+### iOS App Setup
+
+1. Navigate to the iOS directory:
+```bash
+cd ios
+```
+
+2. Generate the Xcode project:
+```bash
+xcodegen
+```
+
+3. Open in Xcode:
+```bash
+open BookTrackerApp.xcodeproj
+```
+
+4. Build and run on simulator or device
+
+## API Endpoints
+
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/auth/register` | Register new user |
+| POST | `/auth/login` | Login and get tokens |
+| POST | `/auth/refresh` | Refresh access token |
+| POST | `/auth/logout` | Logout and invalidate tokens |
+
+### Books
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/books` | Get user's books (paginated) |
+| POST | `/books` | Add a new book |
+| PUT | `/books/:id` | Update a book |
+| DELETE | `/books/:id` | Delete a book |
+
+### Goals
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/goals` | Get user's goals (paginated) |
+| POST | `/goals` | Create a new goal |
+| PUT | `/goals/:id` | Update a goal |
+| DELETE | `/goals/:id` | Delete a goal |
+
+### Search
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/search?q=query` | Search Google Books |
+
+### Streaks
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/streaks` | Get user's reading streak |
+| POST | `/streaks/activity` | Record reading activity |
+| GET | `/streaks/history` | Get activity history |
+
+### Export
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/export/books?format=json` | Export books |
+| GET | `/export/goals?format=csv` | Export goals |
+| GET | `/export/all?format=json` | Export all data |
 
 ## Project Structure
 
 ```
-repo/
-├── app/
-│   ├── actions/          # Server actions (type-safe mutations)
-│   │   ├── book-actions.ts
-│   │   └── goal-actions.ts
-│   ├── api/              # API routes (REST endpoints)
-│   │   ├── auth/         # NextAuth endpoints
-│   │   ├── books/        # Book management
-│   │   ├── goals/        # Goals management
-│   │   ├── register/     # User registration
-│   │   └── search-books/ # Google Books search
-│   └── [pages]/          # UI pages
+bookbuddy-mk3/
+├── application/           # Application Layer
+│   └── use-cases/        # Business use cases
+│       ├── auth/         # Authentication
+│       ├── books/        # Book operations
+│       ├── goals/        # Goal operations
+│       ├── search/       # Book search
+│       └── streaks/      # Reading streaks
 │
-├── application/          # Application Layer
-│   └── use-cases/       # Business use cases (11 use cases)
-│       ├── books/       # Book operations
-│       ├── goals/       # Goal operations
-│       ├── auth/        # Authentication
-│       └── search/      # Book search
+├── domain/               # Domain Layer (Core Business Logic)
+│   ├── entities/        # Business objects (User, Book, Goal)
+│   ├── services/        # Domain services
+│   ├── value-objects/   # Business rules (GoalProgress, ReadingStatus)
+│   ├── interfaces/      # Contracts (repository interfaces)
+│   └── errors/          # Domain errors
 │
-├── domain/              # Domain Layer (Core Business Logic)
-│   ├── entities/       # Business objects (User, Book, Goal)
-│   ├── services/       # Domain services (BookService, GoalService)
-│   ├── value-objects/  # Business rules (GoalProgress, ReadingStatus)
-│   ├── interfaces/     # Contracts (repository interfaces)
-│   └── errors/         # Domain errors
+├── infrastructure/       # Infrastructure Layer
+│   ├── persistence/     # Data access
+│   │   ├── memory/      # In-memory repositories (testing)
+│   │   └── prisma/      # Prisma repositories (production)
+│   ├── external/        # External APIs (Google Books)
+│   ├── logging/         # Structured logging
+│   └── security/        # Security (bcrypt)
 │
-├── infrastructure/      # Infrastructure Layer
-│   ├── persistence/    # Data access
-│   │   └── memory/     # In-memory repositories (swap with Prisma)
-│   ├── external/       # External APIs (Google Books)
-│   └── security/       # Security (bcrypt)
+├── services/
+│   └── api/             # Fastify REST API
+│       └── src/
+│           ├── routes/      # API route handlers
+│           ├── middleware/  # Auth, logging middleware
+│           └── server.ts    # Server entry point
 │
 ├── lib/
-│   ├── di/            # Dependency injection container
-│   ├── auth.ts        # NextAuth configuration
-│   └── db.ts          # Backward compatibility wrapper
+│   ├── config.ts        # Centralized configuration
+│   ├── di/              # Dependency injection
+│   └── utils/           # Utilities (pagination, sanitization)
 │
-├── components/         # React components
-└── types/             # TypeScript types
+├── ios/                  # iOS SwiftUI Application
+│   ├── BookTrackerApp/  # Main app code
+│   └── Packages/        # Swift packages
+│       ├── CoreDomain/      # Domain layer (Swift)
+│       ├── Application/     # Use cases (Swift)
+│       └── InfrastructureIOS/ # Network, persistence
+│
+├── prisma/
+│   └── schema.prisma    # Database schema
+│
+└── tests/               # Test utilities and mocks
 ```
+
+## Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm run test` | Run test suite |
+| `npm run test:coverage` | Run tests with coverage |
+| `npm run lint` | Run ESLint |
+| `npm run db:setup` | Set up PostgreSQL via Docker |
+| `npm run db:migrate` | Run database migrations |
+| `npm run db:push` | Push schema changes |
+| `npm run db:start` | Start database container |
+| `npm run db:stop` | Stop database container |
+
+## Documentation
+
+| Document | Description | Audience |
+|----------|-------------|----------|
+| **[README.md](./README.md)** | Quick start guide and setup | Everyone |
+| **[ARCHITECTURE.md](./ARCHITECTURE.md)** | Detailed architecture documentation | Developers/Architects |
+| **[DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)** | Guide for adding features | Developers |
+| **[DATABASE.md](./DATABASE.md)** | Database schema and setup | Developers |
+| **[RECOMMENDATIONS.md](./RECOMMENDATIONS.md)** | Code review findings and roadmap | Technical Leads |
+
+## Security Features
+
+- **Password Hashing**: bcrypt with configurable rounds
+- **JWT Authentication**: Access and refresh token pattern
+- **Rate Limiting**: Global (100/min) and auth-specific (5/min) limits
+- **Input Validation**: JSON Schema validation on all endpoints
+- **Input Sanitization**: XSS prevention via HTML entity escaping
+- **Structured Logging**: Request tracing with unique IDs
 
 ## Contributing
 

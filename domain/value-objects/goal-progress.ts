@@ -25,7 +25,9 @@ export class GoalProgress {
   getDaysRemaining(): number {
     const now = new Date();
     const timeRemaining = this.goal.endDate.getTime() - now.getTime();
-    return Math.ceil(timeRemaining / (1000 * 60 * 60 * 24));
+    const days = Math.ceil(timeRemaining / (1000 * 60 * 60 * 24));
+    // Return 0 for overdue goals instead of negative numbers
+    return Math.max(0, days);
   }
 
   getBooksRemaining(): number {

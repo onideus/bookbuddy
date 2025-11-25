@@ -108,7 +108,7 @@ Returns negative numbers for overdue goals. The `isOverdue()` method exists sepa
 **Solution:**
 Return 0 for overdue goals or explicitly handle negative values in the UI layer.
 
-**Status:** ⏳ Pending
+**Status:** ✅ Complete - `getDaysRemaining()` now returns 0 for overdue goals
 
 ---
 
@@ -133,6 +133,8 @@ Use Fastify's schema validation for:
 - Format validation (email, UUID, etc.)
 - Automatic OpenAPI documentation generation
 
+**Status:** ✅ Complete - All routes have JSON schema validation
+
 ---
 
 ### 6. Missing Input Sanitization
@@ -143,6 +145,8 @@ API routes trust incoming data without sanitization. While Prisma parameterizes 
 **Solution:**
 - Sanitize string inputs (trim whitespace, escape HTML entities)
 - Validate data types and formats at the API boundary
+
+**Status:** ✅ Complete - Added `lib/utils/sanitize.ts` with HTML entity escaping
 
 ---
 
@@ -158,6 +162,8 @@ Some configuration values may be hardcoded rather than environment-driven, reduc
 
 **Solution:**
 Use environment variables for all configuration with sensible defaults.
+
+**Status:** ✅ Complete - Added `lib/config.ts` with centralized configuration
 
 ---
 
@@ -175,6 +181,8 @@ Query performance may degrade with larger datasets if indexes are missing.
 **Solution:**
 Review Prisma schema and add `@@index` annotations where needed.
 
+**Status:** ⏳ Pending
+
 ---
 
 ### 9. No Request/Response Logging
@@ -188,6 +196,8 @@ Implement structured request logging with:
 - Response time metrics
 - Error categorization
 - Log sampling for high-traffic endpoints
+
+**Status:** ✅ Complete - Added `services/api/src/middleware/request-logger.ts`
 
 ---
 
@@ -219,6 +229,8 @@ Update README to reflect current architecture:
 - iOS SwiftUI app
 - PostgreSQL with Prisma
 
+**Status:** ✅ Complete - README updated with Fastify/iOS architecture
+
 ---
 
 ### 12. Test Coverage Gaps
@@ -230,6 +242,8 @@ While domain layer has good test coverage, application layer use cases may lack 
 - API route integration tests
 - Authentication flow end-to-end tests
 - Error handling edge cases
+
+**Status:** ⏳ Pending
 
 ---
 
@@ -249,6 +263,8 @@ Standardize error response format:
   }
 }
 ```
+
+**Status:** ✅ Complete - Added `services/api/src/middleware/error-handler.ts`
 
 ---
 
@@ -344,7 +360,14 @@ Standardize error response format:
 | Reading streaks | ✅ Complete | 2025-11-25 | New ReadingActivity model, streak calculations, API endpoints |
 | Book genres/tags | ✅ Complete | 2025-11-25 | Added genres field to books, filter by genre |
 | Export data | ✅ Complete | 2025-11-25 | JSON/CSV export for books, goals, and full data |
-| API pagination | ✅ Complete | 2025-11-25 | Cursor-based pagination for books and goals
+| API pagination | ✅ Complete | 2025-11-25 | Cursor-based pagination for books and goals |
+| Goal date edge case | ✅ Complete | 2025-11-25 | `getDaysRemaining()` returns 0 for overdue goals |
+| Input validation schemas | ✅ Complete | 2025-11-25 | JSON schema validation on all routes |
+| Input sanitization | ✅ Complete | 2025-11-25 | XSS prevention via HTML entity escaping |
+| Hardcoded configuration | ✅ Complete | 2025-11-25 | Centralized config in `lib/config.ts` |
+| Request/response logging | ✅ Complete | 2025-11-25 | Request ID tracing, response time metrics |
+| README documentation | ✅ Complete | 2025-11-25 | Updated for Fastify/iOS architecture |
+| Error message standardization | ✅ Complete | 2025-11-25 | Standardized error handler middleware |
 
 ---
 

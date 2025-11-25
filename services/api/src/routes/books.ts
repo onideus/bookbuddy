@@ -7,6 +7,7 @@ import { DeleteBookUseCase } from '../../../../application/use-cases/books/delet
 import { wrapHandler } from '../utils/error-handler';
 import { authenticate, type AuthenticatedRequest } from '../middleware/auth';
 import type { AddBookRequest, UpdateBookRequest } from '../../../../types/contracts';
+import { sanitizeString } from '../../../../lib/utils/sanitize';
 
 interface BookQuerystring {
   status?: string;
@@ -15,12 +16,119 @@ interface BookQuerystring {
   limit?: string;
 }
 
+// JSON Schema for GET /books
+const getBooksSchema = {
+  querystring: {
+    type: 'object',
+    properties: {
+      status: { type: 'string', enum: ['to-read', 'reading', 'completed'] },
+      genre: { type: 'string', minLength: 1 },
+      cursor: { type: 'string', format: 'uuid' },
+      limit: { type: 'string', pattern: '^[0-9]+$' },
+    },
+  },
+};
+
+// JSON Schema for POST /books
+const addBookSchema = {
+  body: {
+    type: 'object',
+    required: ['title'],
+    properties: {
+      googleBooksId: { type: 'string', minLength: 1 },
+      title: { type: 'string', minLength: 1 },
+      authors: { type: 'array', items: { type: 'string' } },
+      thumbnail: { type: 'string', minLength: 1 },
+      description: { type: 'string' },
+      pageCount: { type: 'number', minimum: 1 },
+      status: { type: 'string', enum: ['to-read', 'reading', 'completed'] },
+      genres: { type: 'array', items: { type: 'string' } },
+    },
+  },
+  response: {
+    201: {
+      type: 'object',
+      properties: {
+        book: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            userId: { type: 'string', format: 'uuid' },
+            title: { type: 'string' },
+            authors: { type: 'array', items: { type: 'string' } },
+            status: { type: 'string' },
+          },
+        },
+      },
+    },
+  },
+};
+
+// JSON Schema for PATCH /books/:id
+const updateBookSchema = {
+  params: {
+    type: 'object',
+    required: ['id'],
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+    },
+  },
+  body: {
+    type: 'object',
+    properties: {
+      status: { type: 'string', enum: ['to-read', 'reading', 'completed'] },
+      currentPage: { type: 'number', minimum: 0 },
+      rating: { type: 'number', minimum: 1, maximum: 5 },
+      notes: { type: 'string' },
+      genres: { type: 'array', items: { type: 'string' } },
+      startedAt: { type: 'string', format: 'date-time' },
+      finishedAt: { type: 'string', format: 'date-time' },
+    },
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        book: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            userId: { type: 'string', format: 'uuid' },
+            title: { type: 'string' },
+            status: { type: 'string' },
+          },
+        },
+      },
+    },
+  },
+};
+
+// JSON Schema for DELETE /books/:id
+const deleteBookSchema = {
+  params: {
+    type: 'object',
+    required: ['id'],
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+    },
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
+      },
+    },
+  },
+};
+
 export function registerBookRoutes(app: FastifyInstance) {
   // GET /books - List user's books (optionally filter by status or genre)
   // Supports cursor-based pagination with ?cursor=<id>&limit=<number>
   app.get<{ Querystring: BookQuerystring }>(
     '/books',
     {
+      schema: getBooksSchema,
       preHandler: authenticate,
     },
     wrapHandler(async (request: AuthenticatedRequest, reply) => {
@@ -80,6 +188,7 @@ export function registerBookRoutes(app: FastifyInstance) {
   }>(
     '/books',
     {
+      schema: addBookSchema,
       preHandler: authenticate,
     },
     wrapHandler(async (request: AuthenticatedRequest, reply) => {
@@ -94,13 +203,13 @@ export function registerBookRoutes(app: FastifyInstance) {
       const book = await useCase.execute({
         userId,
         googleBooksId,
-        title,
-        authors: authors || [],
-        thumbnail,
-        description,
+        title: sanitizeString(title),
+        authors: authors ? authors.map(a => sanitizeString(a)) : [],
+        thumbnail: thumbnail ? sanitizeString(thumbnail) : thumbnail,
+        description: description ? sanitizeString(description) : description,
         pageCount,
         status,
-        genres,
+        genres: genres ? genres.map(g => sanitizeString(g)) : genres,
       });
 
       reply.code(201).send({ book });
@@ -114,6 +223,7 @@ export function registerBookRoutes(app: FastifyInstance) {
   }>(
     '/books/:id',
     {
+      schema: updateBookSchema,
       preHandler: authenticate,
     },
     wrapHandler(async (request: AuthenticatedRequest, reply) => {
@@ -122,6 +232,12 @@ export function registerBookRoutes(app: FastifyInstance) {
       const { id } = request.params as { id: string };
       const updates = request.body as UpdateBookRequest;
 
+      // Sanitize string fields in updates
+      const sanitizedUpdates: UpdateBookRequest = {
+        ...updates,
+        ...(updates.genres !== undefined && { genres: updates.genres.map(g => sanitizeString(g)) }),
+      };
+
       const bookRepository = Container.getBookRepository();
       const goalRepository = Container.getGoalRepository();
       const useCase = new UpdateBookUseCase(bookRepository, goalRepository);
@@ -129,7 +245,7 @@ export function registerBookRoutes(app: FastifyInstance) {
       const book = await useCase.execute({
         bookId: id,
         userId,
-        updates,
+        updates: sanitizedUpdates,
       });
 
       reply.send({ book });
@@ -142,6 +258,7 @@ export function registerBookRoutes(app: FastifyInstance) {
   }>(
     '/books/:id',
     {
+      schema: deleteBookSchema,
       preHandler: authenticate,
     },
     wrapHandler(async (request: AuthenticatedRequest, reply) => {

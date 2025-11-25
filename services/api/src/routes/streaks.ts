@@ -17,11 +17,66 @@ interface HistoryQuerystring {
   endDate?: string;
 }
 
+// JSON Schema for GET /streaks
+const getStreakSchema = {
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        currentStreak: { type: 'number' },
+        longestStreak: { type: 'number' },
+        totalDaysRead: { type: 'number' },
+        lastReadDate: { type: 'string', format: 'date-time' },
+      },
+    },
+  },
+};
+
+// JSON Schema for POST /streaks/activity
+const recordActivitySchema = {
+  body: {
+    type: 'object',
+    properties: {
+      bookId: { type: 'string', format: 'uuid' },
+      pagesRead: { type: 'number', minimum: 1 },
+      minutesRead: { type: 'number', minimum: 1 },
+      date: { type: 'string', format: 'date-time' },
+    },
+  },
+  response: {
+    201: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid' },
+        userId: { type: 'string', format: 'uuid' },
+        bookId: { type: 'string' },
+        pagesRead: { type: 'number' },
+        minutesRead: { type: 'number' },
+        date: { type: 'string', format: 'date-time' },
+      },
+    },
+  },
+};
+
+// JSON Schema for GET /streaks/history
+const getHistorySchema = {
+  querystring: {
+    type: 'object',
+    properties: {
+      startDate: { type: 'string', format: 'date-time' },
+      endDate: { type: 'string', format: 'date-time' },
+    },
+  },
+};
+
 export function registerStreakRoutes(app: FastifyInstance) {
   // GET /streaks - Get current user's streak stats
   app.get(
     '/streaks',
-    { preHandler: authenticate },
+    {
+      schema: getStreakSchema,
+      preHandler: authenticate
+    },
     wrapHandler(async (request: AuthenticatedRequest, reply) => {
       const userId = request.user!.userId;
 
@@ -37,7 +92,10 @@ export function registerStreakRoutes(app: FastifyInstance) {
   // POST /streaks/activity - Record reading activity
   app.post<{ Body: RecordActivityRequest }>(
     '/streaks/activity',
-    { preHandler: authenticate },
+    {
+      schema: recordActivitySchema,
+      preHandler: authenticate
+    },
     wrapHandler(async (request: AuthenticatedRequest, reply) => {
       const userId = request.user!.userId;
       const body = request.body as RecordActivityRequest;
@@ -61,7 +119,10 @@ export function registerStreakRoutes(app: FastifyInstance) {
   // GET /streaks/history - Get reading activity history
   app.get<{ Querystring: HistoryQuerystring }>(
     '/streaks/history',
-    { preHandler: authenticate },
+    {
+      schema: getHistorySchema,
+      preHandler: authenticate
+    },
     wrapHandler(async (request: AuthenticatedRequest, reply) => {
       const userId = request.user!.userId;
       const query = request.query as HistoryQuerystring;

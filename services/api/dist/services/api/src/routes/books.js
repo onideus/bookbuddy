@@ -7,10 +7,114 @@ const update_book_1 = require("../../../../application/use-cases/books/update-bo
 const delete_book_1 = require("../../../../application/use-cases/books/delete-book");
 const error_handler_1 = require("../utils/error-handler");
 const auth_1 = require("../middleware/auth");
+const sanitize_1 = require("../../../../lib/utils/sanitize");
+// JSON Schema for GET /books
+const getBooksSchema = {
+    querystring: {
+        type: 'object',
+        properties: {
+            status: { type: 'string', enum: ['to-read', 'reading', 'completed'] },
+            genre: { type: 'string', minLength: 1 },
+            cursor: { type: 'string', format: 'uuid' },
+            limit: { type: 'string', pattern: '^[0-9]+$' },
+        },
+    },
+};
+// JSON Schema for POST /books
+const addBookSchema = {
+    body: {
+        type: 'object',
+        required: ['title'],
+        properties: {
+            googleBooksId: { type: 'string', minLength: 1 },
+            title: { type: 'string', minLength: 1 },
+            authors: { type: 'array', items: { type: 'string' } },
+            thumbnail: { type: 'string', minLength: 1 },
+            description: { type: 'string' },
+            pageCount: { type: 'number', minimum: 1 },
+            status: { type: 'string', enum: ['to-read', 'reading', 'completed'] },
+            genres: { type: 'array', items: { type: 'string' } },
+        },
+    },
+    response: {
+        201: {
+            type: 'object',
+            properties: {
+                book: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string', format: 'uuid' },
+                        userId: { type: 'string', format: 'uuid' },
+                        title: { type: 'string' },
+                        authors: { type: 'array', items: { type: 'string' } },
+                        status: { type: 'string' },
+                    },
+                },
+            },
+        },
+    },
+};
+// JSON Schema for PATCH /books/:id
+const updateBookSchema = {
+    params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+            id: { type: 'string', format: 'uuid' },
+        },
+    },
+    body: {
+        type: 'object',
+        properties: {
+            status: { type: 'string', enum: ['to-read', 'reading', 'completed'] },
+            currentPage: { type: 'number', minimum: 0 },
+            rating: { type: 'number', minimum: 1, maximum: 5 },
+            notes: { type: 'string' },
+            genres: { type: 'array', items: { type: 'string' } },
+            startedAt: { type: 'string', format: 'date-time' },
+            finishedAt: { type: 'string', format: 'date-time' },
+        },
+    },
+    response: {
+        200: {
+            type: 'object',
+            properties: {
+                book: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string', format: 'uuid' },
+                        userId: { type: 'string', format: 'uuid' },
+                        title: { type: 'string' },
+                        status: { type: 'string' },
+                    },
+                },
+            },
+        },
+    },
+};
+// JSON Schema for DELETE /books/:id
+const deleteBookSchema = {
+    params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+            id: { type: 'string', format: 'uuid' },
+        },
+    },
+    response: {
+        200: {
+            type: 'object',
+            properties: {
+                message: { type: 'string' },
+            },
+        },
+    },
+};
 function registerBookRoutes(app) {
     // GET /books - List user's books (optionally filter by status or genre)
     // Supports cursor-based pagination with ?cursor=<id>&limit=<number>
     app.get('/books', {
+        schema: getBooksSchema,
         preHandler: auth_1.authenticate,
     }, (0, error_handler_1.wrapHandler)(async (request, reply) => {
         const userId = request.user.userId;
@@ -51,6 +155,7 @@ function registerBookRoutes(app) {
     }));
     // POST /books - Add a book
     app.post('/books', {
+        schema: addBookSchema,
         preHandler: auth_1.authenticate,
     }, (0, error_handler_1.wrapHandler)(async (request, reply) => {
         const userId = request.user.userId;
@@ -60,35 +165,42 @@ function registerBookRoutes(app) {
         const book = await useCase.execute({
             userId,
             googleBooksId,
-            title,
-            authors: authors || [],
-            thumbnail,
-            description,
+            title: (0, sanitize_1.sanitizeString)(title),
+            authors: authors ? authors.map(a => (0, sanitize_1.sanitizeString)(a)) : [],
+            thumbnail: thumbnail ? (0, sanitize_1.sanitizeString)(thumbnail) : thumbnail,
+            description: description ? (0, sanitize_1.sanitizeString)(description) : description,
             pageCount,
             status,
-            genres,
+            genres: genres ? genres.map(g => (0, sanitize_1.sanitizeString)(g)) : genres,
         });
         reply.code(201).send({ book });
     }));
     // PATCH /books/:id - Update a book
     app.patch('/books/:id', {
+        schema: updateBookSchema,
         preHandler: auth_1.authenticate,
     }, (0, error_handler_1.wrapHandler)(async (request, reply) => {
         const userId = request.user.userId;
         const { id } = request.params;
         const updates = request.body;
+        // Sanitize string fields in updates
+        const sanitizedUpdates = {
+            ...updates,
+            ...(updates.genres !== undefined && { genres: updates.genres.map(g => (0, sanitize_1.sanitizeString)(g)) }),
+        };
         const bookRepository = container_1.Container.getBookRepository();
         const goalRepository = container_1.Container.getGoalRepository();
         const useCase = new update_book_1.UpdateBookUseCase(bookRepository, goalRepository);
         const book = await useCase.execute({
             bookId: id,
             userId,
-            updates,
+            updates: sanitizedUpdates,
         });
         reply.send({ book });
     }));
     // DELETE /books/:id - Delete a book
     app.delete('/books/:id', {
+        schema: deleteBookSchema,
         preHandler: auth_1.authenticate,
     }, (0, error_handler_1.wrapHandler)(async (request, reply) => {
         const userId = request.user.userId;

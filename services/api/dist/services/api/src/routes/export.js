@@ -4,7 +4,33 @@ exports.registerExportRoutes = registerExportRoutes;
 const container_1 = require("../../../../lib/di/container");
 const error_handler_1 = require("../utils/error-handler");
 const auth_1 = require("../middleware/auth");
-const domain_errors_1 = require("../../../../domain/errors/domain-errors");
+// JSON Schema for GET /export/books
+const exportBooksSchema = {
+    querystring: {
+        type: 'object',
+        properties: {
+            format: { type: 'string', enum: ['json', 'csv'] },
+        },
+    },
+};
+// JSON Schema for GET /export/goals
+const exportGoalsSchema = {
+    querystring: {
+        type: 'object',
+        properties: {
+            format: { type: 'string', enum: ['json', 'csv'] },
+        },
+    },
+};
+// JSON Schema for GET /export/all
+const exportAllSchema = {
+    querystring: {
+        type: 'object',
+        properties: {
+            format: { type: 'string', enum: ['json'] },
+        },
+    },
+};
 function booksToCSV(books) {
     const headers = [
         'id',
@@ -57,12 +83,12 @@ function goalsToCSV(goals) {
 }
 function registerExportRoutes(app) {
     // GET /export/books - Export user's books
-    app.get('/export/books', { preHandler: auth_1.authenticate }, (0, error_handler_1.wrapHandler)(async (request, reply) => {
+    app.get('/export/books', {
+        schema: exportBooksSchema,
+        preHandler: auth_1.authenticate
+    }, (0, error_handler_1.wrapHandler)(async (request, reply) => {
         const userId = request.user.userId;
         const format = (request.query.format ?? 'json');
-        if (format !== 'json' && format !== 'csv') {
-            throw new domain_errors_1.ValidationError('Format must be "json" or "csv"');
-        }
         const bookRepository = container_1.Container.getBookRepository();
         const books = await bookRepository.findByUserId(userId);
         if (format === 'csv') {
@@ -84,12 +110,12 @@ function registerExportRoutes(app) {
         }
     }));
     // GET /export/goals - Export user's goals
-    app.get('/export/goals', { preHandler: auth_1.authenticate }, (0, error_handler_1.wrapHandler)(async (request, reply) => {
+    app.get('/export/goals', {
+        schema: exportGoalsSchema,
+        preHandler: auth_1.authenticate
+    }, (0, error_handler_1.wrapHandler)(async (request, reply) => {
         const userId = request.user.userId;
         const format = (request.query.format ?? 'json');
-        if (format !== 'json' && format !== 'csv') {
-            throw new domain_errors_1.ValidationError('Format must be "json" or "csv"');
-        }
         const goalRepository = container_1.Container.getGoalRepository();
         const goals = await goalRepository.findByUserId(userId);
         if (format === 'csv') {
@@ -111,12 +137,12 @@ function registerExportRoutes(app) {
         }
     }));
     // GET /export/all - Export all user data
-    app.get('/export/all', { preHandler: auth_1.authenticate }, (0, error_handler_1.wrapHandler)(async (request, reply) => {
+    app.get('/export/all', {
+        schema: exportAllSchema,
+        preHandler: auth_1.authenticate
+    }, (0, error_handler_1.wrapHandler)(async (request, reply) => {
         const userId = request.user.userId;
         const format = (request.query.format ?? 'json');
-        if (format !== 'json') {
-            throw new domain_errors_1.ValidationError('Full export only supports JSON format');
-        }
         const bookRepository = container_1.Container.getBookRepository();
         const goalRepository = container_1.Container.getGoalRepository();
         const readingActivityRepository = container_1.Container.getReadingActivityRepository();

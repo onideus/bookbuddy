@@ -8,22 +8,52 @@ interface SearchQuerystring {
   q?: string;
 }
 
+// JSON Schema for GET /search
+const searchBooksSchema = {
+  querystring: {
+    type: 'object',
+    required: ['q'],
+    properties: {
+      q: { type: 'string', minLength: 1 },
+    },
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        books: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              googleBooksId: { type: 'string' },
+              title: { type: 'string' },
+              authors: { type: 'array', items: { type: 'string' } },
+              thumbnail: { type: 'string' },
+              description: { type: 'string' },
+              pageCount: { type: 'number' },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
 export function registerSearchRoutes(app: FastifyInstance) {
   // GET /search - Search for books via Google Books API
   app.get<{
     Querystring: SearchQuerystring;
   }>(
     '/search',
+    { schema: searchBooksSchema },
     wrapHandler(async (request, reply) => {
       const { q: query } = request.query as SearchQuerystring;
 
-      if (!query || query.trim().length === 0) {
-        throw new ValidationError('Query parameter "q" is required');
-      }
-
       const externalBookSearch = Container.getExternalBookSearch();
       const useCase = new SearchBooksUseCase(externalBookSearch);
-      const books = await useCase.execute({ query });
+      // Schema validation ensures query is defined
+      const books = await useCase.execute({ query: query! });
 
       reply.send({ books });
     })

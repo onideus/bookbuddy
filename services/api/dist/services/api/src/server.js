@@ -7,6 +7,7 @@ exports.buildServer = buildServer;
 require("dotenv/config");
 const fastify_1 = __importDefault(require("fastify"));
 const rate_limit_1 = __importDefault(require("@fastify/rate-limit"));
+const config_1 = require("../../../lib/config");
 const auth_1 = require("./routes/auth");
 const books_1 = require("./routes/books");
 const goals_1 = require("./routes/goals");
@@ -16,13 +17,13 @@ const export_1 = require("./routes/export");
 async function buildServer() {
     const app = (0, fastify_1.default)({
         logger: {
-            level: process.env.LOG_LEVEL ?? 'info',
+            level: config_1.config.logging.level,
         },
     });
-    // Global rate limiting - 100 requests per minute per IP
+    // Global rate limiting
     await app.register(rate_limit_1.default, {
-        max: 100,
-        timeWindow: '1 minute',
+        max: config_1.config.rateLimit.global.max,
+        timeWindow: config_1.config.rateLimit.global.timeWindow,
         errorResponseBuilder: () => ({
             statusCode: 429,
             error: 'Too Many Requests',
@@ -43,10 +44,11 @@ async function buildServer() {
 }
 async function start() {
     const app = await buildServer();
-    const port = Number(process.env.PORT ?? 4000);
+    const port = config_1.config.server.port;
+    const host = config_1.config.server.host;
     try {
-        await app.listen({ port, host: '0.0.0.0' });
-        app.log.info(`API server listening on http://localhost:${port}`);
+        await app.listen({ port, host });
+        app.log.info(`API server listening on http://${host}:${port}`);
     }
     catch (error) {
         app.log.error(error, 'Failed to start API server');

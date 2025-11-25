@@ -1,6 +1,9 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
 import rateLimit from '@fastify/rate-limit';
+import { config } from '../../../lib/config';
+import { requestLoggerPlugin } from './middleware/request-logger';
+import { registerErrorHandler } from './middleware/error-handler';
 import { registerAuthRoutes } from './routes/auth';
 import { registerBookRoutes } from './routes/books';
 import { registerGoalRoutes } from './routes/goals';
@@ -11,18 +14,25 @@ import { registerExportRoutes } from './routes/export';
 export async function buildServer() {
   const app = Fastify({
     logger: {
-      level: process.env.LOG_LEVEL ?? 'info',
+      level: config.logging.level,
     },
   });
 
-  // Global rate limiting - 100 requests per minute per IP
+  // Request/Response logging
+  await app.register(requestLoggerPlugin);
+
+  // Standardized error handling
+  registerErrorHandler(app);
+
+  // Global rate limiting
   await app.register(rateLimit, {
-    max: 100,
-    timeWindow: '1 minute',
+    max: config.rateLimit.global.max,
+    timeWindow: config.rateLimit.global.timeWindow,
     errorResponseBuilder: () => ({
-      statusCode: 429,
-      error: 'Too Many Requests',
-      message: 'Rate limit exceeded. Please try again later.',
+      error: {
+        code: 'RATE_LIMIT_EXCEEDED',
+        message: 'Too many requests. Please try again later.',
+      },
     }),
   });
 
@@ -43,11 +53,12 @@ export async function buildServer() {
 
 async function start() {
   const app = await buildServer();
-  const port = Number(process.env.PORT ?? 4000);
+  const port = config.server.port;
+  const host = config.server.host;
 
   try {
-    await app.listen({ port, host: '0.0.0.0' });
-    app.log.info(`API server listening on http://localhost:${port}`);
+    await app.listen({ port, host });
+    app.log.info(`API server listening on http://${host}:${port}`);
   } catch (error) {
     app.log.error(error, 'Failed to start API server');
     process.exit(1);

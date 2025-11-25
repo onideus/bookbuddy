@@ -10,6 +10,8 @@
  *   logger.error('Failed to save book', { bookId: '456', error: err.message });
  */
 
+import { config } from '../../lib/config';
+
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 export interface LogContext {
@@ -39,12 +41,7 @@ const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
 };
 
 function getLogLevelFromEnv(): LogLevel {
-  const envLevel = process.env.LOG_LEVEL?.toLowerCase();
-  if (envLevel && envLevel in LOG_LEVEL_PRIORITY) {
-    return envLevel as LogLevel;
-  }
-  // Default to 'info' in production, 'debug' in development
-  return process.env.NODE_ENV === 'production' ? 'info' : 'debug';
+  return config.logging.level;
 }
 
 function shouldLog(level: LogLevel, minLevel: LogLevel): boolean {
@@ -55,7 +52,7 @@ function formatLogEntry(entry: LogEntry): string {
   const { timestamp, level, message, context } = entry;
   const levelUpper = level.toUpperCase().padEnd(5);
 
-  if (process.env.LOG_FORMAT === 'json') {
+  if (config.logging.format === 'json') {
     return JSON.stringify(entry);
   }
 

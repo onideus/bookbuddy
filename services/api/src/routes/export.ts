@@ -10,6 +10,36 @@ interface ExportQuerystring {
   format?: ExportFormat;
 }
 
+// JSON Schema for GET /export/books
+const exportBooksSchema = {
+  querystring: {
+    type: 'object',
+    properties: {
+      format: { type: 'string', enum: ['json', 'csv'] },
+    },
+  },
+};
+
+// JSON Schema for GET /export/goals
+const exportGoalsSchema = {
+  querystring: {
+    type: 'object',
+    properties: {
+      format: { type: 'string', enum: ['json', 'csv'] },
+    },
+  },
+};
+
+// JSON Schema for GET /export/all
+const exportAllSchema = {
+  querystring: {
+    type: 'object',
+    properties: {
+      format: { type: 'string', enum: ['json'] },
+    },
+  },
+};
+
 function booksToCSV(
   books: Array<{
     id: string;
@@ -94,14 +124,13 @@ export function registerExportRoutes(app: FastifyInstance) {
   // GET /export/books - Export user's books
   app.get<{ Querystring: ExportQuerystring }>(
     '/export/books',
-    { preHandler: authenticate },
+    {
+      schema: exportBooksSchema,
+      preHandler: authenticate
+    },
     wrapHandler(async (request: AuthenticatedRequest, reply) => {
       const userId = request.user!.userId;
       const format = ((request.query as ExportQuerystring).format ?? 'json') as ExportFormat;
-
-      if (format !== 'json' && format !== 'csv') {
-        throw new ValidationError('Format must be "json" or "csv"');
-      }
 
       const bookRepository = Container.getBookRepository();
       const books = await bookRepository.findByUserId(userId);
@@ -128,14 +157,13 @@ export function registerExportRoutes(app: FastifyInstance) {
   // GET /export/goals - Export user's goals
   app.get<{ Querystring: ExportQuerystring }>(
     '/export/goals',
-    { preHandler: authenticate },
+    {
+      schema: exportGoalsSchema,
+      preHandler: authenticate
+    },
     wrapHandler(async (request: AuthenticatedRequest, reply) => {
       const userId = request.user!.userId;
       const format = ((request.query as ExportQuerystring).format ?? 'json') as ExportFormat;
-
-      if (format !== 'json' && format !== 'csv') {
-        throw new ValidationError('Format must be "json" or "csv"');
-      }
 
       const goalRepository = Container.getGoalRepository();
       const goals = await goalRepository.findByUserId(userId);
@@ -162,14 +190,13 @@ export function registerExportRoutes(app: FastifyInstance) {
   // GET /export/all - Export all user data
   app.get<{ Querystring: ExportQuerystring }>(
     '/export/all',
-    { preHandler: authenticate },
+    {
+      schema: exportAllSchema,
+      preHandler: authenticate
+    },
     wrapHandler(async (request: AuthenticatedRequest, reply) => {
       const userId = request.user!.userId;
       const format = ((request.query as ExportQuerystring).format ?? 'json') as ExportFormat;
-
-      if (format !== 'json') {
-        throw new ValidationError('Full export only supports JSON format');
-      }
 
       const bookRepository = Container.getBookRepository();
       const goalRepository = Container.getGoalRepository();

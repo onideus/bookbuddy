@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { Container } from '../../../../lib/di/container';
+import { config } from '../../../../lib/config';
 import { RegisterUserUseCase } from '../../../../application/use-cases/auth/register-user';
 import { wrapHandler } from '../utils/error-handler';
 import {
@@ -17,16 +18,115 @@ import type {
   RefreshTokenRequest,
   LogoutRequest,
 } from '../../../../types/contracts';
+import { sanitizeEmail, sanitizeString } from '../../../../lib/utils/sanitize';
 
 // Stricter rate limit config for auth endpoints to prevent brute-force attacks
 const authRateLimitConfig = {
-  max: 5, // 5 attempts
-  timeWindow: '1 minute',
+  max: config.rateLimit.auth.max,
+  timeWindow: config.rateLimit.auth.timeWindow,
   errorResponseBuilder: () => ({
     statusCode: 429,
     error: 'Too Many Requests',
     message: 'Too many authentication attempts. Please wait before trying again.',
   }),
+};
+
+// JSON Schema for registration
+const registerSchema = {
+  body: {
+    type: 'object',
+    required: ['email', 'password', 'name'],
+    properties: {
+      email: { type: 'string', format: 'email', minLength: 1 },
+      password: { type: 'string', minLength: 8 },
+      name: { type: 'string', minLength: 1 },
+    },
+  },
+  response: {
+    201: {
+      type: 'object',
+      properties: {
+        accessToken: { type: 'string' },
+        refreshToken: { type: 'string' },
+        user: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            email: { type: 'string', format: 'email' },
+            name: { type: 'string' },
+          },
+        },
+      },
+    },
+  },
+};
+
+// JSON Schema for login
+const loginSchema = {
+  body: {
+    type: 'object',
+    required: ['email', 'password'],
+    properties: {
+      email: { type: 'string', format: 'email', minLength: 1 },
+      password: { type: 'string', minLength: 1 },
+    },
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        accessToken: { type: 'string' },
+        refreshToken: { type: 'string' },
+        user: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            email: { type: 'string', format: 'email' },
+            name: { type: 'string' },
+          },
+        },
+      },
+    },
+  },
+};
+
+// JSON Schema for refresh token
+const refreshTokenSchema = {
+  body: {
+    type: 'object',
+    required: ['refreshToken'],
+    properties: {
+      refreshToken: { type: 'string', minLength: 1 },
+    },
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        accessToken: { type: 'string' },
+        refreshToken: { type: 'string' },
+      },
+    },
+  },
+};
+
+// JSON Schema for logout
+const logoutSchema = {
+  body: {
+    type: 'object',
+    required: ['refreshToken'],
+    properties: {
+      refreshToken: { type: 'string', minLength: 1 },
+    },
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
+      },
+    },
+  },
 };
 
 export function registerAuthRoutes(app: FastifyInstance) {
@@ -35,7 +135,10 @@ export function registerAuthRoutes(app: FastifyInstance) {
     Body: RegisterRequest;
   }>(
     '/auth/register',
-    { config: { rateLimit: authRateLimitConfig } },
+    {
+      schema: registerSchema,
+      config: { rateLimit: authRateLimitConfig }
+    },
     wrapHandler(async (request, reply) => {
       const { email, password, name } = request.body as RegisterRequest;
 
@@ -44,9 +147,9 @@ export function registerAuthRoutes(app: FastifyInstance) {
       const useCase = new RegisterUserUseCase(userRepository, passwordHasher);
 
       const user = await useCase.execute({
-        email,
+        email: sanitizeEmail(email),
         password,
-        name,
+        name: sanitizeString(name),
       });
 
       // Generate tokens for immediate login
@@ -81,18 +184,17 @@ export function registerAuthRoutes(app: FastifyInstance) {
     Body: LoginRequest;
   }>(
     '/auth/login',
-    { config: { rateLimit: authRateLimitConfig } },
+    {
+      schema: loginSchema,
+      config: { rateLimit: authRateLimitConfig }
+    },
     wrapHandler(async (request, reply) => {
       const { email, password } = request.body as LoginRequest;
-
-      if (!email || !password) {
-        throw new ValidationError('Email and password are required');
-      }
 
       const userRepository = Container.getUserRepository();
       const passwordHasher = Container.getPasswordHasher();
 
-      const user = await userRepository.findByEmail(email);
+      const user = await userRepository.findByEmail(sanitizeEmail(email));
       if (!user) {
         throw new UnauthorizedError('Invalid credentials');
       }
@@ -134,12 +236,9 @@ export function registerAuthRoutes(app: FastifyInstance) {
     Body: RefreshTokenRequest;
   }>(
     '/auth/refresh',
+    { schema: refreshTokenSchema },
     wrapHandler(async (request, reply) => {
       const { refreshToken } = request.body as RefreshTokenRequest;
-
-      if (!refreshToken) {
-        throw new ValidationError('Refresh token is required');
-      }
 
       const refreshTokenRepository = Container.getRefreshTokenRepository();
       const tokenData = await refreshTokenRepository.findByToken(refreshToken);
@@ -193,12 +292,9 @@ export function registerAuthRoutes(app: FastifyInstance) {
     Body: LogoutRequest;
   }>(
     '/auth/logout',
+    { schema: logoutSchema },
     wrapHandler(async (request, reply) => {
       const { refreshToken } = request.body as LogoutRequest;
-
-      if (!refreshToken) {
-        throw new ValidationError('Refresh token is required');
-      }
 
       const refreshTokenRepository = Container.getRefreshTokenRepository();
       const tokenData = await refreshTokenRepository.findByToken(refreshToken);

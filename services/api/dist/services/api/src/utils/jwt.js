@@ -9,13 +9,7 @@ exports.verifyAccessToken = verifyAccessToken;
 exports.calculateRefreshTokenExpiry = calculateRefreshTokenExpiry;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const crypto_1 = require("crypto");
-function getJWTSecret() {
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-        throw new Error('JWT_SECRET environment variable is not set');
-    }
-    return secret;
-}
+const config_1 = require("../../../../lib/config");
 function parseExpiry(expiry) {
     const match = expiry.match(/^(\d+)([smhd])$/);
     if (!match) {
@@ -32,9 +26,8 @@ function parseExpiry(expiry) {
     return value * multipliers[unit];
 }
 function generateAccessToken(payload) {
-    const expiry = process.env.JWT_ACCESS_TOKEN_EXPIRY || '15m';
-    const expiresIn = parseExpiry(expiry);
-    return jsonwebtoken_1.default.sign(payload, getJWTSecret(), {
+    const expiresIn = parseExpiry(config_1.config.jwt.accessTokenExpiry);
+    return jsonwebtoken_1.default.sign(payload, (0, config_1.getJWTSecret)(), {
         expiresIn,
     });
 }
@@ -43,7 +36,7 @@ function generateRefreshToken() {
 }
 function verifyAccessToken(token) {
     try {
-        const decoded = jsonwebtoken_1.default.verify(token, getJWTSecret());
+        const decoded = jsonwebtoken_1.default.verify(token, (0, config_1.getJWTSecret)());
         return decoded;
     }
     catch (error) {
@@ -57,7 +50,6 @@ function verifyAccessToken(token) {
     }
 }
 function calculateRefreshTokenExpiry() {
-    const expiry = process.env.JWT_REFRESH_TOKEN_EXPIRY || '7d';
-    const expiresInSeconds = parseExpiry(expiry);
+    const expiresInSeconds = parseExpiry(config_1.config.jwt.refreshTokenExpiry);
     return new Date(Date.now() + expiresInSeconds * 1000);
 }
