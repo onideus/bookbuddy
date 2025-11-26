@@ -547,9 +547,10 @@ async function handleSearch(req: VercelRequest, res: VercelResponse) {
 
   const container = getContainer();
   const useCase = new SearchBooksUseCase(container.externalBookSearch);
-  const results = await useCase.execute({ query: q });
+  const books = await useCase.execute({ query: q });
 
-  res.status(200).json({ results });
+  // Keep response schema aligned with clients (books array)
+  res.status(200).json({ books });
 }
 
 // ============================================================================

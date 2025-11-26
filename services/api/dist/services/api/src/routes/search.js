@@ -21,13 +21,27 @@ const searchBooksSchema = {
                     type: 'array',
                     items: {
                         type: 'object',
+                        required: ['id', 'volumeInfo'],
                         properties: {
-                            googleBooksId: { type: 'string' },
-                            title: { type: 'string' },
-                            authors: { type: 'array', items: { type: 'string' } },
-                            thumbnail: { type: 'string' },
-                            description: { type: 'string' },
-                            pageCount: { type: 'number' },
+                            id: { type: 'string' },
+                            volumeInfo: {
+                                type: 'object',
+                                required: ['title'],
+                                properties: {
+                                    title: { type: 'string' },
+                                    authors: { type: 'array', items: { type: 'string' } },
+                                    description: { type: 'string' },
+                                    imageLinks: {
+                                        type: 'object',
+                                        properties: {
+                                            thumbnail: { type: 'string' },
+                                        },
+                                    },
+                                    pageCount: { type: 'number' },
+                                    publishedDate: { type: 'string' },
+                                    publisher: { type: 'string' },
+                                },
+                            },
                         },
                     },
                 },

@@ -197,7 +197,8 @@ public extension APIEndpoint {
             path: "/search",
             method: .get,
             queryItems: [queryItem],
-            requiresAuth: false
+            // Google Books proxy is behind auth to keep the API key protected
+            requiresAuth: true
         )
     }
 }

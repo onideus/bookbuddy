@@ -8,6 +8,8 @@ require("dotenv/config");
 const fastify_1 = __importDefault(require("fastify"));
 const rate_limit_1 = __importDefault(require("@fastify/rate-limit"));
 const config_1 = require("../../../lib/config");
+const request_logger_1 = require("./middleware/request-logger");
+const error_handler_1 = require("./middleware/error-handler");
 const auth_1 = require("./routes/auth");
 const books_1 = require("./routes/books");
 const goals_1 = require("./routes/goals");
@@ -20,14 +22,19 @@ async function buildServer() {
             level: config_1.config.logging.level,
         },
     });
+    // Request/Response logging
+    await app.register(request_logger_1.requestLoggerPlugin);
+    // Standardized error handling
+    (0, error_handler_1.registerErrorHandler)(app);
     // Global rate limiting
     await app.register(rate_limit_1.default, {
         max: config_1.config.rateLimit.global.max,
         timeWindow: config_1.config.rateLimit.global.timeWindow,
         errorResponseBuilder: () => ({
-            statusCode: 429,
-            error: 'Too Many Requests',
-            message: 'Rate limit exceeded. Please try again later.',
+            error: {
+                code: 'RATE_LIMIT_EXCEEDED',
+                message: 'Too many requests. Please try again later.',
+            },
         }),
     });
     app.get('/health', async () => ({
