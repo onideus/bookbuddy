@@ -93,7 +93,10 @@ public final class NetworkClient: NetworkClientProtocol {
             throw APIError.invalidURL
         }
 
-        components.path = endpoint.path
+        // Append the endpoint path to the base URL's path
+        // This allows baseURL to include a path prefix like "/api"
+        let basePath = components.path.hasSuffix("/") ? String(components.path.dropLast()) : components.path
+        components.path = basePath + endpoint.path
 
         if let queryItems = endpoint.queryItems, !queryItems.isEmpty {
             components.queryItems = queryItems
@@ -168,16 +171,45 @@ public final class NetworkClient: NetworkClientProtocol {
 
 @available(iOS 15.0, macOS 12.0, *)
 public extension NetworkClient {
-    /// Create a NetworkClient with the default production configuration
+    /// Create a NetworkClient with the production configuration (Vercel)
+    ///
+    /// **Important:** After deploying to Vercel, replace `your-app-name` with your actual
+    /// Vercel deployment URL. The URL should NOT include `/api` suffix because
+    /// Vercel rewrites are configured to handle the routing.
+    ///
+    /// Example: `https://bookbuddy.vercel.app` or `https://your-custom-domain.com`
     static func production() -> NetworkClient {
-        // Note: Replace with actual production URL when deploying
+        // TODO: Replace with your actual Vercel deployment URL after first deploy
+        // Run `vercel` to deploy and get your URL
+        let baseURL = URL(string: "https://bookbuddy-mk3.vercel.app/api")!
+        return NetworkClient(baseURL: baseURL)
+    }
+
+    /// Create a NetworkClient for development/testing with Vercel dev server
+    ///
+    /// Use this when running `vercel dev` locally (default port 3000).
+    /// The Vercel dev server simulates the serverless environment.
+    static func development() -> NetworkClient {
+        let baseURL = URL(string: "http://127.0.0.1:3000")!
+        return NetworkClient(baseURL: baseURL)
+    }
+
+    /// Create a NetworkClient for local Fastify development (legacy)
+    ///
+    /// Use this when running the old Fastify server with `npm run dev:api`.
+    /// This is kept for backwards compatibility during the migration period.
+    static func legacyDevelopment() -> NetworkClient {
         let baseURL = URL(string: "http://127.0.0.1:4000")!
         return NetworkClient(baseURL: baseURL)
     }
 
-    /// Create a NetworkClient for development/testing
-    static func development() -> NetworkClient {
-        let baseURL = URL(string: "http://127.0.0.1:4000")!
-        return NetworkClient(baseURL: baseURL)
+    /// Create a NetworkClient with a custom base URL
+    ///
+    /// Use this for testing against specific environments or custom deployments.
+    static func custom(baseURL: String) -> NetworkClient {
+        guard let url = URL(string: baseURL) else {
+            fatalError("Invalid base URL: \(baseURL)")
+        }
+        return NetworkClient(baseURL: url)
     }
 }

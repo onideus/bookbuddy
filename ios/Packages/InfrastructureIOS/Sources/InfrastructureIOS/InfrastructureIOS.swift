@@ -32,11 +32,10 @@ public struct InfrastructureConfiguration {
         )
     }
 
-    /// Production configuration
-    /// Note: Update URL when production server is deployed
+    /// Production configuration (Vercel deployment)
     public static var production: InfrastructureConfiguration {
         InfrastructureConfiguration(
-            baseURL: URL(string: "https://api.bookbuddy.app")!,
+            baseURL: URL(string: "https://bookbuddy-mk3.vercel.app/api")!,
             enableLogging: false
         )
     }

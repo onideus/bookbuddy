@@ -1,0 +1,37 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "buildCommand": "prisma generate",
+  "outputDirectory": ".",
+  "functions": {
+    "api/[...path].ts": {
+      "maxDuration": 30
+    },
+    "api/auth/[...action].ts": {
+      "maxDuration": 30
+    },
+    "api/books/[...action].ts": {
+      "maxDuration": 30
+    },
+    "api/goals/[...action].ts": {
+      "maxDuration": 30
+    },
+    "api/streaks/[...action].ts": {
+      "maxDuration": 30
+    },
+    "api/export/[...action].ts": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Credentials", "value": "true" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
+        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" }
+      ]
+    }
+  ]
+}

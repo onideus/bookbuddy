@@ -1,167 +1,185 @@
 # iOS Configuration Recommendations
 
-## Current State
+## Current State (Updated for Vercel Serverless)
 
-The iOS infrastructure currently has hardcoded API base URLs in two locations:
+The backend has been migrated from Fastify to **Vercel Serverless Functions**. The iOS app now supports multiple deployment configurations.
 
-### 1. InfrastructureConfiguration (InfrastructureIOS.swift)
-
-**File:** `ios/Packages/InfrastructureIOS/Sources/InfrastructureIOS/InfrastructureIOS.swift`
-
-**Current Implementation:**
-```swift
-public struct InfrastructureConfiguration {
-    public let baseURL: URL
-    public let enableLogging: Bool
-
-    /// Development configuration (localhost)
-    public static var development: InfrastructureConfiguration {
-        InfrastructureConfiguration(
-            baseURL: URL(string: "http://localhost:4000")!,
-            enableLogging: true
-        )
-    }
-
-    /// Production configuration
-    public static var production: InfrastructureConfiguration {
-        InfrastructureConfiguration(
-            baseURL: URL(string: "https://api.bookbuddy.app")!,
-            enableLogging: false
-        )
-    }
-}
-```
-
-### 2. NetworkClient Extension (NetworkClient.swift)
+### NetworkClient Configuration
 
 **File:** `ios/Packages/InfrastructureIOS/Sources/InfrastructureIOS/Network/NetworkClient.swift`
 
-**Current Implementation:**
+**Available Factory Methods:**
+
 ```swift
 @available(iOS 15.0, macOS 12.0, *)
 public extension NetworkClient {
-    /// Create a NetworkClient with the default production configuration
+    /// Production (Vercel deployment)
     static func production() -> NetworkClient {
-        // Note: Replace with actual production URL when deploying
-        let baseURL = URL(string: "http://127.0.0.1:4000")!
+        let baseURL = URL(string: "https://your-app-name.vercel.app")!
         return NetworkClient(baseURL: baseURL)
     }
 
-    /// Create a NetworkClient for development/testing
+    /// Development with Vercel dev server (port 3000)
     static func development() -> NetworkClient {
+        let baseURL = URL(string: "http://127.0.0.1:3000")!
+        return NetworkClient(baseURL: baseURL)
+    }
+
+    /// Legacy Fastify development (port 4000)
+    static func legacyDevelopment() -> NetworkClient {
         let baseURL = URL(string: "http://127.0.0.1:4000")!
         return NetworkClient(baseURL: baseURL)
     }
+
+    /// Custom base URL
+    static func custom(baseURL: String) -> NetworkClient
 }
 ```
 
-## Recommendations
+### URL Routing Notes
 
-### Option 1: Environment-Based Configuration (Recommended)
+**Important:** The Vercel deployment uses URL rewrites configured in `vercel.json`:
+- iOS app uses routes like `/books`, `/auth/login`, etc.
+- Vercel automatically rewrites these to `/api/books`, `/api/auth/login`, etc.
+- **No changes needed to iOS APIEndpoint paths!**
 
-Use Xcode build configurations and `Info.plist` to externalize the API base URL:
+### InfrastructureConfiguration (Legacy)
 
-**1. Add to Info.plist:**
-```xml
-<key>APIBaseURL</key>
-<string>$(API_BASE_URL)</string>
+**File:** `ios/Packages/InfrastructureIOS/Sources/InfrastructureIOS/InfrastructureIOS.swift`
+
+This configuration struct still exists but the NetworkClient factory methods are now preferred.
+
+## Deployment Setup
+
+### Step 1: Deploy to Vercel
+
+```bash
+# From project root
+cd /path/to/bookbuddy-mk3
+
+# Login to Vercel
+vercel login
+
+# Deploy (first time will prompt for project setup)
+vercel
+
+# Note the deployment URL (e.g., bookbuddy-abc123.vercel.app)
 ```
 
-**2. Set in Build Settings:**
-- Debug: `API_BASE_URL = http://localhost:4000`
-- Staging: `API_BASE_URL = https://staging-api.bookbuddy.app`
-- Release: `API_BASE_URL = https://api.bookbuddy.app`
+### Step 2: Update Production URL in iOS
 
-**3. Update InfrastructureConfiguration:**
+Edit `NetworkClient.swift` and update the production URL:
+
 ```swift
-public struct InfrastructureConfiguration {
-    public let baseURL: URL
-    public let enableLogging: Bool
-
-    public static var fromEnvironment: InfrastructureConfiguration {
-        guard let urlString = Bundle.main.object(forInfoDictionaryKey: "APIBaseURL") as? String,
-              let url = URL(string: urlString) else {
-            fatalError("APIBaseURL not configured in Info.plist")
-        }
-        
-        #if DEBUG
-        let enableLogging = true
-        #else
-        let enableLogging = false
-        #endif
-        
-        return InfrastructureConfiguration(
-            baseURL: url,
-            enableLogging: enableLogging
-        )
-    }
+static func production() -> NetworkClient {
+    let baseURL = URL(string: "https://bookbuddy-abc123.vercel.app")!
+    return NetworkClient(baseURL: baseURL)
 }
 ```
 
-### Option 2: UserDefaults Override (For Testing)
+### Step 3: Test Configuration
 
-Allow developers to override the API URL for testing purposes:
-
+**Development (Vercel dev server):**
 ```swift
-public static var fromEnvironment: InfrastructureConfiguration {
-    // Check for developer override first
-    if let overrideURL = UserDefaults.standard.string(forKey: "dev_api_base_url"),
-       let url = URL(string: overrideURL) {
-        return InfrastructureConfiguration(
-            baseURL: url,
-            enableLogging: true
-        )
-    }
-    
-    // Fall back to Info.plist configuration
+let client = NetworkClient.development()  // Uses http://127.0.0.1:3000
+```
+
+**Production (Vercel deployment):**
+```swift
+let client = NetworkClient.production()   // Uses your Vercel URL
+```
+
+**Legacy (old Fastify server):**
+```swift
+let client = NetworkClient.legacyDevelopment()  // Uses http://127.0.0.1:4000
+```
+
+## Development Workflow
+
+### Running Locally with Vercel Dev
+
+1. Start the Vercel dev server:
+   ```bash
+   vercel dev
+   ```
+
+2. In iOS, use `NetworkClient.development()` which connects to port 3000
+
+3. The dev server simulates the serverless environment locally
+
+### Running with Legacy Fastify Server
+
+If you need to use the old Fastify server during migration:
+
+1. Start Fastify:
+   ```bash
+   npm run dev:api
+   ```
+
+2. In iOS, use `NetworkClient.legacyDevelopment()` which connects to port 4000
+
+## Environment-Based Configuration (Future Improvement)
+
+For more flexible configuration, consider using xcconfig files:
+
+### Debug.xcconfig
+```
+API_BASE_URL = http:/$()/127.0.0.1:3000
+```
+
+### Release.xcconfig
+```
+API_BASE_URL = https:/$()/your-app.vercel.app
+```
+
+Then read from Info.plist in the app:
+```swift
+static var fromEnvironment: NetworkClient {
     guard let urlString = Bundle.main.object(forInfoDictionaryKey: "APIBaseURL") as? String,
           let url = URL(string: urlString) else {
         fatalError("APIBaseURL not configured")
     }
-    
-    return InfrastructureConfiguration(
-        baseURL: url,
-        enableLogging: ProcessInfo.processInfo.environment["DEBUG"] != nil
-    )
+    return NetworkClient(baseURL: url)
 }
 ```
 
-### Option 3: xcconfig Files (Most Flexible)
+## Vercel URL Rewrites
 
-Create configuration files for each environment:
+The `vercel.json` configuration includes rewrites that allow the iOS app to continue using its existing API paths:
 
-**Debug.xcconfig:**
-```
-API_BASE_URL = http:/$()/localhost:4000
-```
+| iOS App Calls | Vercel Rewrites To |
+|--------------|-------------------|
+| `/auth/login` | `/api/auth/login` |
+| `/books` | `/api/books` |
+| `/books/:id` | `/api/books/:id` |
+| `/goals` | `/api/goals` |
+| `/streaks` | `/api/streaks` |
+| `/search` | `/api/search` |
+| `/export/books` | `/api/export/books` |
 
-**Staging.xcconfig:**
-```
-API_BASE_URL = https:/$()/staging-api.bookbuddy.app
-```
+**This means NO changes are needed to the iOS `APIEndpoint` enum!**
 
-**Release.xcconfig:**
-```
-API_BASE_URL = https:/$()/api.bookbuddy.app
-```
+## Troubleshooting
 
-## Action Items
+### Connection Refused (Port 3000)
+- Make sure `vercel dev` is running
+- Check that no other process is using port 3000
 
-1. **Immediate:** Remove duplicate configuration in `NetworkClient.swift` (lines 172-183)
-   - The factory methods duplicate the functionality in `InfrastructureConfiguration`
-   - Use `InfrastructureConfiguration.development` and `.production` instead
+### Connection Refused (Port 4000)
+- You're using `legacyDevelopment()` but Fastify isn't running
+- Either start Fastify with `npm run dev:api` or switch to `development()` with `vercel dev`
 
-2. **Short-term:** Implement environment-based configuration using Option 1
-   - Add `APIBaseURL` to Info.plist
-   - Update build settings for Debug/Release schemes
-   - Modify `InfrastructureConfiguration` to read from Info.plist
+### 401 Unauthorized
+- Check that your access token is valid
+- Tokens expire after 15 minutes by default
+- Use refresh token to get a new access token
 
-3. **Long-term:** Consider Option 3 for multiple deployment environments
-   - Useful when you have Dev, Staging, and Production backends
-   - Easier to manage across teams
+### CORS Errors
+- Should not happen with Vercel (handles CORS automatically)
+- If testing in browser, check CORS configuration
 
 ## Notes
 
-- The production URL `https://api.bookbuddy.app` is a placeholder and should be updated when the production server is deployed
-- The iOS app currently uses `localhost:4000` which matches the backend API's default port
-- Consider using `127.0.0.1` vs `localhost` depending on network configuration needs
+- The production URL will be assigned after first Vercel deployment
+- Vercel provides free SSL certificates automatically
+- The free tier (Hobby) supports 100GB bandwidth and 100K function invocations/month
