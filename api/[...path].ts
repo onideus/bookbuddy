@@ -132,41 +132,46 @@ async function handleAuth(req: VercelRequest, res: VercelResponse, path: string[
 }
 
 async function handleRegister(req: VercelRequest, res: VercelResponse) {
-  const { email, password, name } = req.body || {};
+  try {
+    const { email, password, name } = req.body || {};
 
-  if (!email || typeof email !== 'string') {
-    return res.status(400).json({ error: 'ValidationError', message: 'Email is required', statusCode: 400 });
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({ error: 'ValidationError', message: 'Email is required', statusCode: 400 });
+    }
+    if (!password || typeof password !== 'string' || password.length < 8) {
+      return res.status(400).json({ error: 'ValidationError', message: 'Password must be at least 8 characters', statusCode: 400 });
+    }
+    if (!name || typeof name !== 'string') {
+      return res.status(400).json({ error: 'ValidationError', message: 'Name is required', statusCode: 400 });
+    }
+
+    const container = getContainer();
+    const useCase = new RegisterUserUseCase(container.userRepository, container.passwordHasher);
+
+    const user = await useCase.execute({
+      email: sanitizeEmail(email),
+      password,
+      name: sanitizeString(name),
+    });
+
+    const accessToken = generateAccessToken({ userId: user.id, email: user.email });
+    const refreshTokenString = generateRefreshToken();
+
+    await container.refreshTokenRepository.create({
+      userId: user.id,
+      token: refreshTokenString,
+      expiresAt: calculateRefreshTokenExpiry(),
+    });
+
+    return res.status(201).json({
+      accessToken,
+      refreshToken: refreshTokenString,
+      user: { id: user.id, email: user.email, name: user.name },
+    });
+  } catch (error) {
+    handleError(error, res);
+    return;
   }
-  if (!password || typeof password !== 'string' || password.length < 8) {
-    return res.status(400).json({ error: 'ValidationError', message: 'Password must be at least 8 characters', statusCode: 400 });
-  }
-  if (!name || typeof name !== 'string') {
-    return res.status(400).json({ error: 'ValidationError', message: 'Name is required', statusCode: 400 });
-  }
-
-  const container = getContainer();
-  const useCase = new RegisterUserUseCase(container.userRepository, container.passwordHasher);
-
-  const user = await useCase.execute({
-    email: sanitizeEmail(email),
-    password,
-    name: sanitizeString(name),
-  });
-
-  const accessToken = generateAccessToken({ userId: user.id, email: user.email });
-  const refreshTokenString = generateRefreshToken();
-
-  await container.refreshTokenRepository.create({
-    userId: user.id,
-    token: refreshTokenString,
-    expiresAt: calculateRefreshTokenExpiry(),
-  });
-
-  res.status(201).json({
-    accessToken,
-    refreshToken: refreshTokenString,
-    user: { id: user.id, email: user.email, name: user.name },
-  });
 }
 
 async function handleLogin(req: VercelRequest, res: VercelResponse) {
