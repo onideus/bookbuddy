@@ -179,7 +179,6 @@ public extension NetworkClient {
     ///
     /// Example: `https://bookbuddy.vercel.app` or `https://your-custom-domain.com`
     static func production() -> NetworkClient {
-        // TODO: Replace with your actual Vercel deployment URL after first deploy
         // Run `vercel` to deploy and get your URL
         let baseURL = URL(string: "https://bookbuddy-mk3.vercel.app/api")!
         return NetworkClient(baseURL: baseURL)
