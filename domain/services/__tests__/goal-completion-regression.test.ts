@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { GoalService } from '../goal-service';
 import { IGoalRepository } from '@/domain/interfaces/goal-repository';
 import { IBookRepository } from '@/domain/interfaces/book-repository';
