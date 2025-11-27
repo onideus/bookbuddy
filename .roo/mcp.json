@@ -9,6 +9,13 @@
       "env": {
         "DEFAULT_MINIMUM_TOKENS": ""
       }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@0.0.38"
+      ]
     }
   }
 }

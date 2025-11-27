@@ -253,7 +253,8 @@ bookbuddy-mk3/
 | **[ARCHITECTURE.md](./ARCHITECTURE.md)** | Detailed architecture documentation | Developers/Architects |
 | **[DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)** | Guide for adding features | Developers |
 | **[DATABASE.md](./DATABASE.md)** | Database schema and setup | Developers |
-| **[RECOMMENDATIONS.md](./RECOMMENDATIONS.md)** | Code review findings and roadmap | Technical Leads |
+| **[docs/DEVOPS_PIPELINE.md](./docs/DEVOPS_PIPELINE.md)** | CI/CD pipeline and deployment | DevOps/Developers |
+| **[ios/README.md](./ios/README.md)** | iOS development guide | iOS Developers |
 
 ## Security Features
 
