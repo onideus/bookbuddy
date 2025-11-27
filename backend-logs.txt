@@ -1,2 +1,0 @@
-Vercel CLI 48.10.14
-Error: Command `vercel dev` requires confirmation. Use option "--yes" to confirm.

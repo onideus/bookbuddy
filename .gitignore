@@ -69,4 +69,3 @@ domain/**/*.js
 infrastructure/**/*.js
 lib/**/*.js
 application/**/*.js
-ios/backend-logs.txt
