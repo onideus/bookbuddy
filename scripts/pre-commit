@@ -1,0 +1,88 @@
+#!/bin/bash
+
+# BookBuddy iOS Pre-Commit Hook
+# This hook runs SwiftLint and SwiftFormat on all staged Swift files
+# before allowing a commit to proceed.
+
+echo "🔍 Running pre-commit checks for iOS Swift files..."
+
+# Get list of staged Swift files
+STAGED_SWIFT_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep "^ios/.*\.swift$" || true)
+
+if [ -z "$STAGED_SWIFT_FILES" ]; then
+    echo "✅ No Swift files staged for commit. Skipping Swift checks."
+    exit 0
+fi
+
+echo "📝 Found staged Swift files:"
+echo "$STAGED_SWIFT_FILES"
+
+# Check if swiftformat is installed
+if ! command -v swiftformat &> /dev/null; then
+    echo "❌ Error: swiftformat is not installed."
+    echo "Install it with: brew install swiftformat"
+    exit 1
+fi
+
+# Check if swiftlint is installed
+if ! command -v swiftlint &> /dev/null; then
+    echo "❌ Error: swiftlint is not installed."
+    echo "Install it with: brew install swiftlint"
+    exit 1
+fi
+
+# Run SwiftFormat on staged files
+echo ""
+echo "🎨 Running SwiftFormat..."
+HAS_FORMAT_CHANGES=false
+
+for file in $STAGED_SWIFT_FILES; do
+    if [ -f "$file" ]; then
+        # Run swiftformat and capture if changes were made
+        swiftformat "$file" --config ios/.swiftformat
+        
+        # Check if the file was modified by swiftformat
+        if git diff --name-only "$file" | grep -q "$file"; then
+            HAS_FORMAT_CHANGES=true
+            echo "  ⚠️  Formatted: $file"
+        fi
+    fi
+done
+
+if [ "$HAS_FORMAT_CHANGES" = true ]; then
+    echo ""
+    echo "⚠️  SwiftFormat made changes to your files."
+    echo "   Please review the changes, stage them, and commit again:"
+    echo "   git add <files>"
+    echo "   git commit"
+    exit 1
+fi
+
+echo "✅ SwiftFormat: All files are properly formatted"
+
+# Run SwiftLint on staged files
+echo ""
+echo "🔎 Running SwiftLint..."
+LINT_ERRORS=0
+
+for file in $STAGED_SWIFT_FILES; do
+    if [ -f "$file" ]; then
+        # Run swiftlint on the file and capture output
+        if ! swiftlint lint --path "$file" --config ios/.swiftlint.yml --quiet; then
+            LINT_ERRORS=1
+        fi
+    fi
+done
+
+if [ $LINT_ERRORS -ne 0 ]; then
+    echo ""
+    echo "❌ SwiftLint found issues in your code."
+    echo "   Please fix the issues above and commit again."
+    exit 1
+fi
+
+echo "✅ SwiftLint: No issues found"
+echo ""
+echo "✅ All pre-commit checks passed! Proceeding with commit..."
+
+exit 0
