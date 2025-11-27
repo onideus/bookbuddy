@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -17,9 +18,10 @@ model User {
   name          String
   createdAt     DateTime       @default(now())
 
-  books         Book[]
-  goals         Goal[]
-  refreshTokens RefreshToken[]
+  books              Book[]
+  goals              Goal[]
+  refreshTokens      RefreshToken[]
+  readingActivities  ReadingActivity[]
 
   @@map("users")
 }
@@ -38,6 +40,7 @@ model Book {
   rating        Int?
   addedAt       DateTime  @default(now())
   finishedAt    DateTime?
+  genres        String[]  @default([])  // User-assigned genres/tags
 
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -79,4 +82,21 @@ model RefreshToken {
   @@index([token])
   @@index([expiresAt])
   @@map("refresh_tokens")
+}
+
+model ReadingActivity {
+  id          String   @id @default(uuid())
+  userId      String
+  bookId      String?
+  activityDate DateTime @db.Date  // Date only, no time component
+  pagesRead   Int      @default(0)
+  minutesRead Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, activityDate])  // One entry per user per day
+  @@index([userId])
+  @@index([activityDate])
+  @@map("reading_activities")
 }

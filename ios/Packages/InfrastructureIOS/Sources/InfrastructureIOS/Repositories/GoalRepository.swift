@@ -17,10 +17,19 @@ public final class GoalRepository: GoalRepositoryProtocol {
         return goals.first { $0.id == id }
     }
 
-    public func findByUserId(_ userId: String) async throws -> [Goal] {
+    public func findByUserId(_: String) async throws -> [Goal] {
         let endpoint = APIEndpoint.getGoals()
         let response: GetGoalsResponse = try await networkClient.request(endpoint)
         return response.goals.map { $0.toDomain() }
+    }
+
+    public func findByUserId(_ userId: String, offset: Int, limit: Int?) async throws -> [Goal] {
+        // For now, get all goals and apply pagination in memory
+        // Note: Update API to support pagination query parameters when available
+        let allGoals = try await findByUserId(userId)
+        let startIndex = min(offset, allGoals.count)
+        let endIndex = limit.map { min(startIndex + $0, allGoals.count) } ?? allGoals.count
+        return Array(allGoals[startIndex ..< endIndex])
     }
 
     public func create(_ goal: Goal) async throws -> Goal {
@@ -59,5 +68,10 @@ public final class GoalRepository: GoalRepositoryProtocol {
     public func findActiveByUserId(_ userId: String) async throws -> [Goal] {
         let allGoals = try await findByUserId(userId)
         return allGoals.filter { !$0.completed && $0.endDate >= Date() }
+    }
+
+    public func exists(userId: String, goalId: String) async throws -> Bool {
+        let userGoals = try await findByUserId(userId)
+        return userGoals.contains { $0.id == goalId }
     }
 }

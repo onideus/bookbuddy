@@ -278,8 +278,8 @@ final class GoalWorkflowTests: XCTestCase {
         // MARK: 2. Increase Target (More Ambitious)
         
         let increaseTargetUpdate = GoalUpdate(
-            targetBooks: 15,
-            description: "Increased ambition - aiming higher!"
+            description: "Increased ambition - aiming higher!",
+            targetBooks: 15
         )
         
         let increaseTargetInput = UpdateGoalInput(

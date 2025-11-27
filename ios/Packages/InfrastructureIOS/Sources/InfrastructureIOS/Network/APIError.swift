@@ -24,7 +24,7 @@ public enum APIError: LocalizedError {
         case .encodingError(let error):
             return "Failed to encode request: \(error.localizedDescription)"
         case .httpError(let statusCode, let message):
-            if let message = message {
+            if let message {
                 return "HTTP \(statusCode): \(message)"
             }
             return "HTTP error \(statusCode)"

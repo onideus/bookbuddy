@@ -49,8 +49,8 @@ public final class SearchBooksUseCase: UseCase {
     }
 
     public func execute(_ input: Input) async throws -> [BookSearchResult] {
-        // Return empty array if query is empty
-        guard !input.query.trimmingCharacters(in: .whitespaces).isEmpty else {
+        // Return empty array if query is empty or whitespace-only
+        guard !input.query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             return []
         }
 

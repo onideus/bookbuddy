@@ -10,7 +10,7 @@ struct GoalsListView: View {
 
     var body: some View {
         ZStack {
-            if viewModel.isLoading && viewModel.goals.isEmpty {
+            if viewModel.isLoading, viewModel.goals.isEmpty {
                 ProgressView("Loading goals...")
             } else if viewModel.hasGoals {
                 goalsContent
@@ -54,7 +54,7 @@ struct GoalsListView: View {
         VStack(spacing: 0) {
             // Segment picker
             Picker("Filter", selection: $selectedSegment) {
-                ForEach(0..<segments.count, id: \.self) { index in
+                ForEach(0 ..< segments.count, id: \.self) { index in
                     Text(segments[index])
                 }
             }
@@ -114,13 +114,13 @@ struct GoalsListView: View {
     private var filteredGoals: [Goal] {
         switch selectedSegment {
         case 0: // Active
-            return viewModel.activeGoals
+            viewModel.activeGoals
         case 1: // All
-            return viewModel.goals
+            viewModel.goals
         case 2: // Completed
-            return viewModel.completedGoals
+            viewModel.completedGoals
         default:
-            return viewModel.goals
+            viewModel.goals
         }
     }
 }

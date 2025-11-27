@@ -41,6 +41,9 @@ public struct Book: Identifiable, Codable, Equatable, Hashable, Sendable {
     /// Date when book was finished reading
     public let finishedAt: Date?
 
+    /// Genres/tags for the book
+    public let genres: [String]
+
     /// Initializes a new Book entity
     /// - Parameters:
     ///   - id: Unique identifier (UUID)
@@ -69,7 +72,8 @@ public struct Book: Identifiable, Codable, Equatable, Hashable, Sendable {
         currentPage: Int? = nil,
         rating: Int? = nil,
         addedAt: Date,
-        finishedAt: Date? = nil
+        finishedAt: Date? = nil,
+        genres: [String] = []
     ) {
         self.id = id
         self.userId = userId
@@ -84,6 +88,7 @@ public struct Book: Identifiable, Codable, Equatable, Hashable, Sendable {
         self.rating = rating
         self.addedAt = addedAt
         self.finishedAt = finishedAt
+        self.genres = genres
     }
 }
 
@@ -193,7 +198,8 @@ public extension Book {
             currentPage: status == .wantToRead ? nil : 0,
             rating: nil,
             addedAt: Date(),
-            finishedAt: nil
+            finishedAt: nil,
+            genres: []
         )
     }
 
@@ -220,9 +226,9 @@ public extension Book {
         if newStatus == .wantToRead {
             currentPage = nil
         }
-        
+
         // Set currentPage to 0 when transitioning to reading from wantToRead
-        if newStatus == .reading && status == .wantToRead {
+        if newStatus == .reading, status == .wantToRead {
             currentPage = 0
         }
 
@@ -239,7 +245,8 @@ public extension Book {
             currentPage: currentPage,
             rating: rating,
             addedAt: addedAt,
-            finishedAt: finishedAt
+            finishedAt: finishedAt,
+            genres: genres
         )
     }
 
@@ -269,7 +276,8 @@ public extension Book {
             currentPage: currentPage,
             rating: newRating,
             addedAt: addedAt,
-            finishedAt: finishedAt
+            finishedAt: finishedAt,
+            genres: genres
         )
     }
 
@@ -299,7 +307,30 @@ public extension Book {
             currentPage: newPage,
             rating: rating,
             addedAt: addedAt,
-            finishedAt: finishedAt
+            finishedAt: finishedAt,
+            genres: genres
+        )
+    }
+
+    /// Creates a copy with updated genres
+    /// - Parameter newGenres: New genres list
+    /// - Returns: Updated book instance
+    func withGenres(_ newGenres: [String]) -> Book {
+        Book(
+            id: id,
+            userId: userId,
+            googleBooksId: googleBooksId,
+            title: title,
+            authors: authors,
+            thumbnail: thumbnail,
+            description: description,
+            pageCount: pageCount,
+            status: status,
+            currentPage: currentPage,
+            rating: rating,
+            addedAt: addedAt,
+            finishedAt: finishedAt,
+            genres: newGenres
         )
     }
 }

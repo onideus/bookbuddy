@@ -78,6 +78,11 @@ struct BookCard: View {
                         .foregroundColor(.secondary)
                         .lineLimit(1)
 
+                    // Genre chips
+                    if !book.genres.isEmpty {
+                        GenreChips(genres: Array(book.genres.prefix(3)))
+                    }
+
                     // Status picker
                     Menu {
                         Button("Want to Read") {

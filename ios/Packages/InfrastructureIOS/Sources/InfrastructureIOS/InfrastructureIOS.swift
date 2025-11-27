@@ -2,13 +2,14 @@ import Foundation
 
 // MARK: - Module Exports
 
-// Re-export commonly used types for convenience
-@_exported import CoreDomain
 @_exported import Application
 
+// Re-export commonly used types for convenience
+@_exported import CoreDomain
+
 // Note: Types defined in this module (NetworkClient, APIError, APIEndpoint,
-// KeychainManager, AuthenticationService, ExternalBookSearchService, 
-// BookRepository, GoalRepository, UserRepository) are already directly 
+// KeychainManager, AuthenticationService, ExternalBookSearchService,
+// BookRepository, GoalRepository, UserRepository) are already directly
 // accessible and don't need typealiases
 
 // MARK: - Configuration
@@ -26,16 +27,15 @@ public struct InfrastructureConfiguration {
     /// Development configuration (localhost)
     public static var development: InfrastructureConfiguration {
         InfrastructureConfiguration(
-            baseURL: URL(string: "http://localhost:4000")!,
+            baseURL: URL(string: "http://127.0.0.1:3000")!,
             enableLogging: true
         )
     }
 
-    /// Production configuration
-    /// TODO: Replace with actual production URL
+    /// Production configuration (Vercel deployment)
     public static var production: InfrastructureConfiguration {
         InfrastructureConfiguration(
-            baseURL: URL(string: "https://api.bookbuddy.app")!,
+            baseURL: URL(string: "https://bookbuddy-mk3.vercel.app/api")!,
             enableLogging: false
         )
     }
@@ -44,6 +44,7 @@ public struct InfrastructureConfiguration {
 // MARK: - Factory
 
 /// Factory for creating infrastructure components
+@available(iOS 15.0, macOS 12.0, *)
 public struct InfrastructureFactory {
     private let configuration: InfrastructureConfiguration
     private let networkClient: NetworkClientProtocol
@@ -51,8 +52,8 @@ public struct InfrastructureFactory {
 
     public init(configuration: InfrastructureConfiguration) {
         self.configuration = configuration
-        self.keychainManager = .shared
-        self.networkClient = NetworkClient(
+        keychainManager = .shared
+        networkClient = NetworkClient(
             baseURL: configuration.baseURL,
             keychainManager: keychainManager
         )
@@ -61,24 +62,24 @@ public struct InfrastructureFactory {
     // MARK: - Services
 
     public func makeAuthenticationService() -> AuthenticationService {
-        return AuthenticationService(
+        AuthenticationService(
             networkClient: networkClient,
             keychainManager: keychainManager
         )
     }
 
     public func makeExternalBookSearchService() -> ExternalBookSearchService {
-        return ExternalBookSearchService(networkClient: networkClient)
+        ExternalBookSearchService(networkClient: networkClient)
     }
 
     // MARK: - Repositories
 
     public func makeBookRepository() -> BookRepositoryProtocol {
-        return BookRepository(networkClient: networkClient)
+        BookRepository(networkClient: networkClient)
     }
 
     public func makeGoalRepository() -> GoalRepositoryProtocol {
-        return GoalRepository(networkClient: networkClient)
+        GoalRepository(networkClient: networkClient)
     }
 
     public func makeUserRepository() -> UserRepositoryProtocol {
@@ -86,9 +87,13 @@ public struct InfrastructureFactory {
         return UserRepository(authService: authService)
     }
 
+    public func makeStreakRepository() -> StreakRepositoryProtocol {
+        StreakRepository(networkClient: networkClient)
+    }
+
     // MARK: - Network
 
     public func makeNetworkClient() -> NetworkClientProtocol {
-        return networkClient
+        networkClient
     }
 }

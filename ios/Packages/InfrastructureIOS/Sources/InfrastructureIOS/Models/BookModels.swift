@@ -95,6 +95,7 @@ public struct BookDTO: Codable {
     public let rating: Int?
     public let finishedAt: Date?
     public let addedAt: Date
+    public let genres: [String]?
 
     public init(
         id: String,
@@ -109,7 +110,8 @@ public struct BookDTO: Codable {
         currentPage: Int?,
         rating: Int?,
         finishedAt: Date?,
-        addedAt: Date
+        addedAt: Date,
+        genres: [String]? = nil
     ) {
         self.id = id
         self.userId = userId
@@ -124,12 +126,14 @@ public struct BookDTO: Codable {
         self.rating = rating
         self.finishedAt = finishedAt
         self.addedAt = addedAt
+        self.genres = genres
     }
 }
 
 // MARK: - Domain Conversion
-extension BookDTO {
-    public func toDomain() throws -> Book {
+
+public extension BookDTO {
+    func toDomain() throws -> Book {
         guard let bookStatus = BookStatus(rawValue: status) else {
             throw DomainError.validation("Invalid book status: \(status)")
         }
@@ -147,14 +151,15 @@ extension BookDTO {
             currentPage: currentPage,
             rating: rating,
             addedAt: addedAt,
-            finishedAt: finishedAt
+            finishedAt: finishedAt,
+            genres: genres ?? []
         )
     }
 }
 
-extension Book {
-    public func toDTO() -> BookDTO {
-        return BookDTO(
+public extension Book {
+    func toDTO() -> BookDTO {
+        BookDTO(
             id: id,
             userId: userId,
             googleBooksId: googleBooksId,
@@ -167,7 +172,8 @@ extension Book {
             currentPage: currentPage,
             rating: rating,
             finishedAt: finishedAt,
-            addedAt: addedAt
+            addedAt: addedAt,
+            genres: genres
         )
     }
 }

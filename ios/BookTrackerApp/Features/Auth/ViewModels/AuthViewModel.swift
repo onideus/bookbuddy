@@ -8,9 +8,15 @@ final class AuthViewModel: ObservableObject {
     @Published var password = ""
     @Published var name = ""
     @Published var isLoading = false
+    @Published var isDevLoginLoading = false
     @Published var errorMessage: String?
     @Published var isAuthenticated = false
     @Published var currentUser: User?
+
+    /// Returns true if any login operation is in progress
+    var isAnyLoginLoading: Bool {
+        isLoading || isDevLoginLoading
+    }
 
     private let authService: AuthenticationService
     private var onAuthenticationChanged: ((String?) -> Void)?
@@ -80,12 +86,21 @@ final class AuthViewModel: ObservableObject {
 
     #if DEBUG
     func loginAsTestUser() async {
-        // Use developer credentials
-        email = "dev@booktracker.com"
-        password = "password123"
+        guard validate(email: "dev@booktracker.com", password: "P@s$w0rD!") else { return }
 
-        // Perform login
-        await login()
+        isDevLoginLoading = true
+        errorMessage = nil
+
+        do {
+            let user = try await authService.login(email: "dev@booktracker.com", password: "P@s$w0rD!")
+            currentUser = user
+            isAuthenticated = true
+            onAuthenticationChanged?(user.id)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+
+        isDevLoginLoading = false
     }
     #endif
 
@@ -105,7 +120,7 @@ final class AuthViewModel: ObservableObject {
             return false
         }
 
-        guard email.contains("@") && email.contains(".") else {
+        guard email.contains("@"), email.contains(".") else {
             errorMessage = "Invalid email format"
             return false
         }
@@ -122,7 +137,7 @@ final class AuthViewModel: ObservableObject {
         }
 
         // Validate name if registering
-        if let name = name {
+        if let name {
             guard !name.trimmingCharacters(in: .whitespaces).isEmpty else {
                 errorMessage = "Name is required"
                 return false

@@ -63,7 +63,10 @@ struct SearchView: View {
         ScrollView {
             LazyVStack(spacing: 12) {
                 ForEach(viewModel.searchResults, id: \.id) { book in
-                    SearchResultCard(book: book) { status in
+                    SearchResultCard(
+                        book: book,
+                        isInLibrary: viewModel.isInLibrary(book.id)
+                    ) { status in
                         Task {
                             await addBook(book, status: status)
                         }

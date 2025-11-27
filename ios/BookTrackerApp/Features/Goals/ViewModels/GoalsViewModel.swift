@@ -63,12 +63,12 @@ final class GoalsViewModel: ObservableObject {
             let fetchedGoals = try await getUserGoalsUseCase.execute(input)
             goals = fetchedGoals.sorted { goal1, goal2 in
                 // Sort: active first, then by end date
-                if goal1.isActive && !goal2.isActive {
-                    return true
-                } else if !goal1.isActive && goal2.isActive {
-                    return false
+                if goal1.isActive, !goal2.isActive {
+                    true
+                } else if !goal1.isActive, goal2.isActive {
+                    false
                 } else {
-                    return goal1.endDate < goal2.endDate
+                    goal1.endDate < goal2.endDate
                 }
             }
         } catch {
@@ -153,15 +153,15 @@ final class GoalsViewModel: ObservableObject {
     // MARK: - Computed Properties
 
     var activeGoals: [Goal] {
-        goals.filter { $0.isActive }
+        goals.filter(\.isActive)
     }
 
     var completedGoals: [Goal] {
-        goals.filter { $0.completed }
+        goals.filter(\.completed)
     }
 
     var overdueGoals: [Goal] {
-        goals.filter { $0.isOverdue }
+        goals.filter(\.isOverdue)
     }
 
     var hasGoals: Bool {

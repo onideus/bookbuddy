@@ -108,9 +108,9 @@ describe('GoalProgress', () => {
       expect(goalProgress.getDaysRemaining()).toBe(199);
     });
 
-    it('should return negative days when after end date', () => {
+    it('should return 0 when after end date (overdue)', () => {
       vi.setSystemTime(new Date('2025-01-15'));
-      expect(goalProgress.getDaysRemaining()).toBe(-15);
+      expect(goalProgress.getDaysRemaining()).toBe(0);
     });
 
     it('should return 0 or 1 on the end date', () => {
@@ -124,6 +124,16 @@ describe('GoalProgress', () => {
     it('should round up partial days', () => {
       vi.setSystemTime(new Date('2024-12-30T18:00:00')); // Half day before end
       expect(goalProgress.getDaysRemaining()).toBe(1);
+    });
+
+    it('should return 0 for overdue goals regardless of how many days past due', () => {
+      // Test 15 days overdue
+      vi.setSystemTime(new Date('2025-01-15'));
+      expect(goalProgress.getDaysRemaining()).toBe(0);
+      
+      // Test 100 days overdue
+      vi.setSystemTime(new Date('2025-04-10'));
+      expect(goalProgress.getDaysRemaining()).toBe(0);
     });
   });
 
@@ -230,7 +240,7 @@ describe('GoalProgress', () => {
 
       expect(json.isOverdue).toBe(true);
       expect(json.status).toBe('overdue');
-      expect(json.daysRemaining).toBe(-15);
+      expect(json.daysRemaining).toBe(0);
     });
   });
 

@@ -12,12 +12,15 @@ export interface AddBookInput {
   description?: string;
   pageCount?: number;
   status: BookStatus;
+  genres?: string[];
 }
 
 export class AddBookUseCase {
   constructor(private bookRepository: IBookRepository) {}
 
   async execute(input: AddBookInput): Promise<Book> {
+    console.log('[DEBUG] AddBookUseCase - Input thumbnail:', input.thumbnail, 'Type:', typeof input.thumbnail);
+    
     // Check for duplicates
     const userBooks = await this.bookRepository.findByUserId(input.userId);
     const duplicate = userBooks.find(
@@ -39,8 +42,10 @@ export class AddBookUseCase {
       pageCount: input.pageCount,
       status: input.status,
       addedAt: new Date(),
+      genres: input.genres ?? [],
     };
 
+    console.log('[DEBUG] AddBookUseCase - Book entity thumbnail before save:', book.thumbnail, 'Type:', typeof book.thumbnail);
     return this.bookRepository.create(book);
   }
 }

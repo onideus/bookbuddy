@@ -3,6 +3,7 @@ import SwiftUI
 
 struct SearchResultCard: View {
     let book: BookSearchResult
+    let isInLibrary: Bool
     let onAdd: (BookStatus) -> Void
 
     @State private var showingAddOptions = false
@@ -49,16 +50,23 @@ struct SearchResultCard: View {
 
                     Spacer()
 
-                    // Add to Library button
-                    Button {
-                        showingAddOptions = true
-                    } label: {
-                        Label("Add to Library", systemImage: "plus.circle.fill")
+                    // Show "In Library" badge or "Add to Library" button
+                    if isInLibrary {
+                        Label("In Library", systemImage: "checkmark.circle.fill")
                             .font(.caption)
                             .fontWeight(.medium)
+                            .foregroundColor(.green)
+                    } else {
+                        Button {
+                            showingAddOptions = true
+                        } label: {
+                            Label("Add to Library", systemImage: "plus.circle.fill")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
                 }
 
                 Spacer()
@@ -114,6 +122,7 @@ struct SearchResultCard: View {
                     pageCount: 180
                 )
             ),
+            isInLibrary: false,
             onAdd: { _ in }
         )
 
@@ -128,6 +137,7 @@ struct SearchResultCard: View {
                     pageCount: 324
                 )
             ),
+            isInLibrary: true,
             onAdd: { _ in }
         )
     }

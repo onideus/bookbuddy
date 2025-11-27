@@ -22,7 +22,7 @@ public final class ExternalBookSearchService: ExternalBookSearchProtocol {
         return response.books.map { $0.toDomain() }
     }
 
-    public func getById(_ id: String) async throws -> BookSearchResult? {
+    public func getById(_: String) async throws -> BookSearchResult? {
         // The API doesn't have a specific endpoint for getting a book by ID
         // We could search by ID, but that's not implemented in the current API
         // This would typically require a specific Google Books API call

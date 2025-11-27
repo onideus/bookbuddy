@@ -102,9 +102,10 @@ public struct UserDTO: Codable {
 }
 
 // MARK: - Domain Conversion
-extension UserDTO {
-    public func toDomain() -> User {
-        return User(
+
+public extension UserDTO {
+    func toDomain() -> User {
+        User(
             id: id,
             email: email,
             password: "", // Password is not included in responses for security

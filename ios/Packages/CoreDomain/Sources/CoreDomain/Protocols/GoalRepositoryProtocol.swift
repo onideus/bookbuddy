@@ -13,7 +13,7 @@ public protocol GoalRepositoryProtocol {
     /// - Returns: Array of goals
     /// - Throws: DomainError if operation fails
     func findByUserId(_ userId: String) async throws -> [Goal]
-    
+
     /// Finds goals for a user with pagination
     /// - Parameters:
     ///   - userId: User ID
@@ -48,7 +48,7 @@ public protocol GoalRepositoryProtocol {
     /// - Returns: Array of active goals
     /// - Throws: DomainError if operation fails
     func findActiveByUserId(_ userId: String) async throws -> [Goal]
-    
+
     /// Checks if a goal exists for a user
     /// - Parameters:
     ///   - userId: User ID
@@ -59,7 +59,7 @@ public protocol GoalRepositoryProtocol {
 }
 
 /// Struct representing partial goal updates
-public struct GoalUpdate: Equatable {
+public struct GoalUpdate: Equatable, Sendable {
     public let title: String?
     public let description: String?
     public let targetBooks: Int?

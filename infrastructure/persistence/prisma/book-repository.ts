@@ -1,10 +1,20 @@
-import { IBookRepository } from '../../../domain/interfaces/book-repository';
+import {
+  IBookRepository,
+  PaginationOptions,
+  PaginatedBooks,
+} from '../../../domain/interfaces/book-repository';
 import { Book, BookStatus } from '../../../domain/entities/book';
 import { prisma } from './client';
 import type { Book as PrismaBook } from '@prisma/client';
+import { createLogger } from '../../logging';
+
+const log = createLogger('BookRepository');
+const DEFAULT_PAGE_SIZE = 20;
 
 export class PrismaBookRepository implements IBookRepository {
   async create(book: Book): Promise<Book> {
+    console.log('[DEBUG] PrismaBookRepository.create - Thumbnail to save:', book.thumbnail, 'Type:', typeof book.thumbnail);
+    
     const created = await prisma.book.create({
       data: {
         id: book.id,
@@ -20,9 +30,11 @@ export class PrismaBookRepository implements IBookRepository {
         rating: book.rating,
         addedAt: book.addedAt,
         finishedAt: book.finishedAt,
+        genres: book.genres ?? [],
       },
     });
 
+    console.log('[DEBUG] PrismaBookRepository.create - Created book thumbnail:', created.thumbnail, 'Type:', typeof created.thumbnail);
     return this.mapToBook(created);
   }
 
@@ -33,6 +45,48 @@ export class PrismaBookRepository implements IBookRepository {
     });
 
     return books.map(this.mapToBook);
+  }
+
+  async findByUserIdPaginated(
+    userId: string,
+    options: PaginationOptions
+  ): Promise<PaginatedBooks> {
+    const limit = options.limit ?? DEFAULT_PAGE_SIZE;
+
+    // Get total count
+    const totalCount = await prisma.book.count({ where: { userId } });
+
+    let books;
+    if (options.cursor) {
+      books = await prisma.book.findMany({
+        where: { userId },
+        orderBy: { addedAt: 'desc' },
+        take: limit + 1,
+        cursor: { id: options.cursor },
+        skip: 1,
+      });
+    } else {
+      books = await prisma.book.findMany({
+        where: { userId },
+        orderBy: { addedAt: 'desc' },
+        take: limit + 1,
+      });
+    }
+
+    const hasMore = books.length > limit;
+    const resultBooks = hasMore ? books.slice(0, limit) : books;
+    const nextCursor = hasMore ? resultBooks[resultBooks.length - 1]?.id ?? null : null;
+
+    return {
+      books: resultBooks.map(this.mapToBook),
+      nextCursor,
+      hasMore,
+      totalCount,
+    };
+  }
+
+  async countByUserId(userId: string): Promise<number> {
+    return prisma.book.count({ where: { userId } });
   }
 
   async findById(id: string): Promise<Book | undefined> {
@@ -47,7 +101,7 @@ export class PrismaBookRepository implements IBookRepository {
 
   async update(id: string, updates: Partial<Book>): Promise<Book | null> {
     try {
-      console.log('[BookRepository] Updating book:', id, 'with updates:', JSON.stringify(updates, null, 2));
+      log.debug('Updating book', { bookId: id, fields: Object.keys(updates) });
       const updated = await prisma.book.update({
         where: { id },
         data: {
@@ -60,13 +114,14 @@ export class PrismaBookRepository implements IBookRepository {
           ...(updates.thumbnail !== undefined && { thumbnail: updates.thumbnail }),
           ...(updates.description !== undefined && { description: updates.description }),
           ...(updates.pageCount !== undefined && { pageCount: updates.pageCount }),
+          ...(updates.genres !== undefined && { genres: updates.genres }),
         },
       });
 
-      console.log('[BookRepository] Successfully updated book:', updated.id);
+      log.info('Book updated successfully', { bookId: updated.id });
       return this.mapToBook(updated);
     } catch (error) {
-      console.error('[BookRepository] Error updating book:', error);
+      log.error('Failed to update book', { bookId: id, error: (error as Error).message });
       return null;
     }
   }
@@ -94,6 +149,29 @@ export class PrismaBookRepository implements IBookRepository {
     return books.map(this.mapToBook);
   }
 
+  async findByGenre(userId: string, genre: string): Promise<Book[]> {
+    const books = await prisma.book.findMany({
+      where: {
+        userId,
+        genres: { has: genre },
+      },
+      orderBy: { addedAt: 'desc' },
+    });
+
+    return books.map(this.mapToBook);
+  }
+
+  async getUniqueGenres(userId: string): Promise<string[]> {
+    const books = await prisma.book.findMany({
+      where: { userId },
+      select: { genres: true },
+    });
+
+    const allGenres = books.flatMap((book) => book.genres);
+    const uniqueGenres = [...new Set(allGenres)].sort();
+    return uniqueGenres;
+  }
+
   private mapToBook(prismaBook: PrismaBook): Book {
     return {
       id: prismaBook.id,
@@ -109,6 +187,7 @@ export class PrismaBookRepository implements IBookRepository {
       rating: prismaBook.rating ?? undefined,
       addedAt: prismaBook.addedAt,
       finishedAt: prismaBook.finishedAt ?? undefined,
+      genres: prismaBook.genres ?? [],
     };
   }
 }

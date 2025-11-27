@@ -1,0 +1,57 @@
+# Node modules (will be installed during build)
+node_modules
+
+# iOS app (not needed for backend deployment)
+ios
+
+# Test files
+**/*.test.ts
+**/__tests__
+coverage
+test-results
+playwright-report
+types
+
+# Development files
+.DS_Store
+.env*
+!.env.example
+.git
+.github
+.idea
+.vscode
+*.log
+*.pem
+
+# Documentation
+docs
+
+# Example screens
+example-screens
+
+# Old Fastify server (not used by serverless)
+services
+
+# Build artifacts
+build
+dist
+.next
+out
+*.tsbuildinfo
+
+# Scripts (dev only)
+scripts
+
+# Other unnecessary files
+docker-compose.yml
+.dockerignore
+.roo
+.claude
+.ab-method
+.lovable_install_hash
+.backend.pid
+backend-logs.txt
+tests
+
+# Prisma migrations (schema still needed)
+prisma/migrations

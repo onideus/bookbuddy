@@ -169,7 +169,11 @@ struct FilterChip: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                action()
+            }
+        } label: {
             HStack(spacing: 4) {
                 Text(title)
                     .font(.subheadline)
@@ -183,6 +187,7 @@ struct FilterChip: View {
             .background(isSelected ? Color.blue : Color(.systemGray6))
             .foregroundColor(isSelected ? .white : .primary)
             .cornerRadius(20)
+            .animation(.easeInOut(duration: 0.2), value: isSelected)
         }
         .buttonStyle(.plain)
     }
@@ -287,12 +292,22 @@ private class MockBookRepository: BookRepositoryProtocol {
         []
     }
 
+    // Pagination overload
+    func findByUserId(_: String, offset _: Int, limit _: Int?) async throws -> [Book] {
+        []
+    }
+
     func findById(_: String) async throws -> Book? {
         nil
     }
 
     func findByStatus(_: String, status _: BookStatus) async throws -> [Book] {
         []
+    }
+
+    // Performance optimization method
+    func exists(userId _: String, googleBooksId _: String) async throws -> Bool {
+        false
     }
 
     func update(_: String, updates _: BookUpdate) async throws -> Book? {

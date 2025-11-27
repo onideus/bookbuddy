@@ -1,7 +1,7 @@
 import {
   IExternalBookSearch,
   BookSearchResult,
-} from '../../domain/interfaces/external-book-search';
+} from '@/domain/interfaces/external-book-search';
 
 export class GoogleBooksClient implements IExternalBookSearch {
   private readonly apiUrl = 'https://www.googleapis.com/books/v1/volumes';
@@ -17,7 +17,13 @@ export class GoogleBooksClient implements IExternalBookSearch {
       }
 
       const data = await response.json();
-      return data.items || [];
+      const items = data.items || [];
+      
+      // Filter out books with 0 or missing page counts
+      return items.filter((item: any) => {
+        const pageCount = item.volumeInfo?.pageCount;
+        return pageCount && pageCount > 0;
+      });
     } catch (error) {
       console.error('Google Books API error:', error);
       return [];

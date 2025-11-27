@@ -13,4 +13,12 @@ final class InfrastructureIOSTests: XCTestCase {
         // Placeholder test
         XCTAssertTrue(true)
     }
+
+    func testSearchEndpointRequiresAuth() {
+        let endpoint = APIEndpoint.searchBooks(query: "harry potter")
+
+        XCTAssertEqual(endpoint.path, "/search")
+        XCTAssertEqual(endpoint.method, .get)
+        XCTAssertTrue(endpoint.requiresAuth)
+    }
 }

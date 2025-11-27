@@ -1,5 +1,5 @@
-import SwiftUI
 import InfrastructureIOS
+import SwiftUI
 
 struct LoginView: View {
     @ObservedObject var viewModel: AuthViewModel
@@ -44,11 +44,11 @@ struct LoginView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
-                    Button(action: {
+                    Button {
                         Task {
                             await viewModel.login()
                         }
-                    }) {
+                    } label: {
                         if viewModel.isLoading {
                             ProgressView()
                                 .progressViewStyle(.circular)
@@ -63,16 +63,16 @@ struct LoginView: View {
                     .background(Color.blue)
                     .foregroundColor(.white)
                     .cornerRadius(10)
-                    .disabled(viewModel.isLoading)
+                    .disabled(viewModel.isAnyLoginLoading)
 
                     // Developer Login Button
                     #if DEBUG
-                    Button(action: {
+                    Button {
                         Task {
                             await viewModel.loginAsTestUser()
                         }
-                    }) {
-                        if viewModel.isLoading {
+                    } label: {
+                        if viewModel.isDevLoginLoading {
                             ProgressView()
                                 .progressViewStyle(.circular)
                         } else {
@@ -88,17 +88,17 @@ struct LoginView: View {
                     .background(Color.gray.opacity(0.2))
                     .foregroundColor(.primary)
                     .cornerRadius(10)
-                    .disabled(viewModel.isLoading)
+                    .disabled(viewModel.isAnyLoginLoading)
                     #endif
                 }
                 .padding(.horizontal, 32)
 
                 // Register link
-                if let onShowRegister = onShowRegister {
+                if let onShowRegister {
                     Button(action: onShowRegister) {
                         Text("Don't have an account? ")
                             .foregroundColor(.primary) +
-                        Text("Sign Up")
+                            Text("Sign Up")
                             .fontWeight(.semibold)
                             .foregroundColor(.blue)
                     }

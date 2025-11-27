@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct BookTrackerApp: App {
+struct BookBuddy: App {
     @StateObject private var container = AppContainer()
 
     var body: some Scene {

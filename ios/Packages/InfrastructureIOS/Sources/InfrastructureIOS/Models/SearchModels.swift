@@ -61,8 +61,9 @@ public struct ImageLinksDTO: Codable {
 }
 
 // MARK: - Domain Conversion
-extension ExternalBookDTO {
-    public func toDomain() -> BookSearchResult {
+
+public extension ExternalBookDTO {
+    func toDomain() -> BookSearchResult {
         // Convert HTTP thumbnail URLs to HTTPS for iOS App Transport Security
         let secureThumbna = volumeInfo.imageLinks?.thumbnail?.replacingOccurrences(of: "http://", with: "https://")
 

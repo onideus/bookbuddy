@@ -3,9 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "tsx services/api/src/server.ts",
-    "build": "tsc -p services/api/tsconfig.json",
-    "start": "node services/api/dist/server.js",
+    "build": "prisma generate",
+    "vercel-build": "prisma generate",
     "lint": "eslint",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -22,15 +21,15 @@
     "db:reset": "./scripts/db-setup.sh reset",
     "db:shell": "./scripts/db-setup.sh shell",
     "db:status": "./scripts/db-setup.sh status",
-    "db:logs": "./scripts/db-setup.sh logs",
-    "api:dev": "tsx services/api/src/server.ts",
-    "api:build": "tsc -p services/api/tsconfig.json"
+    "db:logs": "./scripts/db-setup.sh logs"
   },
   "dependencies": {
     "@prisma/client": "^6.18.0",
+    "@upstash/ratelimit": "^2.0.7",
+    "@upstash/redis": "^1.35.6",
+    "@vercel/node": "^5.5.12",
     "bcryptjs": "^3.0.2",
     "dotenv": "^17.2.3",
-    "fastify": "^5.6.1",
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
@@ -50,6 +49,7 @@
     "tsx": "^4.20.6",
     "typescript": "^5",
     "typescript-eslint": "^8.46.2",
+    "vercel": "^48.10.14",
     "vitest": "^4.0.6"
   }
 }
