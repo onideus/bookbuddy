@@ -27,7 +27,7 @@ public struct InfrastructureConfiguration {
     /// Development configuration (localhost)
     public static var development: InfrastructureConfiguration {
         InfrastructureConfiguration(
-            baseURL: URL(string: "http://localhost:4000")!,
+            baseURL: URL(string: "http://127.0.0.1:3000")!,
             enableLogging: true
         )
     }

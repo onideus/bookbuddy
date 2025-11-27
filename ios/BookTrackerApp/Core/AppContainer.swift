@@ -25,7 +25,7 @@ final class AppContainer: ObservableObject {
     @Published var isAuthenticated = false
     @Published var currentUserId: String?
 
-    init(configuration: InfrastructureConfiguration = .production) {
+    init(configuration: InfrastructureConfiguration = .development) {
         self.configuration = configuration
         factory = InfrastructureFactory(configuration: configuration)
 

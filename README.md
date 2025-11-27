@@ -1,6 +1,6 @@
 # BookTracker
 
-A modern book tracking application with a Fastify REST API backend and native iOS SwiftUI app, helping you manage your reading journey.
+A modern book tracking application with a Vercel serverless REST API backend and native iOS SwiftUI app, helping you manage your reading journey.
 
 ## Features
 
@@ -24,7 +24,7 @@ This application follows **Clean Architecture** and **SOLID principles** with cl
 
 | Component | Technology |
 |-----------|------------|
-| **Backend API** | Fastify (Node.js) |
+| **Backend API** | Vercel Serverless Functions (Node.js) |
 | **Database** | PostgreSQL with Prisma ORM |
 | **iOS App** | SwiftUI |
 | **Authentication** | JWT (JSON Web Tokens) |
@@ -112,10 +112,10 @@ npm run db:migrate
 
 6. Start the development server:
 ```bash
-npm run dev
+vercel dev
 ```
 
-The API will be available at [http://localhost:4000](http://localhost:4000)
+The API will be available at [http://localhost:3000](http://localhost:3000)
 
 ### iOS App Setup
 
@@ -208,12 +208,9 @@ bookbuddy-mk3/
 │   ├── logging/         # Structured logging
 │   └── security/        # Security (bcrypt)
 │
-├── services/
-│   └── api/             # Fastify REST API
-│       └── src/
-│           ├── routes/      # API route handlers
-│           ├── middleware/  # Auth, logging middleware
-│           └── server.ts    # Server entry point
+├── api/                  # Vercel Serverless Functions
+│   ├── [...path].ts     # Universal API handler
+│   └── _lib/            # Shared utilities (auth, errors, container)
 │
 ├── lib/
 │   ├── config.ts        # Centralized configuration
@@ -237,8 +234,8 @@ bookbuddy-mk3/
 
 | Script | Description |
 |--------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
+| `vercel dev` | Start development server |
+| `npm run build` | Generate Prisma client |
 | `npm run test` | Run test suite |
 | `npm run test:coverage` | Run tests with coverage |
 | `npm run lint` | Run ESLint |

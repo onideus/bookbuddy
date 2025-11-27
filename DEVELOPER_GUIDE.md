@@ -32,14 +32,17 @@ repo/
 # Install dependencies
 npm install
 
-# Run development server
-npm run dev
+# Start database (PostgreSQL via Docker)
+npm run db:setup
 
-# Build for production
+# Run database migrations
+npm run db:migrate
+
+# Run development server (Vercel serverless functions)
+vercel dev
+
+# Build for production (generates Prisma client)
 npm run build
-
-# Run production server
-npm start
 ```
 
 ## Adding New Features

@@ -306,9 +306,15 @@ async function handleBooks(req: VercelRequest, res: VercelResponse, path: string
 
     if (req.method === 'POST') {
       const { googleBooksId, title, authors, thumbnail, description, pageCount, status, genres } = req.body || {};
+      console.log('[DEBUG] API POST /books - Received thumbnail:', thumbnail, 'Type:', typeof thumbnail);
+      
       if (!title) {
         return res.status(400).json({ error: 'ValidationError', message: 'Title is required', statusCode: 400 });
       }
+
+      // Don't sanitize URLs - just trim whitespace
+      const sanitizedThumbnail = thumbnail ? thumbnail.trim() : undefined;
+      console.log('[DEBUG] API POST /books - Sanitized thumbnail:', sanitizedThumbnail, 'Type:', typeof sanitizedThumbnail);
 
       const useCase = new AddBookUseCase(container.bookRepository);
       const book = await useCase.execute({
@@ -316,10 +322,10 @@ async function handleBooks(req: VercelRequest, res: VercelResponse, path: string
         googleBooksId: googleBooksId || `manual-${Date.now()}`,
         title: sanitizeString(title),
         authors: Array.isArray(authors) ? authors.map((a: string) => sanitizeString(a)) : [],
-        thumbnail: thumbnail ? sanitizeString(thumbnail) : undefined,
+        thumbnail: sanitizedThumbnail,
         description: description ? sanitizeString(description) : undefined,
         pageCount: typeof pageCount === 'number' ? pageCount : undefined,
-        status: status || 'to-read',
+        status: status || 'want-to-read',
         genres: Array.isArray(genres) ? genres.map((g: string) => sanitizeString(g)) : undefined,
       });
 
