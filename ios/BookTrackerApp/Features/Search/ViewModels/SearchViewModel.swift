@@ -12,11 +12,13 @@ final class SearchViewModel: ObservableObject {
     @Published var isSearching = false
     @Published var errorMessage: String?
     @Published var selectedBook: BookSearchResult?
+    @Published var booksInLibrary: Set<String> = [] // Set of googleBooksIds
 
     // MARK: - Dependencies
 
     private let searchBooksUseCase: SearchBooksUseCase
     private let addBookUseCase: AddBookUseCase
+    private let bookRepository: BookRepositoryProtocol
     private let currentUserId: String
 
     // MARK: - Cancellables
@@ -29,10 +31,12 @@ final class SearchViewModel: ObservableObject {
     init(
         searchBooksUseCase: SearchBooksUseCase,
         addBookUseCase: AddBookUseCase,
+        bookRepository: BookRepositoryProtocol,
         currentUserId: String
     ) {
         self.searchBooksUseCase = searchBooksUseCase
         self.addBookUseCase = addBookUseCase
+        self.bookRepository = bookRepository
         self.currentUserId = currentUserId
 
         setupSearchDebounce()
@@ -50,6 +54,7 @@ final class SearchViewModel: ObservableObject {
         self.init(
             searchBooksUseCase: searchBooksUseCase,
             addBookUseCase: addBookUseCase,
+            bookRepository: bookRepository,
             currentUserId: currentUserId
         )
     }
@@ -78,13 +83,18 @@ final class SearchViewModel: ObservableObject {
                 // Check for cancellation before making request
                 try Task.checkCancellation()
 
+                // Fetch search results and user's library concurrently
                 let input = SearchBooksInput(query: query)
-                let results = try await searchBooksUseCase.execute(input)
+                async let resultsTask = searchBooksUseCase.execute(input)
+                async let libraryTask = fetchUserLibraryIds()
+
+                let (results, libraryIds) = try await (resultsTask, libraryTask)
 
                 // Check for cancellation before updating UI
                 try Task.checkCancellation()
 
                 searchResults = results
+                booksInLibrary = libraryIds
                 isSearching = false
             } catch is CancellationError {
                 // Task was cancelled, don't update UI or show error
@@ -103,6 +113,17 @@ final class SearchViewModel: ObservableObject {
         await searchTask?.value
     }
 
+    /// Check if a book is already in the user's library
+    func isInLibrary(_ googleBooksId: String) -> Bool {
+        booksInLibrary.contains(googleBooksId)
+    }
+
+    /// Fetch all googleBooksIds from user's library
+    private func fetchUserLibraryIds() async throws -> Set<String> {
+        let books = try await bookRepository.findByUserId(currentUserId)
+        return Set(books.compactMap { $0.googleBooksId })
+    }
+
     func addBookToLibrary(_ searchResult: BookSearchResult, status: BookStatus) async -> Bool {
         errorMessage = nil
 
@@ -119,6 +140,8 @@ final class SearchViewModel: ObservableObject {
             )
 
             _ = try await addBookUseCase.execute(input)
+            // Mark this book as now in library
+            booksInLibrary.insert(searchResult.id)
             return true
         } catch {
             errorMessage = "Failed to add book: \(error.localizedDescription)"

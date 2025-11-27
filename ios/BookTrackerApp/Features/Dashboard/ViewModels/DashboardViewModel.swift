@@ -69,14 +69,42 @@ final class DashboardViewModel: ObservableObject {
         await loadDashboard()
     }
 
+    /// Update a book
+    func updateBook(_ book: Book, updates: BookUpdate) async {
+        do {
+            _ = try await bookRepository.update(book.id, updates: updates)
+            await loadCurrentlyReading()
+        } catch {
+            print("Failed to update book: \(error)")
+            errorMessage = "Failed to update book"
+        }
+    }
+
+    /// Delete a book
+    func deleteBook(_ book: Book) async {
+        do {
+            _ = try await bookRepository.delete(book.id)
+            await loadCurrentlyReading()
+        } catch {
+            print("Failed to delete book: \(error)")
+            errorMessage = "Failed to delete book"
+        }
+    }
+
     // MARK: - Private Methods
 
     private func loadStreak() async {
         do {
             streak = try await streakRepository.getStreak()
         } catch {
+            // Preserve existing streak data on failure, only clear if we have no data
             print("Failed to load streak: \(error)")
-            streak = .empty
+            if streak.currentStreak == 0 && streak.totalDaysRead == 0 {
+                // Only set to empty if we never had data
+                streak = .empty
+            }
+            // Otherwise keep existing data and show error
+            errorMessage = "Failed to refresh streak"
         }
     }
 
@@ -85,8 +113,13 @@ final class DashboardViewModel: ObservableObject {
             let allBooks = try await bookRepository.findByUserId("")
             currentlyReadingBooks = allBooks.filter { $0.status == .reading }
         } catch {
+            // Preserve existing books data on failure
             print("Failed to load books: \(error)")
-            currentlyReadingBooks = []
+            // Don't clear currentlyReadingBooks - keep showing stale data
+            if currentlyReadingBooks.isEmpty {
+                // Only show error if user has no cached data
+                errorMessage = "Failed to load books"
+            }
         }
     }
 
@@ -96,8 +129,13 @@ final class DashboardViewModel: ObservableObject {
             let now = Date()
             activeGoals = allGoals.filter { !$0.completed && $0.endDate > now }
         } catch {
+            // Preserve existing goals data on failure
             print("Failed to load goals: \(error)")
-            activeGoals = []
+            // Don't clear activeGoals - keep showing stale data
+            if activeGoals.isEmpty {
+                // Only show error if user has no cached data
+                errorMessage = "Failed to load goals"
+            }
         }
     }
 }

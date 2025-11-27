@@ -5,7 +5,9 @@ import SwiftUI
 struct DashboardView: View {
     @StateObject var viewModel: DashboardViewModel
     @EnvironmentObject var container: AppContainer
+    @Binding var selectedTab: Int
     @State private var showingLogActivity = false
+    @State private var showingCreateGoal = false
 
     var body: some View {
         ScrollView {
@@ -19,7 +21,19 @@ struct DashboardView: View {
 
                 // Currently Reading Section
                 if viewModel.hasCurrentlyReading {
-                    CurrentlyReadingSection(books: viewModel.currentlyReadingBooks)
+                    CurrentlyReadingSection(
+                        books: viewModel.currentlyReadingBooks,
+                        onUpdate: { book, updates in
+                            Task {
+                                await viewModel.updateBook(book, updates: updates)
+                            }
+                        },
+                        onDelete: { book in
+                            Task {
+                                await viewModel.deleteBook(book)
+                            }
+                        }
+                    )
                 }
 
                 // Active Goals Section
@@ -28,8 +42,12 @@ struct DashboardView: View {
                 }
 
                 // Quick Actions
-                QuickActionsSection()
-                    .padding(.horizontal)
+                QuickActionsSection(
+                    onAddBook: { selectedTab = 3 }, // Navigate to Search tab
+                    onNewGoal: { showingCreateGoal = true },
+                    onViewStats: { /* Stats feature coming soon */ }
+                )
+                .padding(.horizontal)
             }
             .padding(.vertical)
         }
@@ -57,6 +75,14 @@ struct DashboardView: View {
                     .padding(.bottom, 20)
             }
         }
+        .sheet(isPresented: $showingCreateGoal) {
+            CreateGoalView(viewModel: container.makeGoalsViewModel())
+                .onDisappear {
+                    Task {
+                        await viewModel.refresh()
+                    }
+                }
+        }
     }
 }
 
@@ -64,6 +90,8 @@ struct DashboardView: View {
 
 struct CurrentlyReadingSection: View {
     let books: [Book]
+    let onUpdate: (Book, BookUpdate) -> Void
+    let onDelete: (Book) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -80,7 +108,16 @@ struct CurrentlyReadingSection: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(books) { book in
-                        CurrentlyReadingCard(book: book)
+                        NavigationLink {
+                            BookDetailView(
+                                book: book,
+                                onUpdate: onUpdate,
+                                onDelete: onDelete
+                            )
+                        } label: {
+                            CurrentlyReadingCard(book: book)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(.horizontal)
@@ -246,6 +283,10 @@ struct GoalProgressCard: View {
 // MARK: - Quick Actions Section
 
 struct QuickActionsSection: View {
+    let onAddBook: () -> Void
+    let onNewGoal: () -> Void
+    let onViewStats: () -> Void
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Quick Actions")
@@ -253,28 +294,25 @@ struct QuickActionsSection: View {
 
             HStack(spacing: 12) {
                 QuickActionButton(
-                    icon: "book.fill",
+                    icon: "magnifyingglass",
                     title: "Add Book",
-                    color: .blue
-                ) {
-                    // Navigate to search
-                }
+                    color: .blue,
+                    action: onAddBook
+                )
 
                 QuickActionButton(
                     icon: "target",
                     title: "New Goal",
-                    color: .green
-                ) {
-                    // Navigate to create goal
-                }
+                    color: .green,
+                    action: onNewGoal
+                )
 
                 QuickActionButton(
                     icon: "chart.bar.fill",
                     title: "Stats",
-                    color: .purple
-                ) {
-                    // Navigate to stats (future feature)
-                }
+                    color: .purple,
+                    action: onViewStats
+                )
             }
         }
     }
@@ -307,15 +345,26 @@ struct QuickActionButton: View {
 
 // MARK: - Preview
 
-#Preview {
-    NavigationStack {
-        DashboardView(viewModel: DashboardViewModel(
-            streakRepository: PreviewStreakRepository(),
-            bookRepository: PreviewBookRepository(),
-            goalRepository: PreviewGoalRepository()
-        ))
+struct DashboardViewPreview: View {
+    @State private var selectedTab = 0
+
+    var body: some View {
+        NavigationStack {
+            DashboardView(
+                viewModel: DashboardViewModel(
+                    streakRepository: PreviewStreakRepository(),
+                    bookRepository: PreviewBookRepository(),
+                    goalRepository: PreviewGoalRepository()
+                ),
+                selectedTab: $selectedTab
+            )
+        }
+        .environmentObject(AppContainer())
     }
-    .environmentObject(AppContainer())
+}
+
+#Preview {
+    DashboardViewPreview()
 }
 
 // MARK: - Preview Repositories

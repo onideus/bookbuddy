@@ -63,7 +63,7 @@ struct LoginView: View {
                     .background(Color.blue)
                     .foregroundColor(.white)
                     .cornerRadius(10)
-                    .disabled(viewModel.isLoading)
+                    .disabled(viewModel.isAnyLoginLoading)
 
                     // Developer Login Button
                     #if DEBUG
@@ -72,7 +72,7 @@ struct LoginView: View {
                             await viewModel.loginAsTestUser()
                         }
                     } label: {
-                        if viewModel.isLoading {
+                        if viewModel.isDevLoginLoading {
                             ProgressView()
                                 .progressViewStyle(.circular)
                         } else {
@@ -88,7 +88,7 @@ struct LoginView: View {
                     .background(Color.gray.opacity(0.2))
                     .foregroundColor(.primary)
                     .cornerRadius(10)
-                    .disabled(viewModel.isLoading)
+                    .disabled(viewModel.isAnyLoginLoading)
                     #endif
                 }
                 .padding(.horizontal, 32)

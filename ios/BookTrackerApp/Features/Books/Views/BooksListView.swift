@@ -169,7 +169,11 @@ struct FilterChip: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                action()
+            }
+        } label: {
             HStack(spacing: 4) {
                 Text(title)
                     .font(.subheadline)
@@ -183,6 +187,7 @@ struct FilterChip: View {
             .background(isSelected ? Color.blue : Color(.systemGray6))
             .foregroundColor(isSelected ? .white : .primary)
             .cornerRadius(20)
+            .animation(.easeInOut(duration: 0.2), value: isSelected)
         }
         .buttonStyle(.plain)
     }

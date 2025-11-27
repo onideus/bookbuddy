@@ -1,6 +1,5 @@
 import type { FastifyInstance } from 'fastify';
 import { Container } from '../../../../lib/di/container';
-import { GetUserBooksUseCase } from '../../../../application/use-cases/books/get-user-books';
 import { AddBookUseCase } from '../../../../application/use-cases/books/add-book';
 import { UpdateBookUseCase } from '../../../../application/use-cases/books/update-book';
 import { DeleteBookUseCase } from '../../../../application/use-cases/books/delete-book';
@@ -21,7 +20,7 @@ const getBooksSchema = {
   querystring: {
     type: 'object',
     properties: {
-      status: { type: 'string', enum: ['to-read', 'reading', 'completed'] },
+      status: { type: 'string', enum: ['want-to-read', 'reading', 'read'] },
       genre: { type: 'string', minLength: 1 },
       cursor: { type: 'string', format: 'uuid' },
       limit: { type: 'string', pattern: '^[0-9]+$' },
@@ -41,7 +40,7 @@ const addBookSchema = {
       thumbnail: { type: 'string', minLength: 1 },
       description: { type: 'string' },
       pageCount: { type: 'number', minimum: 1 },
-      status: { type: 'string', enum: ['to-read', 'reading', 'completed'] },
+      status: { type: 'string', enum: ['want-to-read', 'reading', 'read'] },
       genres: { type: 'array', items: { type: 'string' } },
     },
   },
@@ -76,7 +75,7 @@ const updateBookSchema = {
   body: {
     type: 'object',
     properties: {
-      status: { type: 'string', enum: ['to-read', 'reading', 'completed'] },
+      status: { type: 'string', enum: ['want-to-read', 'reading', 'read'] },
       currentPage: { type: 'number', minimum: 0 },
       rating: { type: 'number', minimum: 1, maximum: 5 },
       notes: { type: 'string' },

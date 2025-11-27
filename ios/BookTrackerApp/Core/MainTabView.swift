@@ -4,15 +4,20 @@ import SwiftUI
 /// Main tab navigation for the authenticated app
 struct MainTabView: View {
     @EnvironmentObject var container: AppContainer
+    @State private var selectedTab = 0
 
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             NavigationStack {
-                DashboardView(viewModel: container.makeDashboardViewModel())
+                DashboardView(
+                    viewModel: container.makeDashboardViewModel(),
+                    selectedTab: $selectedTab
+                )
             }
             .tabItem {
                 Label("Home", systemImage: "house.fill")
             }
+            .tag(0)
 
             NavigationStack {
                 BooksListView(
@@ -25,6 +30,7 @@ struct MainTabView: View {
             .tabItem {
                 Label("Books", systemImage: "book.fill")
             }
+            .tag(1)
 
             NavigationStack {
                 GoalsListView(viewModel: container.makeGoalsViewModel())
@@ -32,6 +38,7 @@ struct MainTabView: View {
             .tabItem {
                 Label("Goals", systemImage: "target")
             }
+            .tag(2)
 
             NavigationStack {
                 SearchView(viewModel: container.makeSearchViewModel())
@@ -39,11 +46,13 @@ struct MainTabView: View {
             .tabItem {
                 Label("Search", systemImage: "magnifyingglass")
             }
+            .tag(3)
 
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
+                .tag(4)
         }
     }
 }
