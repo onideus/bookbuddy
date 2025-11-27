@@ -51,6 +51,19 @@ struct BooksListView: View {
                                             }
                                         }
                                     )
+                                    .onAppear {
+                                        viewModel.loadMoreIfNeeded(currentItem: book)
+                                    }
+                                }
+
+                                // Loading more indicator
+                                if viewModel.isLoadingMore {
+                                    HStack {
+                                        Spacer()
+                                        ProgressView()
+                                            .padding()
+                                        Spacer()
+                                    }
                                 }
                             }
                             .padding(.horizontal)

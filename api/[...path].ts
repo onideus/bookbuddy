@@ -37,27 +37,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // But we also need to handle direct URL parsing as a fallback
   let pathSegments: string[] = [];
   
-  const { path } = req.query;
-  if (path) {
-    // Vercel may pass catch-all params as either an array (expected) or a
-    // single string with slashes. Normalize to an array of segments.
-    if (Array.isArray(path)) {
-      pathSegments = path.flatMap((segment) =>
-        typeof segment === 'string' ? segment.split('/').filter(Boolean) : []
-      );
-    } else if (typeof path === 'string') {
-      pathSegments = path.split('/').filter(Boolean);
-    }
-  } else {
-    // Fallback: parse from URL
-    const url = req.url || '';
-    const urlPath = url.split('?')[0]; // Remove query string
-    // Remove /api/ prefix if present
-    const match = urlPath.match(/^\/api\/(.*)$/);
-    if (match && match[1]) {
-      pathSegments = match[1].split('/').filter(Boolean);
+  // Always parse from URL first as the most reliable method
+  const url = req.url || '';
+  const urlPath = url.split('?')[0]; // Remove query string
+  // Remove /api/ prefix if present
+  const match = urlPath.match(/^\/api\/(.*)$/);
+  if (match && match[1]) {
+    pathSegments = match[1].split('/').filter(Boolean);
+  }
+  
+  // Fallback to query.path if URL parsing didn't work
+  if (pathSegments.length === 0) {
+    const { path } = req.query;
+    if (path) {
+      // Vercel may pass catch-all params as either an array (expected) or a
+      // single string with slashes. Normalize to an array of segments.
+      if (Array.isArray(path)) {
+        pathSegments = path.flatMap((segment) =>
+          typeof segment === 'string' ? segment.split('/').filter(Boolean) : []
+        );
+      } else if (typeof path === 'string') {
+        pathSegments = path.split('/').filter(Boolean);
+      }
     }
   }
+  
+  console.log('[DEBUG] URL:', url, 'Path segments:', pathSegments);
   
   const route = pathSegments[0] || '';
   const subPath = pathSegments.slice(1);
@@ -173,33 +178,42 @@ async function handleRegister(req: VercelRequest, res: VercelResponse) {
 }
 
 async function handleLogin(req: VercelRequest, res: VercelResponse) {
-  const { email, password } = req.body || {};
+  try {
+    const { email, password } = req.body || {};
 
-  if (!email || !password) {
-    return res.status(400).json({ error: 'ValidationError', message: 'Email and password are required', statusCode: 400 });
+    if (!email || !password) {
+      return res.status(400).json({ error: 'ValidationError', message: 'Email and password are required', statusCode: 400 });
+    }
+
+    const container = getContainer();
+    const user = await container.userRepository.findByEmail(sanitizeEmail(email));
+    if (!user) {
+      return res.status(401).json({ error: 'UnauthorizedError', message: 'Invalid credentials', statusCode: 401 });
+    }
+
+    const isValid = await container.passwordHasher.compare(password, user.password);
+    if (!isValid) {
+      return res.status(401).json({ error: 'UnauthorizedError', message: 'Invalid credentials', statusCode: 401 });
+    }
+
+    const accessToken = generateAccessToken({ userId: user.id, email: user.email });
+    const refreshTokenString = generateRefreshToken();
+
+    await container.refreshTokenRepository.create({
+      userId: user.id,
+      token: refreshTokenString,
+      expiresAt: calculateRefreshTokenExpiry(),
+    });
+
+    res.status(200).json({
+      accessToken,
+      refreshToken: refreshTokenString,
+      user: { id: user.id, email: user.email, name: user.name },
+    });
+  } catch (error) {
+    console.error('[handleLogin] Error:', error);
+    handleError(error, res);
   }
-
-  const container = getContainer();
-  const user = await container.userRepository.findByEmail(sanitizeEmail(email));
-  if (!user) throw new UnauthorizedError('Invalid credentials');
-
-  const isValid = await container.passwordHasher.compare(password, user.password);
-  if (!isValid) throw new UnauthorizedError('Invalid credentials');
-
-  const accessToken = generateAccessToken({ userId: user.id, email: user.email });
-  const refreshTokenString = generateRefreshToken();
-
-  await container.refreshTokenRepository.create({
-    userId: user.id,
-    token: refreshTokenString,
-    expiresAt: calculateRefreshTokenExpiry(),
-  });
-
-  res.status(200).json({
-    accessToken,
-    refreshToken: refreshTokenString,
-    user: { id: user.id, email: user.email, name: user.name },
-  });
 }
 
 async function handleRefresh(req: VercelRequest, res: VercelResponse) {

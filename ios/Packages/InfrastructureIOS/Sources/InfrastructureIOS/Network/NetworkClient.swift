@@ -189,7 +189,7 @@ public extension NetworkClient {
     /// Use this when running `vercel dev` locally (default port 3000).
     /// The Vercel dev server simulates the serverless environment.
     static func development() -> NetworkClient {
-        let baseURL = URL(string: "http://127.0.0.1:3000")!
+        let baseURL = URL(string: "http://127.0.0.1:3000/api")!
         return NetworkClient(baseURL: baseURL)
     }
 

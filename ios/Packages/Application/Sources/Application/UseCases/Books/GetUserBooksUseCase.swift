@@ -4,9 +4,13 @@ import Foundation
 /// Input for getting user's books
 public struct GetUserBooksInput: Sendable, Equatable {
     public let userId: String
+    public let offset: Int
+    public let limit: Int?
 
-    public init(userId: String) {
+    public init(userId: String, offset: Int = 0, limit: Int? = nil) {
         self.userId = userId
+        self.offset = offset
+        self.limit = limit
     }
 }
 
@@ -47,6 +51,6 @@ public final class GetUserBooksUseCase: UseCase {
     }
 
     public func execute(_ input: Input) async throws -> [Book] {
-        try await bookRepository.findByUserId(input.userId)
+        try await bookRepository.findByUserId(input.userId, offset: input.offset, limit: input.limit)
     }
 }

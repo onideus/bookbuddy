@@ -36,12 +36,20 @@ public struct UpdateBookRequest: Encodable {
     public let currentPage: Int?
     public let rating: Int?
     public let finishedAt: Date?
+    public let genres: [String]?
 
-    public init(status: BookStatus? = nil, currentPage: Int? = nil, rating: Int? = nil, finishedAt: Date? = nil) {
+    public init(
+        status: BookStatus? = nil,
+        currentPage: Int? = nil,
+        rating: Int? = nil,
+        finishedAt: Date? = nil,
+        genres: [String]? = nil
+    ) {
         self.status = status?.rawValue
         self.currentPage = currentPage
         self.rating = rating
         self.finishedAt = finishedAt
+        self.genres = genres
     }
 }
 
