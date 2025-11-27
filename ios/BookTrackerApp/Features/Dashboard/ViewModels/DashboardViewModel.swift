@@ -99,7 +99,7 @@ final class DashboardViewModel: ObservableObject {
         } catch {
             // Preserve existing streak data on failure, only clear if we have no data
             print("Failed to load streak: \(error)")
-            if streak.currentStreak == 0 && streak.totalDaysRead == 0 {
+            if streak.currentStreak == 0, streak.totalDaysRead == 0 {
                 // Only set to empty if we never had data
                 streak = .empty
             }

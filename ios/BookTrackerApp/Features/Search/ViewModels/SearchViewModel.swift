@@ -121,7 +121,7 @@ final class SearchViewModel: ObservableObject {
     /// Fetch all googleBooksIds from user's library
     private func fetchUserLibraryIds() async throws -> Set<String> {
         let books = try await bookRepository.findByUserId(currentUserId)
-        return Set(books.compactMap { $0.googleBooksId })
+        return Set(books.compactMap(\.googleBooksId))
     }
 
     func addBookToLibrary(_ searchResult: BookSearchResult, status: BookStatus) async -> Bool {
