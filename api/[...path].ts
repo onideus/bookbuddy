@@ -2,9 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import {
   handleError,
   checkRateLimit,
-  withAuth,
   verifyAuth,
-  type AuthenticatedRequest,
   getContainer,
   generateAccessToken,
   generateRefreshToken,
