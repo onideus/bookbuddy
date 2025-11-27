@@ -124,17 +124,29 @@ The API will be available at [http://localhost:3000](http://localhost:3000)
 cd ios
 ```
 
-2. Generate the Xcode project:
+2. Install Git hooks (for Swift code quality checks):
+```bash
+./scripts/install-git-hooks.sh
+```
+
+This installs pre-commit hooks that automatically run SwiftLint and SwiftFormat on your code before each commit.
+
+**Required dependencies:**
+```bash
+brew install swiftlint swiftformat
+```
+
+3. Generate the Xcode project:
 ```bash
 xcodegen
 ```
 
-3. Open in Xcode:
+4. Open in Xcode:
 ```bash
 open BookTrackerApp.xcodeproj
 ```
 
-4. Build and run on simulator or device
+5. Build and run on simulator or device
 
 ## API Endpoints
 
