@@ -79,6 +79,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return handleGoals(req, res, subPath);
       case 'streaks':
         return handleStreaks(req, res, subPath);
+      case 'sessions':
+        return handleSessions(req, res, subPath);
       case 'search':
         return handleSearch(req, res);
       case 'export':
@@ -538,6 +540,216 @@ async function handleStreaks(req: VercelRequest, res: VercelResponse, path: stri
   }
 
   return res.status(404).json({ error: 'Not Found', message: `Unknown streaks route: ${subRoute}` });
+}
+
+// ============================================================================
+// Sessions Routes (Protected) - Reading Timer Feature
+// ============================================================================
+
+async function handleSessions(req: VercelRequest, res: VercelResponse, path: string[]) {
+  if (!(await checkRateLimit(req, res))) return;
+
+  let userId: string;
+  try {
+    const authPayload = verifyAuth(req);
+    userId = authPayload.userId;
+  } catch {
+    return res.status(401).json({ error: 'UnauthorizedError', message: 'Authentication required' });
+  }
+
+  const container = getContainer();
+  const subRoute = path[0];
+
+  // /sessions - GET list or POST (start new session)
+  if (!subRoute) {
+    if (req.method === 'GET') {
+      // Get user's sessions with optional filters
+      const { bookId, startDate, endDate, limit: limitStr } = req.query;
+      const limit = limitStr ? Math.min(parseInt(limitStr as string, 10) || 20, 100) : 20;
+
+      const sessions = await container.readingSessionRepository.findByUserId(userId, {
+        bookId: bookId as string | undefined,
+        startDate: startDate ? new Date(startDate as string) : undefined,
+        endDate: endDate ? new Date(endDate as string) : undefined,
+        limit,
+      });
+
+      // Also get active session and stats
+      const activeSession = await container.readingSessionRepository.findActiveByUserId(userId);
+      const todayMinutes = await container.readingSessionRepository.getTodayTotalMinutes(userId);
+      const weekMinutes = await container.readingSessionRepository.getWeekTotalMinutes(userId);
+      const statistics = await container.readingSessionRepository.getStatistics(userId);
+
+      return res.status(200).json({
+        sessions,
+        activeSession,
+        todayMinutes,
+        weekMinutes,
+        statistics,
+      });
+    }
+
+    if (req.method === 'POST') {
+      // Start a new session
+      const { bookId } = req.body || {};
+
+      // Check if user already has an active session
+      const existingSession = await container.readingSessionRepository.findActiveByUserId(userId);
+      if (existingSession) {
+        return res.status(400).json({
+          error: 'ValidationError',
+          message: 'You already have an active reading session. Please end it before starting a new one.',
+          statusCode: 400,
+          activeSession: existingSession,
+        });
+      }
+
+      const session = await container.readingSessionRepository.create({
+        userId,
+        bookId: bookId || undefined,
+        startTime: new Date(),
+      });
+
+      return res.status(201).json({ session });
+    }
+
+    res.setHeader('Allow', ['GET', 'POST']);
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // /sessions/active - GET active session
+  if (subRoute === 'active') {
+    if (req.method !== 'GET') {
+      res.setHeader('Allow', ['GET']);
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    const activeSession = await container.readingSessionRepository.findActiveByUserId(userId);
+    if (!activeSession) {
+      return res.status(200).json({ activeSession: null, isActive: false });
+    }
+
+    // Calculate current duration
+    const currentDurationMs = Date.now() - activeSession.startTime.getTime();
+    const currentDurationMinutes = Math.floor(currentDurationMs / 1000 / 60);
+
+    return res.status(200).json({
+      activeSession,
+      isActive: true,
+      currentDurationMinutes,
+    });
+  }
+
+  // /sessions/statistics - GET statistics
+  if (subRoute === 'statistics') {
+    if (req.method !== 'GET') {
+      res.setHeader('Allow', ['GET']);
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    const { startDate, endDate } = req.query;
+    const statistics = await container.readingSessionRepository.getStatistics(
+      userId,
+      startDate ? new Date(startDate as string) : undefined,
+      endDate ? new Date(endDate as string) : undefined
+    );
+
+    const todayMinutes = await container.readingSessionRepository.getTodayTotalMinutes(userId);
+    const weekMinutes = await container.readingSessionRepository.getWeekTotalMinutes(userId);
+
+    return res.status(200).json({
+      statistics,
+      todayMinutes,
+      weekMinutes,
+    });
+  }
+
+  // /sessions/:id - GET, PATCH (end session), DELETE
+  const sessionId = subRoute;
+
+  if (req.method === 'GET') {
+    const session = await container.readingSessionRepository.findById(sessionId);
+    if (!session) {
+      return res.status(404).json({ error: 'NotFoundError', message: 'Session not found', statusCode: 404 });
+    }
+    if (session.userId !== userId) {
+      return res.status(403).json({ error: 'ForbiddenError', message: 'Access denied', statusCode: 403 });
+    }
+    return res.status(200).json({ session });
+  }
+
+  if (req.method === 'PATCH') {
+    // End a session or update it
+    const session = await container.readingSessionRepository.findById(sessionId);
+    if (!session) {
+      return res.status(404).json({ error: 'NotFoundError', message: 'Session not found', statusCode: 404 });
+    }
+    if (session.userId !== userId) {
+      return res.status(403).json({ error: 'ForbiddenError', message: 'Access denied', statusCode: 403 });
+    }
+
+    const { pagesRead, notes, end } = req.body || {};
+
+    // If ending the session
+    if (end === true && !session.endTime) {
+      const endTime = new Date();
+      const durationMs = endTime.getTime() - session.startTime.getTime();
+      const durationMinutes = Math.round(durationMs / 1000 / 60);
+
+      const updatedSession = await container.readingSessionRepository.update(sessionId, {
+        endTime,
+        durationMinutes,
+        pagesRead: typeof pagesRead === 'number' ? pagesRead : undefined,
+        notes: notes ? sanitizeString(notes) : undefined,
+      });
+
+      // Update daily reading activity for streak tracking
+      if (updatedSession && durationMinutes > 0) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const existingActivity = await container.readingActivityRepository.findByUserIdAndDate(userId, today);
+        
+        await container.readingActivityRepository.recordActivity({
+          userId,
+          bookId: session.bookId,
+          activityDate: today,
+          minutesRead: (existingActivity?.minutesRead || 0) + durationMinutes,
+          pagesRead: (existingActivity?.pagesRead || 0) + (pagesRead || 0),
+        });
+      }
+
+      return res.status(200).json({ session: updatedSession });
+    }
+
+    // Just updating notes/pages without ending
+    const updates: Record<string, unknown> = {};
+    if (pagesRead !== undefined) updates.pagesRead = pagesRead;
+    if (notes !== undefined) updates.notes = sanitizeString(notes);
+
+    if (Object.keys(updates).length > 0) {
+      const updatedSession = await container.readingSessionRepository.update(sessionId, updates);
+      return res.status(200).json({ session: updatedSession });
+    }
+
+    return res.status(200).json({ session });
+  }
+
+  if (req.method === 'DELETE') {
+    const session = await container.readingSessionRepository.findById(sessionId);
+    if (!session) {
+      return res.status(404).json({ error: 'NotFoundError', message: 'Session not found', statusCode: 404 });
+    }
+    if (session.userId !== userId) {
+      return res.status(403).json({ error: 'ForbiddenError', message: 'Access denied', statusCode: 403 });
+    }
+
+    await container.readingSessionRepository.delete(sessionId);
+    return res.status(200).json({ message: 'Session deleted successfully' });
+  }
+
+  res.setHeader('Allow', ['GET', 'PATCH', 'DELETE']);
+  return res.status(405).json({ error: 'Method not allowed' });
 }
 
 // ============================================================================

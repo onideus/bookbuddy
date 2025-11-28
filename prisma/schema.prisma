@@ -22,6 +22,7 @@ model User {
   goals              Goal[]
   refreshTokens      RefreshToken[]
   readingActivities  ReadingActivity[]
+  readingSessions    ReadingSession[]
 
   @@map("users")
 }
@@ -99,4 +100,25 @@ model ReadingActivity {
   @@index([userId])
   @@index([activityDate])
   @@map("reading_activities")
+}
+
+model ReadingSession {
+  id              String    @id @default(uuid())
+  userId          String
+  bookId          String?
+  startTime       DateTime  @default(now())
+  endTime         DateTime?
+  durationMinutes Int?
+  pagesRead       Int?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([bookId])
+  @@index([startTime])
+  @@index([userId, endTime])  // For finding active sessions
+  @@map("reading_sessions")
 }

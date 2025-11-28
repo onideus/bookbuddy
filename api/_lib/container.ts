@@ -6,6 +6,7 @@ import { PrismaBookRepository } from '../../infrastructure/persistence/prisma/bo
 import { PrismaGoalRepository } from '../../infrastructure/persistence/prisma/goal-repository';
 import { PrismaRefreshTokenRepository } from '../../infrastructure/persistence/prisma/refresh-token-repository';
 import { PrismaReadingActivityRepository } from '../../infrastructure/persistence/prisma/reading-activity-repository';
+import { PrismaReadingSessionRepository } from '../../infrastructure/persistence/prisma/reading-session-repository';
 
 // Import other infrastructure
 import { BcryptPasswordHasher } from '../../infrastructure/security/bcrypt-password-hasher';
@@ -17,6 +18,7 @@ import type { IBookRepository } from '../../domain/interfaces/book-repository';
 import type { IGoalRepository } from '../../domain/interfaces/goal-repository';
 import type { IRefreshTokenRepository } from '../../domain/interfaces/refresh-token-repository';
 import type { IReadingActivityRepository } from '../../domain/interfaces/reading-activity-repository';
+import type { IReadingSessionRepository } from '../../domain/interfaces/reading-session-repository';
 import type { IPasswordHasher } from '../../domain/interfaces/password-hasher';
 import type { IExternalBookSearch } from '../../domain/interfaces/external-book-search';
 
@@ -36,6 +38,7 @@ export interface Container {
   goalRepository: IGoalRepository;
   refreshTokenRepository: IRefreshTokenRepository;
   readingActivityRepository: IReadingActivityRepository;
+  readingSessionRepository: IReadingSessionRepository;
   passwordHasher: IPasswordHasher;
   externalBookSearch: IExternalBookSearch;
 }
@@ -51,6 +54,7 @@ export function getContainer(): Container {
     goalRepository: new PrismaGoalRepository(),
     refreshTokenRepository: new PrismaRefreshTokenRepository(prisma),
     readingActivityRepository: new PrismaReadingActivityRepository(),
+    readingSessionRepository: new PrismaReadingSessionRepository(prisma),
     passwordHasher: new BcryptPasswordHasher(),
     externalBookSearch: new GoogleBooksClient(),
   };
@@ -85,4 +89,8 @@ export function getPasswordHasher(): IPasswordHasher {
 
 export function getExternalBookSearch(): IExternalBookSearch {
   return new GoogleBooksClient();
+}
+
+export function getReadingSessionRepository(): IReadingSessionRepository {
+  return new PrismaReadingSessionRepository(prisma);
 }

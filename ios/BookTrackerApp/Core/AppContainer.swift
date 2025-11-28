@@ -18,6 +18,7 @@ final class AppContainer: ObservableObject {
     let bookRepository: BookRepositoryProtocol
     let goalRepository: GoalRepositoryProtocol
     let streakRepository: StreakRepositoryProtocol
+    let sessionRepository: SessionRepository
     let searchService: ExternalBookSearchService
 
     // MARK: - App State
@@ -34,6 +35,7 @@ final class AppContainer: ObservableObject {
         bookRepository = factory.makeBookRepository()
         goalRepository = factory.makeGoalRepository()
         streakRepository = factory.makeStreakRepository()
+        sessionRepository = factory.makeSessionRepository()
         searchService = factory.makeExternalBookSearchService()
 
         // Check authentication status on app launch
@@ -81,6 +83,10 @@ final class AppContainer: ObservableObject {
 
     func makeStreakViewModel() -> StreakViewModel {
         StreakViewModel(streakRepository: streakRepository)
+    }
+
+    func makeReadingTimerViewModel() -> ReadingTimerViewModel {
+        ReadingTimerViewModel(sessionRepository: sessionRepository)
     }
 
     func makeDashboardViewModel() -> DashboardViewModel {

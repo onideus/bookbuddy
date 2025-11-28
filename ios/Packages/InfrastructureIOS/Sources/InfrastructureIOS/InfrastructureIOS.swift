@@ -91,6 +91,10 @@ public struct InfrastructureFactory {
         StreakRepository(networkClient: networkClient)
     }
 
+    public func makeSessionRepository() -> SessionRepository {
+        SessionRepository(networkClient: networkClient)
+    }
+
     // MARK: - Network
 
     public func makeNetworkClient() -> NetworkClientProtocol {
