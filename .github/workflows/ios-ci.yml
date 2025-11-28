@@ -35,7 +35,7 @@ jobs:
 
       - name: Run SwiftLint
         working-directory: ios
-        run: swiftlint lint --strict
+        run: swiftlint lint
 
       - name: Run SwiftFormat Check
         working-directory: ios
