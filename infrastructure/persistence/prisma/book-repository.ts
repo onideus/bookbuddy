@@ -13,8 +13,6 @@ const DEFAULT_PAGE_SIZE = 20;
 
 export class PrismaBookRepository implements IBookRepository {
   async create(book: Book): Promise<Book> {
-    console.log('[DEBUG] PrismaBookRepository.create - Thumbnail to save:', book.thumbnail, 'Type:', typeof book.thumbnail);
-    
     const created = await prisma.book.create({
       data: {
         id: book.id,
@@ -34,7 +32,6 @@ export class PrismaBookRepository implements IBookRepository {
       },
     });
 
-    console.log('[DEBUG] PrismaBookRepository.create - Created book thumbnail:', created.thumbnail, 'Type:', typeof created.thumbnail);
     return this.mapToBook(created);
   }
 

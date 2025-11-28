@@ -458,7 +458,7 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		"TEMP_61E92A1F-32F0-4AB3-B035-46AA4D5D3E8C" /* BookTrackerApp */ = {
+		"TEMP_CFA34A8E-129C-4471-A3EA-F203D075377E" /* BookTrackerApp */ = {
 			isa = PBXGroup;
 			children = (
 			);

@@ -19,6 +19,12 @@ struct DashboardView: View {
                 )
                 .padding(.horizontal)
 
+                // Log Activity Prompt (shown when no activity today)
+                if !viewModel.streak.isActiveToday {
+                    LogActivityPrompt(onLogActivity: { showingLogActivity = true })
+                        .padding(.horizontal)
+                }
+
                 // Currently Reading Section
                 if viewModel.hasCurrentlyReading {
                     CurrentlyReadingSection(
@@ -68,12 +74,6 @@ struct DashboardView: View {
                     }
                 }
             )
-        }
-        .overlay(alignment: .bottom) {
-            if !viewModel.streak.isActiveToday {
-                QuickLogButton(action: { showingLogActivity = true })
-                    .padding(.bottom, 20)
-            }
         }
         .sheet(isPresented: $showingCreateGoal) {
             CreateGoalView(viewModel: container.makeGoalsViewModel())
@@ -277,6 +277,49 @@ struct GoalProgressCard: View {
     private var daysRemaining: Int {
         let remaining = Calendar.current.dateComponents([.day], from: Date(), to: goal.endDate).day ?? 0
         return max(remaining, 0)
+    }
+}
+
+// MARK: - Log Activity Prompt
+
+/// A prominent in-line card prompting the user to log reading activity
+struct LogActivityPrompt: View {
+    let onLogActivity: () -> Void
+
+    var body: some View {
+        Button(action: onLogActivity) {
+            HStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(Color.orange.opacity(0.2))
+                        .frame(width: 50, height: 50)
+                    Image(systemName: "flame")
+                        .font(.title2)
+                        .foregroundColor(.orange)
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Keep your streak alive!")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                    Text("Log today's reading activity")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+
+                Image(systemName: "plus.circle.fill")
+                    .font(.title2)
+                    .foregroundColor(.orange)
+            }
+            .padding()
+            .background(Color(.systemBackground))
+            .cornerRadius(12)
+            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+        }
+        .buttonStyle(.plain)
     }
 }
 

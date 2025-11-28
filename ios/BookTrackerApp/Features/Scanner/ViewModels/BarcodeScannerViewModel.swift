@@ -210,7 +210,7 @@ extension BarcodeScannerViewModel: AVCaptureMetadataOutputObjectsDelegate {
     }
 
     // Static versions for use in nonisolated delegate method
-    private nonisolated static func validateISBN(_ code: String) -> Bool {
+    nonisolated private static func validateISBN(_ code: String) -> Bool {
         let cleanCode = code.replacingOccurrences(of: "-", with: "")
 
         if cleanCode.count == 13 {
@@ -222,7 +222,7 @@ extension BarcodeScannerViewModel: AVCaptureMetadataOutputObjectsDelegate {
         return false
     }
 
-    private nonisolated static func convertISBNToISBN13(_ code: String) -> String {
+    nonisolated private static func convertISBNToISBN13(_ code: String) -> String {
         let cleanCode = code.replacingOccurrences(of: "-", with: "")
 
         if cleanCode.count == 13 {

@@ -62,8 +62,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   }
   
-  console.log('[DEBUG] URL:', url, 'Path segments:', pathSegments);
-  
   const route = pathSegments[0] || '';
   const subPath = pathSegments.slice(1);
 
@@ -213,7 +211,6 @@ async function handleLogin(req: VercelRequest, res: VercelResponse) {
       user: { id: user.id, email: user.email, name: user.name },
     });
   } catch (error) {
-    console.error('[handleLogin] Error:', error);
     handleError(error, res);
   }
 }
@@ -320,7 +317,6 @@ async function handleBooks(req: VercelRequest, res: VercelResponse, path: string
 
     if (req.method === 'POST') {
       const { googleBooksId, title, authors, thumbnail, description, pageCount, status, genres } = req.body || {};
-      console.log('[DEBUG] API POST /books - Received thumbnail:', thumbnail, 'Type:', typeof thumbnail);
       
       if (!title) {
         return res.status(400).json({ error: 'ValidationError', message: 'Title is required', statusCode: 400 });
@@ -328,7 +324,6 @@ async function handleBooks(req: VercelRequest, res: VercelResponse, path: string
 
       // Don't sanitize URLs - just trim whitespace
       const sanitizedThumbnail = thumbnail ? thumbnail.trim() : undefined;
-      console.log('[DEBUG] API POST /books - Sanitized thumbnail:', sanitizedThumbnail, 'Type:', typeof sanitizedThumbnail);
 
       const useCase = new AddBookUseCase(container.bookRepository);
       const book = await useCase.execute({
