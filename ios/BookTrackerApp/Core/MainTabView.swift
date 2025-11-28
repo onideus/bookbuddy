@@ -49,10 +49,14 @@ struct MainTabView: View {
             .tag(3)
 
             NavigationStack {
-                SearchView(viewModel: container.makeSearchViewModel())
+                ReadingInsightsView(
+                    sessionRepository: container.sessionRepository,
+                    bookRepository: container.bookRepository,
+                    streakRepository: container.streakRepository
+                )
             }
             .tabItem {
-                Label("Search", systemImage: "magnifyingglass")
+                Label("Insights", systemImage: "chart.bar.fill")
             }
             .tag(4)
 

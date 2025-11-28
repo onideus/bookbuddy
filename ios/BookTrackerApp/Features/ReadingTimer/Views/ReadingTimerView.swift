@@ -3,6 +3,7 @@ import SwiftUI
 
 struct ReadingTimerView: View {
     @StateObject private var viewModel: ReadingTimerViewModel
+    @State private var showErrorAlert = false
 
     init(sessionRepository: SessionRepository) {
         _viewModel = StateObject(wrappedValue: ReadingTimerViewModel(sessionRepository: sessionRepository))
@@ -30,10 +31,10 @@ struct ReadingTimerView: View {
             .refreshable {
                 await viewModel.loadInitialData()
             }
-            .alert("Error", isPresented: .init(
-                get: { viewModel.errorMessage != nil },
-                set: { if !$0 { viewModel.errorMessage = nil } }
-            )) {
+            .onChange(of: viewModel.errorMessage) { error in
+                showErrorAlert = error != nil
+            }
+            .alert("Error", isPresented: $showErrorAlert) {
                 Button("OK") { viewModel.errorMessage = nil }
             } message: {
                 Text(viewModel.errorMessage ?? "")

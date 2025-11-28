@@ -8,6 +8,7 @@ struct AddBookView: View {
 
     @State private var showingSuccessMessage = false
     @State private var addedBookTitle = ""
+    @State private var showingScanner = false
 
     var onBookAdded: () -> Void
 
@@ -15,9 +16,23 @@ struct AddBookView: View {
         NavigationView {
             ZStack {
                 VStack(spacing: 0) {
-                    // Search bar
-                    SearchBar(text: $viewModel.searchQuery)
-                        .padding()
+                    // Search bar with scanner button
+                    HStack(spacing: 12) {
+                        SearchBar(text: $viewModel.searchQuery)
+
+                        Button {
+                            showingScanner = true
+                        } label: {
+                            Image(systemName: "barcode.viewfinder")
+                                .font(.title2)
+                                .foregroundColor(.accentColor)
+                                .frame(width: 44, height: 44)
+                                .background(Color(.systemGray6))
+                                .cornerRadius(10)
+                        }
+                        .accessibilityLabel("Scan Barcode")
+                    }
+                    .padding()
 
                     // Content
                     if viewModel.isSearching {
@@ -68,6 +83,15 @@ struct AddBookView: View {
             } message: {
                 if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
+                }
+            }
+            .sheet(isPresented: $showingScanner) {
+                BarcodeScannerView { isbn in
+                    // Search for the book by ISBN
+                    viewModel.searchQuery = isbn
+                    Task {
+                        await viewModel.searchBooks()
+                    }
                 }
             }
         }
