@@ -1,6 +1,6 @@
 name: BookTrackerIOS
 options:
-  bundleIdPrefix: com.booktracker
+  bundleIdPrefix: com.bookbuddy
   deploymentTarget:
     iOS: "16.0"
   developmentLanguage: en
@@ -30,7 +30,7 @@ targets:
       - path: BookTrackerApp
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.booktracker.ios
+        PRODUCT_BUNDLE_IDENTIFIER: com.bookbuddy.ios
         INFOPLIST_FILE: BookTrackerApp/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         DEVELOPMENT_ASSET_PATHS: '"BookTrackerApp/Preview Content"'
@@ -51,7 +51,7 @@ targets:
     settings:
       base:
         GENERATE_INFOPLIST_FILE: true
-        PRODUCT_BUNDLE_IDENTIFIER: com.booktracker.ios.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.bookbuddy.ios.tests
     dependencies:
       - target: BookTrackerApp
       - package: CoreDomain

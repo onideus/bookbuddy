@@ -458,7 +458,7 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		"TEMP_CFA34A8E-129C-4471-A3EA-F203D075377E" /* BookTrackerApp */ = {
+		"TEMP_61682B71-964E-4D4C-8BF9-E8FC4FD9DFB8" /* BookTrackerApp */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -628,7 +628,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.booktracker.ios.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bookbuddy.ios.tests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookTrackerApp.app/BookTrackerApp";
@@ -645,7 +645,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.booktracker.ios.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bookbuddy.ios.tests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookTrackerApp.app/BookTrackerApp";
@@ -663,7 +663,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.booktracker.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bookbuddy.ios;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -739,7 +739,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.booktracker.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bookbuddy.ios;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

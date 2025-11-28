@@ -169,6 +169,16 @@ export class PrismaBookRepository implements IBookRepository {
     return uniqueGenres;
   }
 
+  async existsByGoogleBooksId(userId: string, googleBooksId: string): Promise<boolean> {
+    const count = await prisma.book.count({
+      where: {
+        userId,
+        googleBooksId,
+      },
+    });
+    return count > 0;
+  }
+
   private mapToBook(prismaBook: PrismaBook): Book {
     return {
       id: prismaBook.id,

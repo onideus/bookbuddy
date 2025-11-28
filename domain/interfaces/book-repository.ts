@@ -23,4 +23,9 @@ export interface IBookRepository {
   findByGenre(userId: string, genre: string): Promise<Book[]>;
   getUniqueGenres(userId: string): Promise<string[]>;
   countByUserId(userId: string): Promise<number>;
+  /**
+   * Checks if a book with the given Google Books ID exists for a user.
+   * More efficient than fetching all books when only checking existence.
+   */
+  existsByGoogleBooksId(userId: string, googleBooksId: string): Promise<boolean>;
 }

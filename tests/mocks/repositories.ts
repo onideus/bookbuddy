@@ -7,7 +7,12 @@ import type { Goal } from '@/domain/entities/goal';
 export const createMockBookRepository = (): IBookRepository => ({
   findById: vi.fn(),
   findByUserId: vi.fn(),
+  findByUserIdPaginated: vi.fn(),
   findByStatus: vi.fn(),
+  findByGenre: vi.fn(),
+  getUniqueGenres: vi.fn(),
+  countByUserId: vi.fn(),
+  existsByGoogleBooksId: vi.fn(),
   create: vi.fn(),
   update: vi.fn(),
   delete: vi.fn(),
@@ -16,6 +21,8 @@ export const createMockBookRepository = (): IBookRepository => ({
 export const createMockGoalRepository = (): IGoalRepository => ({
   findById: vi.fn(),
   findByUserId: vi.fn(),
+  findByUserIdPaginated: vi.fn(),
+  countByUserId: vi.fn(),
   create: vi.fn(),
   update: vi.fn(),
   delete: vi.fn(),
