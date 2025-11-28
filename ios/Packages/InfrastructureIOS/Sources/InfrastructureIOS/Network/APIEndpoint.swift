@@ -287,3 +287,121 @@ public extension APIEndpoint {
         )
     }
 }
+
+// MARK: - Session Endpoints
+
+public extension APIEndpoint {
+    /// Get all reading sessions
+    static func getSessions(
+        bookId: String? = nil,
+        startDate: Date? = nil,
+        endDate: Date? = nil,
+        limit: Int? = nil
+    ) -> APIEndpoint {
+        var queryItems: [URLQueryItem] = []
+
+        let formatter = ISO8601DateFormatter()
+        if let bookId {
+            queryItems.append(URLQueryItem(name: "bookId", value: bookId))
+        }
+        if let startDate {
+            queryItems.append(URLQueryItem(name: "startDate", value: formatter.string(from: startDate)))
+        }
+        if let endDate {
+            queryItems.append(URLQueryItem(name: "endDate", value: formatter.string(from: endDate)))
+        }
+        if let limit {
+            queryItems.append(URLQueryItem(name: "limit", value: String(limit)))
+        }
+
+        return APIEndpoint(
+            path: "/sessions",
+            method: .get,
+            queryItems: queryItems.isEmpty ? nil : queryItems,
+            requiresAuth: true
+        )
+    }
+
+    /// Get the currently active session
+    static func getActiveSession() -> APIEndpoint {
+        APIEndpoint(
+            path: "/sessions/active",
+            method: .get,
+            requiresAuth: true
+        )
+    }
+
+    /// Get session statistics
+    static func getSessionStatistics(startDate: Date? = nil, endDate: Date? = nil) -> APIEndpoint {
+        var queryItems: [URLQueryItem] = []
+
+        let formatter = ISO8601DateFormatter()
+        if let startDate {
+            queryItems.append(URLQueryItem(name: "startDate", value: formatter.string(from: startDate)))
+        }
+        if let endDate {
+            queryItems.append(URLQueryItem(name: "endDate", value: formatter.string(from: endDate)))
+        }
+
+        return APIEndpoint(
+            path: "/sessions/statistics",
+            method: .get,
+            queryItems: queryItems.isEmpty ? nil : queryItems,
+            requiresAuth: true
+        )
+    }
+
+    /// Start a new reading session
+    static func startSession(_ request: Encodable) throws -> APIEndpoint {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let body = try encoder.encode(request)
+
+        return APIEndpoint(
+            path: "/sessions",
+            method: .post,
+            body: body,
+            headers: ["Content-Type": "application/json"],
+            requiresAuth: true
+        )
+    }
+
+    /// Update a reading session (without ending it)
+    static func updateSession(id: String, _ request: Encodable) throws -> APIEndpoint {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let body = try encoder.encode(request)
+
+        return APIEndpoint(
+            path: "/sessions/\(id)",
+            method: .patch,
+            body: body,
+            headers: ["Content-Type": "application/json"],
+            requiresAuth: true
+        )
+    }
+
+    /// End a reading session (with end: true flag)
+    static func endSession(id: String, _ request: Encodable) throws -> APIEndpoint {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let body = try encoder.encode(request)
+
+        return APIEndpoint(
+            path: "/sessions/\(id)",
+            method: .patch,
+            body: body,
+            headers: ["Content-Type": "application/json"],
+            requiresAuth: true
+        )
+    }
+
+    /// Delete a reading session
+    static func deleteSession(id: String) -> APIEndpoint {
+        APIEndpoint(
+            path: "/sessions/\(id)",
+            method: .delete,
+            requiresAuth: true
+        )
+    }
+}

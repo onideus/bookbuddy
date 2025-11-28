@@ -50,5 +50,7 @@
 	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>BookBuddy uses the camera to scan book barcodes for quick ISBN lookup and easy book addition to your library.</string>
 </dict>
 </plist>

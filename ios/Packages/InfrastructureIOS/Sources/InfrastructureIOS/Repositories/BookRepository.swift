@@ -52,7 +52,8 @@ public final class BookRepository: BookRepositoryProtocol {
             status: updates.status,
             currentPage: updates.currentPage,
             rating: updates.rating,
-            finishedAt: updates.finishedAt
+            finishedAt: updates.finishedAt,
+            genres: updates.genres
         )
         let endpoint = try APIEndpoint.updateBook(id: id, request)
         let response: UpdateBookResponse = try await networkClient.request(endpoint)

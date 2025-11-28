@@ -16,6 +16,22 @@ public final class NetworkClient: NetworkClientProtocol {
     private let decoder: JSONDecoder
     private let encoder: JSONEncoder
 
+    // MARK: - Static Date Formatters
+
+    /// ISO 8601 formatter with fractional seconds (JavaScript's default format)
+    private static let iso8601FormatterWithFractionalSeconds: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    /// ISO 8601 formatter without fractional seconds
+    private static let iso8601Formatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter
+    }()
+
     public init(
         baseURL: URL,
         session: URLSession = .shared,
@@ -25,9 +41,33 @@ public final class NetworkClient: NetworkClientProtocol {
         self.session = session
         self.keychainManager = keychainManager
 
-        // Configure JSON decoder to handle ISO8601 dates
+        // Configure JSON decoder to handle ISO8601 dates with fractional seconds
+        // JavaScript's Date.toISOString() outputs "2024-01-01T12:00:00.000Z" format
+        // Swift's default .iso8601 doesn't handle fractional seconds
         decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let dateString = try container.decode(String.self)
+
+            // Try multiple ISO 8601 formats
+            let formatters = [
+                // With fractional seconds (JavaScript default)
+                Self.iso8601FormatterWithFractionalSeconds,
+                // Without fractional seconds
+                Self.iso8601Formatter
+            ]
+
+            for formatter in formatters {
+                if let date = formatter.date(from: dateString) {
+                    return date
+                }
+            }
+
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Cannot decode date string: \(dateString)"
+            )
+        }
 
         // Configure JSON encoder for ISO8601 dates
         encoder = JSONEncoder()
@@ -189,7 +229,7 @@ public extension NetworkClient {
     /// Use this when running `vercel dev` locally (default port 3000).
     /// The Vercel dev server simulates the serverless environment.
     static func development() -> NetworkClient {
-        let baseURL = URL(string: "http://127.0.0.1:3000")!
+        let baseURL = URL(string: "http://127.0.0.1:3000/api")!
         return NetworkClient(baseURL: baseURL)
     }
 

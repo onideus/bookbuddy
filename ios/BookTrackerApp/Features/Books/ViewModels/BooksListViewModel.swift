@@ -11,8 +11,10 @@ class BooksListViewModel: ObservableObject {
     @Published var filteredBooks: [Book] = []
     @Published var selectedFilter: BookStatusFilter = .all
     @Published var isLoading = false
+    @Published var isLoadingMore = false
     @Published var errorMessage: String?
     @Published var searchText = ""
+    @Published var hasMorePages = true
 
     // MARK: - Dependencies
 
@@ -20,6 +22,11 @@ class BooksListViewModel: ObservableObject {
     private let updateBookUseCase: UpdateBookUseCase
     private let deleteBookUseCase: DeleteBookUseCase
     private let currentUserId: String // NOTE: Will be retrieved from auth service when implemented
+
+    // MARK: - Pagination
+
+    private let pageSize = 20
+    private var currentOffset = 0
 
     // MARK: - Cancellables
 
@@ -61,17 +68,59 @@ class BooksListViewModel: ObservableObject {
     func loadBooks() async {
         isLoading = true
         errorMessage = nil
+        currentOffset = 0
+        hasMorePages = true
 
         do {
-            let input = GetUserBooksInput(userId: currentUserId)
+            let input = GetUserBooksInput(userId: currentUserId, offset: 0, limit: pageSize)
             let fetchedBooks = try await getUserBooksUseCase.execute(input)
             books = fetchedBooks
+            currentOffset = fetchedBooks.count
+            hasMorePages = fetchedBooks.count == pageSize
             applyFilters()
         } catch {
             errorMessage = "Failed to load books: \(error.localizedDescription)"
         }
 
         isLoading = false
+    }
+
+    func loadMoreBooks() async {
+        guard !isLoadingMore, hasMorePages else { return }
+
+        isLoadingMore = true
+
+        do {
+            let input = GetUserBooksInput(userId: currentUserId, offset: currentOffset, limit: pageSize)
+            let fetchedBooks = try await getUserBooksUseCase.execute(input)
+
+            if fetchedBooks.isEmpty {
+                hasMorePages = false
+            } else {
+                books.append(contentsOf: fetchedBooks)
+                currentOffset += fetchedBooks.count
+                hasMorePages = fetchedBooks.count == pageSize
+                applyFilters()
+            }
+        } catch {
+            errorMessage = "Failed to load more books: \(error.localizedDescription)"
+        }
+
+        isLoadingMore = false
+    }
+
+    /// Called when user scrolls near the end of the list
+    func loadMoreIfNeeded(currentItem: Book?) {
+        guard let currentItem else { return }
+
+        // Load more when we're within the last 5 items
+        let thresholdIndex = books.index(books.endIndex, offsetBy: -5, limitedBy: books.startIndex) ?? books.startIndex
+        if let currentIndex = books.firstIndex(where: { $0.id == currentItem.id }),
+           currentIndex >= thresholdIndex {
+            Task {
+                await loadMoreBooks()
+            }
+        }
     }
 
     func updateBook(_ book: Book, updates: BookUpdate) async {

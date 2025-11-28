@@ -41,18 +41,30 @@ struct MainTabView: View {
             .tag(2)
 
             NavigationStack {
-                SearchView(viewModel: container.makeSearchViewModel())
+                ReadingTimerView(sessionRepository: container.sessionRepository)
             }
             .tabItem {
-                Label("Search", systemImage: "magnifyingglass")
+                Label("Timer", systemImage: "timer")
             }
             .tag(3)
+
+            NavigationStack {
+                ReadingInsightsView(
+                    sessionRepository: container.sessionRepository,
+                    bookRepository: container.bookRepository,
+                    streakRepository: container.streakRepository
+                )
+            }
+            .tabItem {
+                Label("Insights", systemImage: "chart.bar.fill")
+            }
+            .tag(4)
 
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
-                .tag(4)
+                .tag(5)
         }
     }
 }

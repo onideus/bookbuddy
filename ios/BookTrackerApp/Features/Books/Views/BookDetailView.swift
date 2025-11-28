@@ -53,10 +53,31 @@ struct BookDetailView: View {
                                 .foregroundColor(.secondary)
                         }
 
+                        // Genres
+                        if !book.genres.isEmpty {
+                            GenreChips(genres: Array(book.genres.prefix(3)))
+                        }
+
                         Spacer()
                     }
                 }
                 .padding(.bottom, 8)
+
+                // Full Genres Section (if more than 3)
+                if !book.genres.isEmpty {
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Genres")
+                            .font(.headline)
+
+                        FlowLayout(spacing: 8) {
+                            ForEach(book.genres, id: \.self) { genre in
+                                GenreChip(genre: genre)
+                            }
+                        }
+                    }
+                }
 
                 Divider()
 

@@ -31,6 +31,7 @@
 --self remove
 --importgrouping testable-bottom
 --header strip
+--modifierorder nonisolated,override,public,private,fileprivate,internal,open,final,static,class,required,convenience,lazy,weak,dynamic,optional,mutating,nonmutating
 
 # Enabled rules
 --enable isEmpty

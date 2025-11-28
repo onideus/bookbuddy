@@ -3,44 +3,50 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		0AB1EA02A2D28D74807328D8 /* Application in Frameworks */ = {isa = PBXBuildFile; productRef = 73C1DC4E828C5AE533227EC0 /* Application */; };
 		0BE7A34CA1D8BFF1AC752C8C /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89AD9B6B7E1E72D243E83A20 /* AuthViewModel.swift */; };
 		180327B0553816EB923B0888 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299840802C0FBD096061EF3E /* RootView.swift */; };
-		1B8FA93DDF2CB90704BDE7BF /* GenreChips.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51F754C04F720E155F010D9 /* GenreChips.swift */; };
 		1FD95E3FA2D2816AA115995D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DB09A458FE4BE361E3F78916 /* Assets.xcassets */; };
 		239C5286B834A2030B30072A /* BookDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AEDA929483547965B67C44F /* BookDetailView.swift */; };
+		2E3252F78BA375ABD2BEBB82 /* ReadingTimerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1828035B80F52789A214E09 /* ReadingTimerViewModel.swift */; };
 		2F4F99B802B53AAE0C0C6405 /* GoalsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872558A7212CE34D9D32D890 /* GoalsListView.swift */; };
+		362F7B72C51323E64D0BDF35 /* BarcodeScannerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71CB02E1F8DEB6CF208DF337 /* BarcodeScannerViewModel.swift */; };
 		48DF6C832450060BA6A9F936 /* GoalsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88C9E42563C02E9317FA4D6D /* GoalsViewModel.swift */; };
+		587EE1E057004CA04BC6AD57 /* GenreChips.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A308374E537913B36A4394C /* GenreChips.swift */; };
 		5B6D09D54A4BB2458D72A47F /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D95FB093EC7DB68C13C440 /* SearchView.swift */; };
 		63186ABE4E2F91E3A80E7E49 /* InfrastructureIOS in Frameworks */ = {isa = PBXBuildFile; productRef = 7AB757D799C4C05F882D2446 /* InfrastructureIOS */; };
 		634A80F7659D87A4C8B43C86 /* InfrastructureIOS in Frameworks */ = {isa = PBXBuildFile; productRef = D5B0746CF79EAA79B1D172A6 /* InfrastructureIOS */; };
 		70873D5886104AA348DF07CF /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2350291777882D078FE606E /* MainTabView.swift */; };
 		76AF36681021D27753AB00EF /* GoalCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BDCF43E1572844F0B3DDA3 /* GoalCard.swift */; };
+		7F4C87F100CFAB3E27AFCE49 /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A266B99933B7047512DF91A6 /* BarcodeScannerView.swift */; };
 		8231C772E797D5D14970988D /* BookTrackerAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157CCA5DCE6A0BFECCBD5A4D /* BookTrackerAppTests.swift */; };
 		839978C163E1F80C0BBCC9FE /* BooksListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C09111DC7CB7C345E9DE965 /* BooksListView.swift */; };
+		875DBD2AA718D49A90A4702F /* StreakViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A52EAA1CE6CD64148CDB447 /* StreakViewModel.swift */; };
+		87D3A4A1F29BD6067C30588C /* ReadingTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED61F2106A6470D436C6107 /* ReadingTimerView.swift */; };
 		8C86523C3ABAB235E00A448A /* AddBookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 086B81ECEEF2338CF85A22F2 /* AddBookView.swift */; };
 		8F349D57FC6FAF5589BDB47A /* SearchBooksViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1647C5871B0815E0046535F2 /* SearchBooksViewModel.swift */; };
 		90756BDE5FDFF6FEA9F4B37F /* BooksListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8983267E8B73CFE2F27AB1D6 /* BooksListViewModel.swift */; };
 		9D70F7880E363533E164F191 /* BookTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB7555FDC70B8D95828D4EAA /* BookTrackerApp.swift */; };
+		9DD59DB451AE31C2ED6BB364 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF1D400730DA525B03DF2CF /* DashboardViewModel.swift */; };
 		9DDE2070AE27DC8C786DC9AE /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 956FED928B7CF7647FF0D5F1 /* LoginView.swift */; };
 		A835AD7285DDD2F4BE1D3443 /* SearchResultCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD0E56DB26A790E66D70F53 /* SearchResultCard.swift */; };
-		A94D575452D1AB5C00ADCAA2 /* LogActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852DB4647DA1269A5A5B20C2 /* LogActivityView.swift */; };
 		B20384EC7673082C83BE8395 /* RegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5395357A31CAB9CDE98740CF /* RegisterView.swift */; };
-		B77F0BFB2051D872B28B0FBD /* StreakBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC850580D5BF4D5C3A7F3B3F /* StreakBadge.swift */; };
-		BFD0D416AD3525ADAB514D0D /* StreakViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AD638266F619B9D1EE01C49 /* StreakViewModel.swift */; };
+		B31F9EDC703857DF5EC0FD5E /* ReadingInsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D86F248D2508C11696F50 /* ReadingInsightsView.swift */; };
+		B3F17BA99FE3AF078DFC54F4 /* ReadingInsightsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ACF06D191013DEE168526C5 /* ReadingInsightsViewModel.swift */; };
 		C1F2F522247CB072227C3C30 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5541BAD9172E4B9A63396ABF /* Preview Assets.xcassets */; };
+		C3AF9E787F2D50C7B24DB19D /* StreakBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D069701CDF4158D44D6784E /* StreakBadge.swift */; };
 		C9D40E247B4A12FD87B79318 /* CreateGoalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C1F464EB40E87EBA7D61FA /* CreateGoalView.swift */; };
+		CD2DAB2E646FA0C8DD065901 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2451E93CC85A77AF1A768A6 /* DashboardView.swift */; };
 		CF17E2E0EC1817D3AE34F5F7 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE59893DC658C0C77EDDAC99 /* AppContainer.swift */; };
 		D525BC857B26F425B0794869 /* CoreDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 96153230E2AEB74A14CD2315 /* CoreDomain */; };
-		D89D67258C563365AF5011F8 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DE65B57E2CC9A03ACA574ED /* DashboardView.swift */; };
-		DDF137B92583C3ECF1436437 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39646E1772E848D79E3BAFC2 /* DashboardViewModel.swift */; };
 		E8BC78E91D1928A1747145C3 /* CoreDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 1932AE9C14A707E0E6940C6A /* CoreDomain */; };
 		E96EF5ED364AC255820D3862 /* BookSearchResultCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA36FEEC0E13E904DB1EB3C5 /* BookSearchResultCard.swift */; };
 		EAFF2BAEC0C83FF8C6DC05C2 /* Application in Frameworks */ = {isa = PBXBuildFile; productRef = C1655A797D61344595A995BA /* Application */; };
+		EB509623044338A00DE6A789 /* LogActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB1C4CBDDDE501CE32B469F2 /* LogActivityView.swift */; };
 		F51E093FA473DA2BD7A10CDB /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 166CCCC5325BA7BE79A9A47A /* SearchViewModel.swift */; };
 		FC79FE8E23BB9E9DFAF780E4 /* BookCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A42F5C83C95F78F87D8DCA4 /* BookCard.swift */; };
 /* End PBXBuildFile section */
@@ -57,32 +63,37 @@
 
 /* Begin PBXFileReference section */
 		086B81ECEEF2338CF85A22F2 /* AddBookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddBookView.swift; sourceTree = "<group>"; };
+		0A2D86F248D2508C11696F50 /* ReadingInsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingInsightsView.swift; sourceTree = "<group>"; };
 		14A4BC08B4BB1ACF92792D86 /* InfrastructureIOS */ = {isa = PBXFileReference; lastKnownFileType = folder; name = InfrastructureIOS; path = Packages/InfrastructureIOS; sourceTree = SOURCE_ROOT; };
-		154CD5CC16C97912F3137129 /* BookTrackerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookTrackerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		154CD5CC16C97912F3137129 /* BookTrackerApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = BookTrackerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		157CCA5DCE6A0BFECCBD5A4D /* BookTrackerAppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookTrackerAppTests.swift; sourceTree = "<group>"; };
 		1647C5871B0815E0046535F2 /* SearchBooksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBooksViewModel.swift; sourceTree = "<group>"; };
 		166CCCC5325BA7BE79A9A47A /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		1C09111DC7CB7C345E9DE965 /* BooksListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BooksListView.swift; sourceTree = "<group>"; };
+		1DF1D400730DA525B03DF2CF /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
 		299840802C0FBD096061EF3E /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		2AEDA929483547965B67C44F /* BookDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookDetailView.swift; sourceTree = "<group>"; };
-		39646E1772E848D79E3BAFC2 /* DashboardViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
-		3AD638266F619B9D1EE01C49 /* StreakViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StreakViewModel.swift; sourceTree = "<group>"; };
 		47D95FB093EC7DB68C13C440 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		4D069701CDF4158D44D6784E /* StreakBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakBadge.swift; sourceTree = "<group>"; };
 		5395357A31CAB9CDE98740CF /* RegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterView.swift; sourceTree = "<group>"; };
 		5541BAD9172E4B9A63396ABF /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		6ACF06D191013DEE168526C5 /* ReadingInsightsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingInsightsViewModel.swift; sourceTree = "<group>"; };
 		6B85CF7E1BD7367F5C5A4223 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		71CB02E1F8DEB6CF208DF337 /* BarcodeScannerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeScannerViewModel.swift; sourceTree = "<group>"; };
+		7A52EAA1CE6CD64148CDB447 /* StreakViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakViewModel.swift; sourceTree = "<group>"; };
 		807520860CA60D6B7D063F08 /* CoreDomain */ = {isa = PBXFileReference; lastKnownFileType = folder; name = CoreDomain; path = Packages/CoreDomain; sourceTree = SOURCE_ROOT; };
-		852DB4647DA1269A5A5B20C2 /* LogActivityView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LogActivityView.swift; sourceTree = "<group>"; };
 		872558A7212CE34D9D32D890 /* GoalsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsListView.swift; sourceTree = "<group>"; };
 		88C9E42563C02E9317FA4D6D /* GoalsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsViewModel.swift; sourceTree = "<group>"; };
 		8983267E8B73CFE2F27AB1D6 /* BooksListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BooksListViewModel.swift; sourceTree = "<group>"; };
 		89AD9B6B7E1E72D243E83A20 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
-		8DE65B57E2CC9A03ACA574ED /* DashboardView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		956FED928B7CF7647FF0D5F1 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		9A308374E537913B36A4394C /* GenreChips.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenreChips.swift; sourceTree = "<group>"; };
 		9A42F5C83C95F78F87D8DCA4 /* BookCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookCard.swift; sourceTree = "<group>"; };
+		A266B99933B7047512DF91A6 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeScannerView.swift; sourceTree = "<group>"; };
 		A3BDCF43E1572844F0B3DDA3 /* GoalCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalCard.swift; sourceTree = "<group>"; };
 		AA36FEEC0E13E904DB1EB3C5 /* BookSearchResultCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookSearchResultCard.swift; sourceTree = "<group>"; };
 		AADF9DF77F9FCFFB9396D5EE /* BookTrackerAppTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BookTrackerAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B2451E93CC85A77AF1A768A6 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		B672A2EDAF82358084802507 /* Application */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Application; path = Packages/Application; sourceTree = SOURCE_ROOT; };
 		C2350291777882D078FE606E /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		C6C1F464EB40E87EBA7D61FA /* CreateGoalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateGoalView.swift; sourceTree = "<group>"; };
@@ -90,8 +101,9 @@
 		DAD0E56DB26A790E66D70F53 /* SearchResultCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultCard.swift; sourceTree = "<group>"; };
 		DB09A458FE4BE361E3F78916 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DB7555FDC70B8D95828D4EAA /* BookTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookTrackerApp.swift; sourceTree = "<group>"; };
-		DC850580D5BF4D5C3A7F3B3F /* StreakBadge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StreakBadge.swift; sourceTree = "<group>"; };
-		E51F754C04F720E155F010D9 /* GenreChips.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GenreChips.swift; sourceTree = "<group>"; };
+		DED61F2106A6470D436C6107 /* ReadingTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingTimerView.swift; sourceTree = "<group>"; };
+		E1828035B80F52789A214E09 /* ReadingTimerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingTimerViewModel.swift; sourceTree = "<group>"; };
+		EB1C4CBDDDE501CE32B469F2 /* LogActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogActivityView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,12 +140,38 @@
 			path = Books;
 			sourceTree = "<group>";
 		};
+		0EF743714E55C04A9737DD7C /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				6ACF06D191013DEE168526C5 /* ReadingInsightsViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 		1055A5618C1C160B95B1C65B /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
 				5541BAD9172E4B9A63396ABF /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		1C41CA6152A7AC8AD93F3003 /* Scanner */ = {
+			isa = PBXGroup;
+			children = (
+				BA9C965FAD0F529FDB4FE7D5 /* ViewModels */,
+				EE06AE4B48A06EC75BEEFFDB /* Views */,
+			);
+			path = Scanner;
+			sourceTree = "<group>";
+		};
+		1D337A3BD100B6EF851AA44E /* Insights */ = {
+			isa = PBXGroup;
+			children = (
+				0EF743714E55C04A9737DD7C /* ViewModels */,
+				1EF844F86CFA6DDF85E89015 /* Views */,
+			);
+			path = Insights;
 			sourceTree = "<group>";
 		};
 		1E92C8CCB92C69DC9E223AA5 /* ViewModels */ = {
@@ -144,24 +182,35 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
+		1EF844F86CFA6DDF85E89015 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				0A2D86F248D2508C11696F50 /* ReadingInsightsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		272FD84E3B5D0B469A225774 /* Features */ = {
 			isa = PBXGroup;
 			children = (
 				53F3B6194205445BFF6AE08A /* Auth */,
 				024DEB3DA0C2DBF84ACC9059 /* Books */,
+				B137AD452B34BD5ECD90BABE /* Dashboard */,
 				BDBD62ACF5D31091F3CF033E /* Goals */,
+				1D337A3BD100B6EF851AA44E /* Insights */,
+				83A8967E301720E06CDCBFE0 /* ReadingTimer */,
+				1C41CA6152A7AC8AD93F3003 /* Scanner */,
 				ED2E8E16E5009F8086074066 /* Search */,
-				A0F88937D0A74B09E4D0776A /* Dashboard */,
 			);
 			path = Features;
 			sourceTree = "<group>";
 		};
-		39B53D5D597C9DEDE696DA9D /* Components */ = {
+		32DDC2A26178F57E5BA9D7FE /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				DC850580D5BF4D5C3A7F3B3F /* StreakBadge.swift */,
+				DED61F2106A6470D436C6107 /* ReadingTimerView.swift */,
 			);
-			path = Components;
+			path = Views;
 			sourceTree = "<group>";
 		};
 		3DA53CA5F12FC01AECE270E1 /* Components */ = {
@@ -169,7 +218,7 @@
 			children = (
 				9A42F5C83C95F78F87D8DCA4 /* BookCard.swift */,
 				AA36FEEC0E13E904DB1EB3C5 /* BookSearchResultCard.swift */,
-				E51F754C04F720E155F010D9 /* GenreChips.swift */,
+				9A308374E537913B36A4394C /* GenreChips.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -190,6 +239,15 @@
 			path = BookTrackerAppTests;
 			sourceTree = "<group>";
 		};
+		4F24BDC8F0899D051335D868 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				B2451E93CC85A77AF1A768A6 /* DashboardView.swift */,
+				EB1C4CBDDDE501CE32B469F2 /* LogActivityView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		53F3B6194205445BFF6AE08A /* Auth */ = {
 			isa = PBXGroup;
 			children = (
@@ -197,6 +255,32 @@
 				A1624CAB7AC9D871ADA2D572 /* Views */,
 			);
 			path = Auth;
+			sourceTree = "<group>";
+		};
+		591A783918C8A6695BE65319 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				4D069701CDF4158D44D6784E /* StreakBadge.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		7F416421D5E6474DB5CB5C38 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				1DF1D400730DA525B03DF2CF /* DashboardViewModel.swift */,
+				7A52EAA1CE6CD64148CDB447 /* StreakViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		83A8967E301720E06CDCBFE0 /* ReadingTimer */ = {
+			isa = PBXGroup;
+			children = (
+				B30D679FA57F5C4978BC1800 /* ViewModels */,
+				32DDC2A26178F57E5BA9D7FE /* Views */,
+			);
+			path = ReadingTimer;
 			sourceTree = "<group>";
 		};
 		84D2129E41BCD2BC9BCD1B14 /* Views */ = {
@@ -216,16 +300,6 @@
 				1647C5871B0815E0046535F2 /* SearchBooksViewModel.swift */,
 			);
 			path = ViewModels;
-			sourceTree = "<group>";
-		};
-		A0F88937D0A74B09E4D0776A /* Dashboard */ = {
-			isa = PBXGroup;
-			children = (
-				A7FE1E65A29D70651EE11AC2 /* Views */,
-				E94464B7F006DBCE157BC921 /* ViewModels */,
-				39B53D5D597C9DEDE696DA9D /* Components */,
-			);
-			path = Dashboard;
 			sourceTree = "<group>";
 		};
 		A1624CAB7AC9D871ADA2D572 /* Views */ = {
@@ -255,21 +329,38 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
-		A7FE1E65A29D70651EE11AC2 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				8DE65B57E2CC9A03ACA574ED /* DashboardView.swift */,
-				852DB4647DA1269A5A5B20C2 /* LogActivityView.swift */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
 		AD6E9145999FE9F508ED3DDC /* Components */ = {
 			isa = PBXGroup;
 			children = (
 				DAD0E56DB26A790E66D70F53 /* SearchResultCard.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		B137AD452B34BD5ECD90BABE /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				591A783918C8A6695BE65319 /* Components */,
+				7F416421D5E6474DB5CB5C38 /* ViewModels */,
+				4F24BDC8F0899D051335D868 /* Views */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		B30D679FA57F5C4978BC1800 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				E1828035B80F52789A214E09 /* ReadingTimerViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		BA9C965FAD0F529FDB4FE7D5 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				71CB02E1F8DEB6CF208DF337 /* BarcodeScannerViewModel.swift */,
+			);
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		BC7AF65E483D7C2CCA61CDA6 /* Components */ = {
@@ -330,15 +421,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		E94464B7F006DBCE157BC921 /* ViewModels */ = {
-			isa = PBXGroup;
-			children = (
-				3AD638266F619B9D1EE01C49 /* StreakViewModel.swift */,
-				39646E1772E848D79E3BAFC2 /* DashboardViewModel.swift */,
-			);
-			path = ViewModels;
-			sourceTree = "<group>";
-		};
 		ED2E8E16E5009F8086074066 /* Search */ = {
 			isa = PBXGroup;
 			children = (
@@ -347,6 +429,14 @@
 				489F264DF09E6733F65CCBA7 /* Views */,
 			);
 			path = Search;
+			sourceTree = "<group>";
+		};
+		EE06AE4B48A06EC75BEEFFDB /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A266B99933B7047512DF91A6 /* BarcodeScannerView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		EF467EEB835BD03F2ADA38D3 = {
@@ -366,6 +456,13 @@
 				872558A7212CE34D9D32D890 /* GoalsListView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		"TEMP_CFA34A8E-129C-4471-A3EA-F203D075377E" /* BookTrackerApp */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = BookTrackerApp;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -439,7 +536,7 @@
 				9D79150F849EC30FD8B0C239 /* XCLocalSwiftPackageReference "Packages/CoreDomain" */,
 				1CE595770780CC94B1D18C99 /* XCLocalSwiftPackageReference "Packages/InfrastructureIOS" */,
 			);
-			productRefGroup = E42C93387ADD40C655A79251 /* Products */;
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -477,6 +574,8 @@
 				8C86523C3ABAB235E00A448A /* AddBookView.swift in Sources */,
 				CF17E2E0EC1817D3AE34F5F7 /* AppContainer.swift in Sources */,
 				0BE7A34CA1D8BFF1AC752C8C /* AuthViewModel.swift in Sources */,
+				7F4C87F100CFAB3E27AFCE49 /* BarcodeScannerView.swift in Sources */,
+				362F7B72C51323E64D0BDF35 /* BarcodeScannerViewModel.swift in Sources */,
 				FC79FE8E23BB9E9DFAF780E4 /* BookCard.swift in Sources */,
 				239C5286B834A2030B30072A /* BookDetailView.swift in Sources */,
 				E96EF5ED364AC255820D3862 /* BookSearchResultCard.swift in Sources */,
@@ -484,23 +583,27 @@
 				839978C163E1F80C0BBCC9FE /* BooksListView.swift in Sources */,
 				90756BDE5FDFF6FEA9F4B37F /* BooksListViewModel.swift in Sources */,
 				C9D40E247B4A12FD87B79318 /* CreateGoalView.swift in Sources */,
+				CD2DAB2E646FA0C8DD065901 /* DashboardView.swift in Sources */,
+				9DD59DB451AE31C2ED6BB364 /* DashboardViewModel.swift in Sources */,
+				587EE1E057004CA04BC6AD57 /* GenreChips.swift in Sources */,
 				76AF36681021D27753AB00EF /* GoalCard.swift in Sources */,
 				2F4F99B802B53AAE0C0C6405 /* GoalsListView.swift in Sources */,
 				48DF6C832450060BA6A9F936 /* GoalsViewModel.swift in Sources */,
+				EB509623044338A00DE6A789 /* LogActivityView.swift in Sources */,
 				9DDE2070AE27DC8C786DC9AE /* LoginView.swift in Sources */,
 				70873D5886104AA348DF07CF /* MainTabView.swift in Sources */,
+				B31F9EDC703857DF5EC0FD5E /* ReadingInsightsView.swift in Sources */,
+				B3F17BA99FE3AF078DFC54F4 /* ReadingInsightsViewModel.swift in Sources */,
+				87D3A4A1F29BD6067C30588C /* ReadingTimerView.swift in Sources */,
+				2E3252F78BA375ABD2BEBB82 /* ReadingTimerViewModel.swift in Sources */,
 				B20384EC7673082C83BE8395 /* RegisterView.swift in Sources */,
 				180327B0553816EB923B0888 /* RootView.swift in Sources */,
 				8F349D57FC6FAF5589BDB47A /* SearchBooksViewModel.swift in Sources */,
 				A835AD7285DDD2F4BE1D3443 /* SearchResultCard.swift in Sources */,
 				5B6D09D54A4BB2458D72A47F /* SearchView.swift in Sources */,
 				F51E093FA473DA2BD7A10CDB /* SearchViewModel.swift in Sources */,
-				BFD0D416AD3525ADAB514D0D /* StreakViewModel.swift in Sources */,
-				DDF137B92583C3ECF1436437 /* DashboardViewModel.swift in Sources */,
-				B77F0BFB2051D872B28B0FBD /* StreakBadge.swift in Sources */,
-				D89D67258C563365AF5011F8 /* DashboardView.swift in Sources */,
-				A94D575452D1AB5C00ADCAA2 /* LogActivityView.swift in Sources */,
-				1B8FA93DDF2CB90704BDE7BF /* GenreChips.swift in Sources */,
+				C3AF9E787F2D50C7B24DB19D /* StreakBadge.swift in Sources */,
+				875DBD2AA718D49A90A4702F /* StreakViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -554,18 +657,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"BookTrackerApp/Preview Content\"";
-				DEVELOPMENT_TEAM = CGB8NT6HDX;
 				INFOPLIST_FILE = BookTrackerApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = BookBuddy;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bookbuddy.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = com.booktracker.ios;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -635,18 +733,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"BookTrackerApp/Preview Content\"";
-				DEVELOPMENT_TEAM = CGB8NT6HDX;
 				INFOPLIST_FILE = BookTrackerApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = BookBuddy;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bookbuddy.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = com.booktracker.ios;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

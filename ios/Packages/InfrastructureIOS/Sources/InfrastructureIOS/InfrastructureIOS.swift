@@ -24,10 +24,10 @@ public struct InfrastructureConfiguration {
         self.enableLogging = enableLogging
     }
 
-    /// Development configuration (localhost)
+    /// Development configuration (localhost with Vercel dev server)
     public static var development: InfrastructureConfiguration {
         InfrastructureConfiguration(
-            baseURL: URL(string: "http://127.0.0.1:3000")!,
+            baseURL: URL(string: "http://127.0.0.1:3000/api")!,
             enableLogging: true
         )
     }
@@ -89,6 +89,10 @@ public struct InfrastructureFactory {
 
     public func makeStreakRepository() -> StreakRepositoryProtocol {
         StreakRepository(networkClient: networkClient)
+    }
+
+    public func makeSessionRepository() -> SessionRepository {
+        SessionRepository(networkClient: networkClient)
     }
 
     // MARK: - Network
