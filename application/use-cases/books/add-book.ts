@@ -19,13 +19,13 @@ export class AddBookUseCase {
   constructor(private bookRepository: IBookRepository) {}
 
   async execute(input: AddBookInput): Promise<Book> {
-    // Check for duplicates
-    const userBooks = await this.bookRepository.findByUserId(input.userId);
-    const duplicate = userBooks.find(
-      book => book.googleBooksId === input.googleBooksId
+    // Check for duplicates using optimized exists query
+    const bookExists = await this.bookRepository.existsByGoogleBooksId(
+      input.userId,
+      input.googleBooksId
     );
 
-    if (duplicate) {
+    if (bookExists) {
       throw new DuplicateError('Book', 'googleBooksId');
     }
 

@@ -69,3 +69,5 @@ domain/**/*.js
 infrastructure/**/*.js
 lib/**/*.js
 application/**/*.js
+
+tmp/
