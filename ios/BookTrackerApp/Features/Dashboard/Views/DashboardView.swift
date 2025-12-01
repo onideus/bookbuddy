@@ -49,9 +49,9 @@ struct DashboardView: View {
 
                 // Quick Actions
                 QuickActionsSection(
-                    onAddBook: { selectedTab = 3 }, // Navigate to Search tab
+                    onAddBook: { selectedTab = 1 }, // Navigate to Books tab
                     onNewGoal: { showingCreateGoal = true },
-                    onViewStats: { /* Stats feature coming soon */ }
+                    onViewStats: { selectedTab = 4 } // Navigate to Insights tab
                 )
                 .padding(.horizontal)
             }
@@ -412,7 +412,7 @@ struct DashboardViewPreview: View {
 
 // MARK: - Preview Repositories
 
-private class PreviewStreakRepository: StreakRepositoryProtocol {
+private final class PreviewStreakRepository: StreakRepositoryProtocol, @unchecked Sendable {
     func getStreak() async throws -> ReadingStreak {
         ReadingStreak(
             currentStreak: 5,
@@ -441,7 +441,7 @@ private class PreviewStreakRepository: StreakRepositoryProtocol {
     }
 }
 
-private class PreviewBookRepository: BookRepositoryProtocol {
+private final class PreviewBookRepository: BookRepositoryProtocol, @unchecked Sendable {
     func findById(_: String) async throws -> Book? { nil }
     func findByUserId(_: String) async throws -> [Book] {
         [
@@ -470,7 +470,7 @@ private class PreviewBookRepository: BookRepositoryProtocol {
     func exists(userId _: String, googleBooksId _: String) async throws -> Bool { false }
 }
 
-private class PreviewGoalRepository: GoalRepositoryProtocol {
+private final class PreviewGoalRepository: GoalRepositoryProtocol, @unchecked Sendable {
     func findById(_: String) async throws -> Goal? { nil }
     func findByUserId(_: String) async throws -> [Goal] {
         [

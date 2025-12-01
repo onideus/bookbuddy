@@ -150,7 +150,7 @@ struct QuickLogButton: View {
 
 // MARK: - Mock Repository for Preview
 
-private class MockStreakRepository: StreakRepositoryProtocol {
+private final class MockStreakRepository: StreakRepositoryProtocol, @unchecked Sendable {
     func getStreak() async throws -> ReadingStreak {
         .empty
     }

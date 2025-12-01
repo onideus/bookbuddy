@@ -11,8 +11,11 @@ import {
   NotFoundError,
   UnauthorizedError,
   ForbiddenError,
+  OwnershipMismatchError,
+  ConflictError,
   ValidationError,
   DuplicateError,
+  InfrastructureError,
 } from '../../domain/errors/domain-errors';
 
 export interface ErrorResponse {
@@ -28,8 +31,11 @@ export function mapDomainErrorToStatusCode(error: Error): number {
   if (error instanceof NotFoundError) return 404;
   if (error instanceof UnauthorizedError) return 401;
   if (error instanceof ForbiddenError) return 403;
+  if (error instanceof OwnershipMismatchError) return 403;
+  if (error instanceof ConflictError) return 409;
   if (error instanceof ValidationError) return 400;
   if (error instanceof DuplicateError) return 409;
+  if (error instanceof InfrastructureError) return 500;
   if (error instanceof DomainError) return 400;
   return 500;
 }
@@ -74,6 +80,26 @@ export function handleError(error: unknown, res: VercelResponse): void {
     return;
   }
 
+  if (error instanceof OwnershipMismatchError) {
+    res.status(403).json({
+      error: 'OwnershipMismatchError',
+      message: error.message,
+      code: error.code,
+      statusCode: 403,
+    });
+    return;
+  }
+
+  if (error instanceof ConflictError) {
+    res.status(409).json({
+      error: 'ConflictError',
+      message: error.message,
+      code: error.code,
+      statusCode: 409,
+    });
+    return;
+  }
+
   if (error instanceof ValidationError) {
     res.status(400).json({
       error: 'ValidationError',
@@ -92,10 +118,22 @@ export function handleError(error: unknown, res: VercelResponse): void {
     return;
   }
 
+  if (error instanceof InfrastructureError) {
+    console.error('Infrastructure Error (underlying cause):', error.cause);
+    res.status(500).json({
+      error: 'InfrastructureError',
+      message: 'A system error occurred. Please try again later.',
+      code: error.code,
+      statusCode: 500,
+    });
+    return;
+  }
+
   if (error instanceof DomainError) {
     res.status(400).json({
       error: 'DomainError',
       message: error.message,
+      code: error.code,
       statusCode: 400,
     });
     return;

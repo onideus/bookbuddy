@@ -2,7 +2,7 @@ import Foundation
 import Security
 
 /// Manager for securely storing and retrieving sensitive data from the Keychain
-public final class KeychainManager {
+public final class KeychainManager: @unchecked Sendable {
     public static let shared = KeychainManager()
 
     private let service: String

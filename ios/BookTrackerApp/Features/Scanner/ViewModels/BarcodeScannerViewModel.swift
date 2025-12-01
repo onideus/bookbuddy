@@ -1,4 +1,4 @@
-import AVFoundation
+@preconcurrency import AVFoundation
 import Combine
 import SwiftUI
 import UIKit
@@ -18,7 +18,8 @@ final class BarcodeScannerViewModel: NSObject, ObservableObject {
 
     // MARK: - Public Properties
 
-    let captureSession = AVCaptureSession()
+    // Using nonisolated(unsafe) to allow capture session access from background queue
+    nonisolated(unsafe) let captureSession = AVCaptureSession()
 
     // MARK: - Computed Properties
 
@@ -27,7 +28,7 @@ final class BarcodeScannerViewModel: NSObject, ObservableObject {
     // MARK: - Private Properties
 
     private var videoPreviewLayer: AVCaptureVideoPreviewLayer?
-    private let metadataOutput = AVCaptureMetadataOutput()
+    nonisolated(unsafe) private let metadataOutput = AVCaptureMetadataOutput()
     private let sessionQueue = DispatchQueue(label: "barcode.capture.session")
     private var onISBNDetected: ((String) -> Void)?
 
@@ -198,11 +199,11 @@ extension BarcodeScannerViewModel: AVCaptureMetadataOutputObjectsDelegate {
 
         let isbn = Self.convertISBNToISBN13(stringValue)
 
-        // Provide haptic feedback
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(.success)
-
         Task { @MainActor in
+            // Provide haptic feedback on main actor
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.success)
+
             self.detectedISBN = isbn
             self.stopScanning()
             self.onISBNDetected?(isbn)

@@ -1,7 +1,7 @@
 import { IBookRepository } from '../../../domain/interfaces/book-repository';
 import { IGoalRepository } from '../../../domain/interfaces/goal-repository';
 import { Book } from '../../../domain/entities/book';
-import { NotFoundError, UnauthorizedError } from '../../../domain/errors/domain-errors';
+import { NotFoundError, OwnershipMismatchError } from '../../../domain/errors/domain-errors';
 
 export interface UpdateBookInput {
   bookId: string;
@@ -23,7 +23,7 @@ export class UpdateBookUseCase {
     }
 
     if (book.userId !== input.userId) {
-      throw new UnauthorizedError('You do not own this book');
+      throw new OwnershipMismatchError();
     }
 
     // Check if status is changing to 'read' from a different status

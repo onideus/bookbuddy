@@ -52,14 +52,13 @@ final class DashboardViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
 
-        // Load all data concurrently
-        async let streakTask = loadStreak()
-        async let booksTask = loadCurrentlyReading()
-        async let goalsTask = loadActiveGoals()
+        // Load all data concurrently using async let
+        async let loadStreakResult: Void = loadStreak()
+        async let loadBooksResult: Void = loadCurrentlyReading()
+        async let loadGoalsResult: Void = loadActiveGoals()
 
-        await streakTask
-        await booksTask
-        await goalsTask
+        // Await all tasks
+        _ = await (loadStreakResult, loadBooksResult, loadGoalsResult)
 
         isLoading = false
     }

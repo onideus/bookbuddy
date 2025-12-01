@@ -13,22 +13,22 @@ final class MockBookRepository: BookRepositoryProtocol, @unchecked Sendable {
     // MARK: - Mock Data
     
     private var books: [String: Book] = [:]
-    private var userBooks: [String: [Book]] = [:]
+    private var booksByUserId: [String: [Book]] = [:]
     
     // MARK: - Mock Behavior Configuration
     
     var shouldThrowOnCreate = false
     var shouldThrowOnUpdate = false
     var shouldThrowOnDelete = false
+    var shouldReturnNilOnFindById = false
     var shouldReturnNilOnUpdate = false
-    var shouldReturnFalseOnDelete = false
     
     var createError: Error?
     var updateError: Error?
     var deleteError: Error?
     var findByIdError: Error?
     var findByUserIdError: Error?
-    var findByStatusError: Error?
+    var existsError: Error?
     
     // MARK: - Call Tracking
     
@@ -37,57 +37,55 @@ final class MockBookRepository: BookRepositoryProtocol, @unchecked Sendable {
     private(set) var deleteCallCount = 0
     private(set) var findByIdCallCount = 0
     private(set) var findByUserIdCallCount = 0
-    private(set) var findByStatusCallCount = 0
+    private(set) var existsCallCount = 0
     
     private(set) var lastCreatedBook: Book?
     private(set) var lastUpdatedBookId: String?
-    private(set) var lastUpdatedBookUpdates: [String: Any]?
+    private(set) var lastUpdatedBookUpdates: BookUpdate?
     private(set) var lastDeletedBookId: String?
+    private(set) var lastQueriedId: String?
     private(set) var lastQueriedUserId: String?
-    private(set) var lastQueriedBookId: String?
-    private(set) var lastQueriedStatus: BookStatus?
     
     // MARK: - Setup Methods
     
     func reset() {
         books.removeAll()
-        userBooks.removeAll()
+        booksByUserId.removeAll()
         
         shouldThrowOnCreate = false
         shouldThrowOnUpdate = false
         shouldThrowOnDelete = false
+        shouldReturnNilOnFindById = false
         shouldReturnNilOnUpdate = false
-        shouldReturnFalseOnDelete = false
         
         createError = nil
         updateError = nil
         deleteError = nil
         findByIdError = nil
         findByUserIdError = nil
-        findByStatusError = nil
+        existsError = nil
         
         createCallCount = 0
         updateCallCount = 0
         deleteCallCount = 0
         findByIdCallCount = 0
         findByUserIdCallCount = 0
-        findByStatusCallCount = 0
+        existsCallCount = 0
         
         lastCreatedBook = nil
         lastUpdatedBookId = nil
         lastUpdatedBookUpdates = nil
         lastDeletedBookId = nil
+        lastQueriedId = nil
         lastQueriedUserId = nil
-        lastQueriedBookId = nil
-        lastQueriedStatus = nil
     }
     
     func addBook(_ book: Book) {
         books[book.id] = book
-        if userBooks[book.userId] == nil {
-            userBooks[book.userId] = []
+        if booksByUserId[book.userId] == nil {
+            booksByUserId[book.userId] = []
         }
-        userBooks[book.userId]?.append(book)
+        booksByUserId[book.userId]?.append(book)
     }
     
     func addBooks(_ booksToAdd: [Book]) {
@@ -98,19 +96,19 @@ final class MockBookRepository: BookRepositoryProtocol, @unchecked Sendable {
     
     // MARK: - BookRepositoryProtocol Implementation
     
-    func create(_ book: Book) async throws -> Book {
-        createCallCount += 1
-        lastCreatedBook = book
+    func findById(_ id: String) async throws -> Book? {
+        findByIdCallCount += 1
+        lastQueriedId = id
         
-        if shouldThrowOnCreate {
-            if let error = createError {
-                throw error
-            }
-            throw DomainError.duplicate("Book with this Google Books ID already exists")
+        if let error = findByIdError {
+            throw error
         }
         
-        addBook(book)
-        return book
+        if shouldReturnNilOnFindById {
+            return nil
+        }
+        
+        return books[id]
     }
     
     func findByUserId(_ userId: String) async throws -> [Book] {
@@ -121,18 +119,7 @@ final class MockBookRepository: BookRepositoryProtocol, @unchecked Sendable {
             throw error
         }
         
-        return userBooks[userId] ?? []
-    }
-    
-    func findById(_ id: String) async throws -> Book? {
-        findByIdCallCount += 1
-        lastQueriedBookId = id
-        
-        if let error = findByIdError {
-            throw error
-        }
-        
-        return books[id]
+        return booksByUserId[userId] ?? []
     }
     
     func findByUserId(_ userId: String, offset: Int, limit: Int?) async throws -> [Book] {
@@ -143,84 +130,91 @@ final class MockBookRepository: BookRepositoryProtocol, @unchecked Sendable {
             throw error
         }
         
-        let allBooks = userBooks[userId] ?? []
-        let startIndex = min(offset, allBooks.count)
-        let endIndex = limit.map { min(startIndex + $0, allBooks.count) } ?? allBooks.count
+        let allBooks = booksByUserId[userId] ?? []
+        let actualLimit = limit ?? allBooks.count
+        let endIndex = min(offset + actualLimit, allBooks.count)
         
-        return Array(allBooks[startIndex..<endIndex])
+        if offset >= allBooks.count {
+            return []
+        }
+        
+        return Array(allBooks[offset..<endIndex])
     }
     
-    func exists(userId: String, googleBooksId: String) async throws -> Bool {
-        let userBooksArray = userBooks[userId] ?? []
-        return userBooksArray.contains { $0.googleBooksId == googleBooksId }
+    func create(_ book: Book) async throws -> Book {
+        createCallCount += 1
+        lastCreatedBook = book
+        
+        if shouldThrowOnCreate {
+            if let error = createError {
+                throw error
+            }
+            throw DomainError.duplicate("Book already exists")
+        }
+        
+        addBook(book)
+        return book
     }
     
     func update(_ id: String, updates: BookUpdate) async throws -> Book? {
         updateCallCount += 1
         lastUpdatedBookId = id
+        lastUpdatedBookUpdates = updates
         
-        // Convert updates to dictionary for tracking
-        var updatesDict: [String: Any] = [:]
-        if let status = updates.status { updatesDict["status"] = status }
-        if let currentPage = updates.currentPage { updatesDict["currentPage"] = currentPage }
-        if let rating = updates.rating { updatesDict["rating"] = rating }
-        if let finishedAt = updates.finishedAt { updatesDict["finishedAt"] = finishedAt }
-        lastUpdatedBookUpdates = updatesDict
+        if let error = updateError {
+            throw error
+        }
         
         if shouldThrowOnUpdate {
-            if let error = updateError {
-                throw error
-            }
-            throw DomainError.notFound("Book not found")
+            throw DomainError.general("Update failed")
         }
         
         if shouldReturnNilOnUpdate {
             return nil
         }
         
-        guard var book = books[id] else {
+        guard let existingBook = books[id] else {
             return nil
         }
         
-        // Apply updates
-        book = Book(
-            id: book.id,
-            userId: book.userId,
-            googleBooksId: book.googleBooksId,
-            title: book.title,
-            authors: book.authors,
-            thumbnail: book.thumbnail,
-            description: book.description,
-            pageCount: book.pageCount,
-            status: updates.status ?? book.status,
-            currentPage: updates.currentPage ?? book.currentPage,
-            rating: updates.rating ?? book.rating,
-            addedAt: book.addedAt,
-            finishedAt: updates.finishedAt ?? book.finishedAt
+        let updatedBook = Book(
+            id: existingBook.id,
+            userId: existingBook.userId,
+            googleBooksId: existingBook.googleBooksId,
+            title: existingBook.title,
+            authors: existingBook.authors,
+            thumbnail: existingBook.thumbnail,
+            description: existingBook.description,
+            pageCount: existingBook.pageCount,
+            status: updates.status ?? existingBook.status,
+            currentPage: updates.currentPage ?? existingBook.currentPage,
+            rating: updates.rating ?? existingBook.rating,
+            addedAt: existingBook.addedAt,
+            finishedAt: updates.finishedAt ?? existingBook.finishedAt
         )
         
-        // Update storage
-        books[id] = book
-        if let userBooksArray = userBooks[book.userId] {
-            userBooks[book.userId] = userBooksArray.map { $0.id == id ? book : $0 }
+        books[id] = updatedBook
+        
+        // Update in userId dictionary
+        if var userBooks = booksByUserId[existingBook.userId],
+           let index = userBooks.firstIndex(where: { $0.id == id }) {
+            userBooks[index] = updatedBook
+            booksByUserId[existingBook.userId] = userBooks
         }
         
-        return book
+        return updatedBook
     }
     
     func delete(_ id: String) async throws -> Bool {
         deleteCallCount += 1
         lastDeletedBookId = id
         
-        if shouldThrowOnDelete {
-            if let error = deleteError {
-                throw error
-            }
-            throw DomainError.notFound("Book not found")
+        if let error = deleteError {
+            throw error
         }
         
-        if shouldReturnFalseOnDelete {
-            return false
+        if shouldThrowOnDelete {
+            throw DomainError.general("Delete failed")
         }
         
         guard let book = books[id] else {
@@ -228,22 +222,24 @@ final class MockBookRepository: BookRepositoryProtocol, @unchecked Sendable {
         }
         
         books.removeValue(forKey: id)
-        if let userBooksArray = userBooks[book.userId] {
-            userBooks[book.userId] = userBooksArray.filter { $0.id != id }
-        }
+        booksByUserId[book.userId]?.removeAll { $0.id == id }
         
         return true
     }
     
     func findByStatus(_ userId: String, status: BookStatus) async throws -> [Book] {
-        findByStatusCallCount += 1
-        lastQueriedUserId = userId
-        lastQueriedStatus = status
+        let userBooks = booksByUserId[userId] ?? []
+        return userBooks.filter { $0.status == status }
+    }
+    
+    func exists(userId: String, googleBooksId: String) async throws -> Bool {
+        existsCallCount += 1
         
-        if let error = findByStatusError {
+        if let error = existsError {
             throw error
         }
         
-        return userBooks[userId]?.filter { $0.status == status } ?? []
+        let userBooks = booksByUserId[userId] ?? []
+        return userBooks.contains { $0.googleBooksId == googleBooksId }
     }
 }

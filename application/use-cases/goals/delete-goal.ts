@@ -1,5 +1,5 @@
 import { IGoalRepository } from '../../../domain/interfaces/goal-repository';
-import { NotFoundError, UnauthorizedError } from '../../../domain/errors/domain-errors';
+import { NotFoundError, OwnershipMismatchError } from '../../../domain/errors/domain-errors';
 
 export interface DeleteGoalInput {
   goalId: string;
@@ -17,7 +17,7 @@ export class DeleteGoalUseCase {
     }
 
     if (goal.userId !== input.userId) {
-      throw new UnauthorizedError('You do not own this goal');
+      throw new OwnershipMismatchError();
     }
 
     await this.goalRepository.delete(input.goalId);

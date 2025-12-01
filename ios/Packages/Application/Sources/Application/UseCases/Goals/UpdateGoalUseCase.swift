@@ -68,7 +68,7 @@ public final class UpdateGoalUseCase: UseCase {
 
         // Verify user owns the goal
         guard goal.userId == input.userId else {
-            throw DomainError.unauthorized("You don't have permission to update this goal")
+            throw DomainError.ownershipMismatch
         }
 
         // Update the goal

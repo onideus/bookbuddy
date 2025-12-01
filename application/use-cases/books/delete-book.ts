@@ -1,5 +1,5 @@
 import { IBookRepository } from '../../../domain/interfaces/book-repository';
-import { NotFoundError, UnauthorizedError } from '../../../domain/errors/domain-errors';
+import { NotFoundError, OwnershipMismatchError } from '../../../domain/errors/domain-errors';
 
 export interface DeleteBookInput {
   bookId: string;
@@ -17,7 +17,7 @@ export class DeleteBookUseCase {
     }
 
     if (book.userId !== input.userId) {
-      throw new UnauthorizedError('You do not own this book');
+      throw new OwnershipMismatchError();
     }
 
     await this.bookRepository.delete(input.bookId);

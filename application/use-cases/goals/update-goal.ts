@@ -1,6 +1,6 @@
 import { IGoalRepository } from '../../../domain/interfaces/goal-repository';
 import { Goal } from '../../../domain/entities/goal';
-import { NotFoundError, UnauthorizedError } from '../../../domain/errors/domain-errors';
+import { NotFoundError, OwnershipMismatchError } from '../../../domain/errors/domain-errors';
 
 export interface UpdateGoalInput {
   goalId: string;
@@ -19,7 +19,7 @@ export class UpdateGoalUseCase {
     }
 
     if (goal.userId !== input.userId) {
-      throw new UnauthorizedError('You do not own this goal');
+      throw new OwnershipMismatchError();
     }
 
     const updated = await this.goalRepository.update(input.goalId, input.updates);

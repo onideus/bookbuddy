@@ -55,7 +55,7 @@ public final class DeleteBookUseCase: VoidOutputUseCase {
 
         // Verify user owns the book
         guard book.userId == input.userId else {
-            throw DomainError.unauthorized("You don't have permission to delete this book")
+            throw DomainError.ownershipMismatch
         }
 
         // Delete the book

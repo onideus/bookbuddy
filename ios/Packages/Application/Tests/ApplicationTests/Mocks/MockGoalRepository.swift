@@ -13,21 +13,22 @@ final class MockGoalRepository: GoalRepositoryProtocol, @unchecked Sendable {
     // MARK: - Mock Data
     
     private var goals: [String: Goal] = [:]
-    private var userGoals: [String: [Goal]] = [:]
+    private var goalsByUserId: [String: [Goal]] = [:]
     
     // MARK: - Mock Behavior Configuration
     
     var shouldThrowOnCreate = false
     var shouldThrowOnUpdate = false
     var shouldThrowOnDelete = false
+    var shouldReturnNilOnFindById = false
     var shouldReturnNilOnUpdate = false
-    var shouldReturnFalseOnDelete = false
     
     var createError: Error?
     var updateError: Error?
     var deleteError: Error?
     var findByIdError: Error?
     var findByUserIdError: Error?
+    var existsError: Error?
     
     // MARK: - Call Tracking
     
@@ -36,52 +37,57 @@ final class MockGoalRepository: GoalRepositoryProtocol, @unchecked Sendable {
     private(set) var deleteCallCount = 0
     private(set) var findByIdCallCount = 0
     private(set) var findByUserIdCallCount = 0
+    private(set) var findActiveByUserIdCallCount = 0
+    private(set) var existsCallCount = 0
     
     private(set) var lastCreatedGoal: Goal?
     private(set) var lastUpdatedGoalId: String?
-    private(set) var lastUpdatedGoalUpdates: [String: Any]?
+    private(set) var lastUpdatedGoalUpdates: GoalUpdate?
     private(set) var lastDeletedGoalId: String?
+    private(set) var lastQueriedId: String?
     private(set) var lastQueriedUserId: String?
-    private(set) var lastQueriedGoalId: String?
     
     // MARK: - Setup Methods
     
     func reset() {
         goals.removeAll()
-        userGoals.removeAll()
+        goalsByUserId.removeAll()
         
         shouldThrowOnCreate = false
         shouldThrowOnUpdate = false
         shouldThrowOnDelete = false
+        shouldReturnNilOnFindById = false
         shouldReturnNilOnUpdate = false
-        shouldReturnFalseOnDelete = false
         
         createError = nil
         updateError = nil
         deleteError = nil
         findByIdError = nil
         findByUserIdError = nil
+        existsError = nil
         
         createCallCount = 0
         updateCallCount = 0
         deleteCallCount = 0
         findByIdCallCount = 0
         findByUserIdCallCount = 0
+        findActiveByUserIdCallCount = 0
+        existsCallCount = 0
         
         lastCreatedGoal = nil
         lastUpdatedGoalId = nil
         lastUpdatedGoalUpdates = nil
         lastDeletedGoalId = nil
+        lastQueriedId = nil
         lastQueriedUserId = nil
-        lastQueriedGoalId = nil
     }
     
     func addGoal(_ goal: Goal) {
         goals[goal.id] = goal
-        if userGoals[goal.userId] == nil {
-            userGoals[goal.userId] = []
+        if goalsByUserId[goal.userId] == nil {
+            goalsByUserId[goal.userId] = []
         }
-        userGoals[goal.userId]?.append(goal)
+        goalsByUserId[goal.userId]?.append(goal)
     }
     
     func addGoals(_ goalsToAdd: [Goal]) {
@@ -92,19 +98,19 @@ final class MockGoalRepository: GoalRepositoryProtocol, @unchecked Sendable {
     
     // MARK: - GoalRepositoryProtocol Implementation
     
-    func create(_ goal: Goal) async throws -> Goal {
-        createCallCount += 1
-        lastCreatedGoal = goal
+    func findById(_ id: String) async throws -> Goal? {
+        findByIdCallCount += 1
+        lastQueriedId = id
         
-        if shouldThrowOnCreate {
-            if let error = createError {
-                throw error
-            }
-            throw DomainError.duplicate("Goal with this title already exists")
+        if let error = findByIdError {
+            throw error
         }
         
-        addGoal(goal)
-        return goal
+        if shouldReturnNilOnFindById {
+            return nil
+        }
+        
+        return goals[id]
     }
     
     func findByUserId(_ userId: String) async throws -> [Goal] {
@@ -115,18 +121,7 @@ final class MockGoalRepository: GoalRepositoryProtocol, @unchecked Sendable {
             throw error
         }
         
-        return userGoals[userId] ?? []
-    }
-    
-    func findById(_ id: String) async throws -> Goal? {
-        findByIdCallCount += 1
-        lastQueriedGoalId = id
-        
-        if let error = findByIdError {
-            throw error
-        }
-        
-        return goals[id]
+        return goalsByUserId[userId] ?? []
     }
     
     func findByUserId(_ userId: String, offset: Int, limit: Int?) async throws -> [Goal] {
@@ -137,93 +132,100 @@ final class MockGoalRepository: GoalRepositoryProtocol, @unchecked Sendable {
             throw error
         }
         
-        let allGoals = userGoals[userId] ?? []
-        let startIndex = min(offset, allGoals.count)
-        let endIndex = limit.map { min(startIndex + $0, allGoals.count) } ?? allGoals.count
+        let allGoals = goalsByUserId[userId] ?? []
+        let actualLimit = limit ?? allGoals.count
+        let endIndex = min(offset + actualLimit, allGoals.count)
         
-        return Array(allGoals[startIndex..<endIndex])
+        if offset >= allGoals.count {
+            return []
+        }
+        
+        return Array(allGoals[offset..<endIndex])
     }
     
     func findActiveByUserId(_ userId: String) async throws -> [Goal] {
-        findByUserIdCallCount += 1
+        findActiveByUserIdCallCount += 1
         lastQueriedUserId = userId
         
         if let error = findByUserIdError {
             throw error
         }
         
-        return userGoals[userId]?.filter { !$0.completed } ?? []
+        let userGoals = goalsByUserId[userId] ?? []
+        let now = Date()
+        return userGoals.filter { !$0.completed && $0.endDate > now }
     }
     
-    func exists(userId: String, goalId: String) async throws -> Bool {
-        let userGoalsArray = userGoals[userId] ?? []
-        return userGoalsArray.contains { $0.id == goalId }
+    func create(_ goal: Goal) async throws -> Goal {
+        createCallCount += 1
+        lastCreatedGoal = goal
+        
+        if shouldThrowOnCreate {
+            if let error = createError {
+                throw error
+            }
+            throw DomainError.duplicate("Goal already exists")
+        }
+        
+        addGoal(goal)
+        return goal
     }
     
     func update(_ id: String, updates: GoalUpdate) async throws -> Goal? {
         updateCallCount += 1
         lastUpdatedGoalId = id
+        lastUpdatedGoalUpdates = updates
         
-        // Convert updates to dictionary for tracking
-        var updatesDict: [String: Any] = [:]
-        if let title = updates.title { updatesDict["title"] = title }
-        if let description = updates.description { updatesDict["description"] = description }
-        if let targetBooks = updates.targetBooks { updatesDict["targetBooks"] = targetBooks }
-        if let currentBooks = updates.currentBooks { updatesDict["currentBooks"] = currentBooks }
-        if let endDate = updates.endDate { updatesDict["endDate"] = endDate }
-        if let completed = updates.completed { updatesDict["completed"] = completed }
-        lastUpdatedGoalUpdates = updatesDict
+        if let error = updateError {
+            throw error
+        }
         
         if shouldThrowOnUpdate {
-            if let error = updateError {
-                throw error
-            }
-            throw DomainError.notFound("Goal not found")
+            throw DomainError.general("Update failed")
         }
         
         if shouldReturnNilOnUpdate {
             return nil
         }
         
-        guard var goal = goals[id] else {
+        guard let existingGoal = goals[id] else {
             return nil
         }
         
-        // Apply updates
-        goal = Goal(
-            id: goal.id,
-            userId: goal.userId,
-            title: updates.title ?? goal.title,
-            description: updates.description ?? goal.description,
-            targetBooks: updates.targetBooks ?? goal.targetBooks,
-            currentBooks: updates.currentBooks ?? goal.currentBooks,
-            startDate: goal.startDate,
-            endDate: updates.endDate ?? goal.endDate,
-            completed: updates.completed ?? goal.completed
+        let updatedGoal = Goal(
+            id: existingGoal.id,
+            userId: existingGoal.userId,
+            title: updates.title ?? existingGoal.title,
+            description: updates.description ?? existingGoal.description,
+            targetBooks: updates.targetBooks ?? existingGoal.targetBooks,
+            currentBooks: updates.currentBooks ?? existingGoal.currentBooks,
+            startDate: existingGoal.startDate,
+            endDate: updates.endDate ?? existingGoal.endDate,
+            completed: updates.completed ?? existingGoal.completed
         )
         
-        // Update storage
-        goals[id] = goal
-        if let userGoalsArray = userGoals[goal.userId] {
-            userGoals[goal.userId] = userGoalsArray.map { $0.id == id ? goal : $0 }
+        goals[id] = updatedGoal
+        
+        // Update in userId dictionary
+        if var userGoals = goalsByUserId[existingGoal.userId],
+           let index = userGoals.firstIndex(where: { $0.id == id }) {
+            userGoals[index] = updatedGoal
+            goalsByUserId[existingGoal.userId] = userGoals
         }
         
-        return goal
+        return updatedGoal
     }
     
     func delete(_ id: String) async throws -> Bool {
         deleteCallCount += 1
         lastDeletedGoalId = id
         
-        if shouldThrowOnDelete {
-            if let error = deleteError {
-                throw error
-            }
-            throw DomainError.notFound("Goal not found")
+        if let error = deleteError {
+            throw error
         }
         
-        if shouldReturnFalseOnDelete {
-            return false
+        if shouldThrowOnDelete {
+            throw DomainError.general("Delete failed")
         }
         
         guard let goal = goals[id] else {
@@ -231,10 +233,19 @@ final class MockGoalRepository: GoalRepositoryProtocol, @unchecked Sendable {
         }
         
         goals.removeValue(forKey: id)
-        if let userGoalsArray = userGoals[goal.userId] {
-            userGoals[goal.userId] = userGoalsArray.filter { $0.id != id }
-        }
+        goalsByUserId[goal.userId]?.removeAll { $0.id == id }
         
         return true
+    }
+    
+    func exists(userId: String, goalId: String) async throws -> Bool {
+        existsCallCount += 1
+        
+        if let error = existsError {
+            throw error
+        }
+        
+        let userGoals = goalsByUserId[userId] ?? []
+        return userGoals.contains { $0.id == goalId }
     }
 }

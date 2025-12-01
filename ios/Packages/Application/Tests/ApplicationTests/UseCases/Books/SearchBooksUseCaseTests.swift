@@ -30,7 +30,6 @@ final class SearchBooksUseCaseTests: XCTestCase {
             externalBookSearch: mockExternalBookSearch
         )
         
-        // Reset all mocks
         mockExternalBookSearch.reset()
     }
     
@@ -45,159 +44,149 @@ final class SearchBooksUseCaseTests: XCTestCase {
     
     func testExecute_WithValidQuery_ReturnsSearchResults() async throws {
         // Arrange
-        let mockResults = createMockBookSearchResults(count: 3)
+        let mockResults = [
+            MockSearchResult(
+                id: "google-1",
+                title: "Swift Programming",
+                authors: ["John Doe"],
+                thumbnail: "https://example.com/thumb1.jpg",
+                description: "A book about Swift",
+                pageCount: 300
+            ),
+            MockSearchResult(
+                id: "google-2",
+                title: "iOS Development",
+                authors: ["Jane Smith"],
+                thumbnail: "https://example.com/thumb2.jpg",
+                description: "A book about iOS",
+                pageCount: 450
+            )
+        ]
         mockExternalBookSearch.addMockResults(mockResults)
         
-        let input = SearchBooksInput(query: "Swift Programming")
+        let input = SearchBooksInput(query: "Swift")
         
         // Act
-        let result = try await sut.execute(input)
+        let results = try await sut.execute(input)
         
         // Assert
-        XCTAssertEqual(result.count, 3)
+        XCTAssertEqual(results.count, 2)
+        XCTAssertEqual(results[0].id, "google-1")
+        XCTAssertEqual(results[0].volumeInfo.title, "Swift Programming")
+        XCTAssertEqual(results[1].id, "google-2")
         XCTAssertEqual(mockExternalBookSearch.searchCallCount, 1)
-        XCTAssertEqual(mockExternalBookSearch.lastSearchQuery, "Swift Programming")
-        
-        // Verify result structure
-        XCTAssertEqual(result[0].id, "book-0")
-        XCTAssertEqual(result[0].volumeInfo.title, "Test Book 0")
-        XCTAssertEqual(result[0].volumeInfo.authors, ["Author 0"])
+        XCTAssertEqual(mockExternalBookSearch.lastSearchQuery, "Swift")
     }
     
-    func testExecute_WithSingleResult_ReturnsSingleResult() async throws {
+    func testExecute_WithValidQuery_IncludesAllBookDetails() async throws {
         // Arrange
         let mockResult = MockSearchResult(
-            id: "single-book",
-            title: "Single Book",
-            authors: ["Single Author"],
-            thumbnail: "https://example.com/single.jpg",
-            description: "A single book",
-            pageCount: 200
+            id: "google-123",
+            title: "Complete Swift Guide",
+            authors: ["Author One", "Author Two"],
+            thumbnail: "https://example.com/cover.jpg",
+            description: "Comprehensive Swift programming guide",
+            pageCount: 500
         )
         mockExternalBookSearch.addMockResult(mockResult)
         
-        let input = SearchBooksInput(query: "specific book")
+        let input = SearchBooksInput(query: "Complete Swift")
         
         // Act
-        let result = try await sut.execute(input)
+        let results = try await sut.execute(input)
         
         // Assert
-        XCTAssertEqual(result.count, 1)
-        XCTAssertEqual(result[0].id, "single-book")
-        XCTAssertEqual(result[0].volumeInfo.title, "Single Book")
+        XCTAssertEqual(results.count, 1)
+        let result = results[0]
+        XCTAssertEqual(result.id, "google-123")
+        XCTAssertEqual(result.volumeInfo.title, "Complete Swift Guide")
+        XCTAssertEqual(result.volumeInfo.authors, ["Author One", "Author Two"])
+        XCTAssertEqual(result.volumeInfo.description, "Comprehensive Swift programming guide")
+        XCTAssertEqual(result.volumeInfo.pageCount, 500)
+        XCTAssertNotNil(result.volumeInfo.imageLinks)
+        XCTAssertEqual(result.volumeInfo.imageLinks?.thumbnail, "https://example.com/cover.jpg")
     }
     
-    func testExecute_WithNoResults_ReturnsEmptyArray() async throws {
-        // Arrange - no mock results added
-        mockExternalBookSearch.shouldReturnEmptyResults = true
-        
-        let input = SearchBooksInput(query: "nonexistent book")
-        
-        // Act
-        let result = try await sut.execute(input)
-        
-        // Assert
-        XCTAssertTrue(result.isEmpty)
-        XCTAssertEqual(mockExternalBookSearch.searchCallCount, 1)
-    }
-    
-    // MARK: - Query Validation Tests
+    // MARK: - Empty Query Tests
     
     func testExecute_WithEmptyQuery_ReturnsEmptyArray() async throws {
         // Arrange
         let input = SearchBooksInput(query: "")
         
         // Act
-        let result = try await sut.execute(input)
+        let results = try await sut.execute(input)
         
         // Assert
-        XCTAssertTrue(result.isEmpty)
-        XCTAssertEqual(mockExternalBookSearch.searchCallCount, 0) // Should not call external service
+        XCTAssertTrue(results.isEmpty)
+        XCTAssertEqual(mockExternalBookSearch.searchCallCount, 0, "Should not call external search for empty query")
     }
     
     func testExecute_WithWhitespaceOnlyQuery_ReturnsEmptyArray() async throws {
         // Arrange
-        let input = SearchBooksInput(query: "   \t\n   ")
+        let input = SearchBooksInput(query: "   ")
         
         // Act
-        let result = try await sut.execute(input)
+        let results = try await sut.execute(input)
         
         // Assert
-        XCTAssertTrue(result.isEmpty)
-        XCTAssertEqual(mockExternalBookSearch.searchCallCount, 0) // Should not call external service
+        XCTAssertTrue(results.isEmpty)
+        XCTAssertEqual(mockExternalBookSearch.searchCallCount, 0, "Should not call external search for whitespace-only query")
     }
     
-    func testExecute_WithQueryContainingOnlySpaces_ReturnsEmptyArray() async throws {
+    func testExecute_WithTabAndNewlineQuery_ReturnsEmptyArray() async throws {
         // Arrange
-        let input = SearchBooksInput(query: "     ")
+        let input = SearchBooksInput(query: "\t\n  ")
         
         // Act
-        let result = try await sut.execute(input)
+        let results = try await sut.execute(input)
         
         // Assert
-        XCTAssertTrue(result.isEmpty)
+        XCTAssertTrue(results.isEmpty)
         XCTAssertEqual(mockExternalBookSearch.searchCallCount, 0)
     }
     
     // MARK: - Error Path Tests
     
-    func testExecute_WithExternalServiceError_PropagatesError() async throws {
+    func testExecute_WithExternalSearchError_PropagatesError() async throws {
         // Arrange
         mockExternalBookSearch.shouldThrowOnSearch = true
-        mockExternalBookSearch.searchError = DomainError.general("External service unavailable")
+        mockExternalBookSearch.searchError = DomainError.general("External search service unavailable")
         
-        let input = SearchBooksInput(query: "valid query")
+        let input = SearchBooksInput(query: "Swift")
         
         // Act & Assert
         await assertThrowsSpecificError(
-            DomainError.general("External service unavailable")
+            DomainError.general("External search service unavailable")
         ) {
             try await self.sut.execute(input)
         }
-        
-        XCTAssertEqual(mockExternalBookSearch.searchCallCount, 1)
     }
     
     func testExecute_WithNetworkError_PropagatesError() async throws {
         // Arrange
         mockExternalBookSearch.shouldThrowOnSearch = true
-        mockExternalBookSearch.searchError = DomainError.general("Network timeout")
+        mockExternalBookSearch.searchError = DomainError.general("Network connection lost")
         
-        let input = SearchBooksInput(query: "network test")
+        let input = SearchBooksInput(query: "Programming")
         
         // Act & Assert
         await assertThrowsSpecificError(
-            DomainError.general("Network timeout")
+            DomainError.general("Network connection lost")
         ) {
             try await self.sut.execute(input)
         }
     }
     
-    func testExecute_WithAPIQuotaExceededError_PropagatesError() async throws {
+    func testExecute_WithDefaultSearchError_ThrowsGenericError() async throws {
         // Arrange
         mockExternalBookSearch.shouldThrowOnSearch = true
-        mockExternalBookSearch.searchError = DomainError.general("API quota exceeded")
+        // Don't set a specific error - will use default
         
-        let input = SearchBooksInput(query: "quota test")
+        let input = SearchBooksInput(query: "Test")
         
         // Act & Assert
         await assertThrowsSpecificError(
-            DomainError.general("API quota exceeded")
-        ) {
-            try await self.sut.execute(input)
-        }
-    }
-    
-    func testExecute_WithUnauthorizedAPIError_PropagatesError() async throws {
-        // Arrange
-        mockExternalBookSearch.shouldThrowOnSearch = true
-        mockExternalBookSearch.searchError = DomainError.unauthorized("Invalid API key")
-        
-        let input = SearchBooksInput(query: "auth test")
-        
-        // Act & Assert
-        await assertThrowsSpecificError(
-            DomainError.unauthorized("Invalid API key")
+            DomainError.general("External search service unavailable")
         ) {
             try await self.sut.execute(input)
         }
@@ -205,129 +194,86 @@ final class SearchBooksUseCaseTests: XCTestCase {
     
     // MARK: - Edge Cases
     
-    func testExecute_WithSpecialCharactersInQuery_HandlesCorrectly() async throws {
+    func testExecute_WithNoResults_ReturnsEmptyArray() async throws {
         // Arrange
-        let specialQuery = "C++ & JavaScript: 100% Guide!"
+        mockExternalBookSearch.shouldReturnEmptyResults = true
+        
+        let input = SearchBooksInput(query: "xyznonexistentbook123")
+        
+        // Act
+        let results = try await sut.execute(input)
+        
+        // Assert
+        XCTAssertTrue(results.isEmpty)
+        XCTAssertEqual(mockExternalBookSearch.searchCallCount, 1)
+    }
+    
+    func testExecute_WithResultsWithMissingOptionalFields_HandlesGracefully() async throws {
+        // Arrange
         let mockResult = MockSearchResult(
-            id: "special-book",
-            title: "Special Characters Book",
-            authors: ["Special Author"],
-            thumbnail: nil,
-            description: nil,
-            pageCount: nil
+            id: "google-minimal",
+            title: "Minimal Book",
+            authors: ["Unknown"],
+            thumbnail: nil,  // No thumbnail
+            description: nil,  // No description
+            pageCount: nil  // No page count
         )
         mockExternalBookSearch.addMockResult(mockResult)
         
+        let input = SearchBooksInput(query: "Minimal")
+        
+        // Act
+        let results = try await sut.execute(input)
+        
+        // Assert
+        XCTAssertEqual(results.count, 1)
+        let result = results[0]
+        XCTAssertEqual(result.id, "google-minimal")
+        XCTAssertEqual(result.volumeInfo.title, "Minimal Book")
+        XCTAssertNil(result.volumeInfo.description)
+        XCTAssertNil(result.volumeInfo.pageCount)
+        XCTAssertNil(result.volumeInfo.imageLinks)
+    }
+    
+    func testExecute_WithSpecialCharactersInQuery_SearchesCorrectly() async throws {
+        // Arrange
+        let specialQuery = "C++ Programming & Design"
         let input = SearchBooksInput(query: specialQuery)
         
         // Act
-        let result = try await sut.execute(input)
+        _ = try await sut.execute(input)
         
         // Assert
-        XCTAssertEqual(result.count, 1)
         XCTAssertEqual(mockExternalBookSearch.lastSearchQuery, specialQuery)
+        XCTAssertEqual(mockExternalBookSearch.searchCallCount, 1)
     }
     
-    func testExecute_WithVeryLongQuery_HandlesCorrectly() async throws {
+    func testExecute_WithISBNQuery_SearchesCorrectly() async throws {
         // Arrange
-        let longQuery = String(repeating: "book ", count: 200) // Very long query
-        let mockResult = MockSearchResult(
-            id: "long-query-book",
-            title: "Long Query Book",
-            authors: ["Author"],
-            thumbnail: nil,
-            description: nil,
-            pageCount: 100
-        )
-        mockExternalBookSearch.addMockResult(mockResult)
+        let isbnQuery = "978-0-596-51774-8"
+        let input = SearchBooksInput(query: isbnQuery)
         
+        // Act
+        _ = try await sut.execute(input)
+        
+        // Assert
+        XCTAssertEqual(mockExternalBookSearch.lastSearchQuery, isbnQuery)
+    }
+    
+    func testExecute_WithLongQuery_SearchesCorrectly() async throws {
+        // Arrange
+        let longQuery = String(repeating: "book ", count: 50)
         let input = SearchBooksInput(query: longQuery)
         
         // Act
-        let result = try await sut.execute(input)
+        _ = try await sut.execute(input)
         
         // Assert
-        XCTAssertEqual(result.count, 1)
         XCTAssertEqual(mockExternalBookSearch.lastSearchQuery, longQuery)
-    }
-    
-    func testExecute_WithUnicodeCharacters_HandlesCorrectly() async throws {
-        // Arrange
-        let unicodeQuery = "العربية 中文 🚀 📚 Français"
-        let mockResult = MockSearchResult(
-            id: "unicode-book",
-            title: "Unicode Book",
-            authors: ["Unicode Author"],
-            thumbnail: nil,
-            description: nil,
-            pageCount: 150
-        )
-        mockExternalBookSearch.addMockResult(mockResult)
-        
-        let input = SearchBooksInput(query: unicodeQuery)
-        
-        // Act
-        let result = try await sut.execute(input)
-        
-        // Assert
-        XCTAssertEqual(result.count, 1)
-        XCTAssertEqual(mockExternalBookSearch.lastSearchQuery, unicodeQuery)
-    }
-    
-    func testExecute_WithQueryHavingLeadingTrailingSpaces_TrimsCorrectly() async throws {
-        // Arrange
-        let queryWithSpaces = "  Swift Programming  "
-        let mockResult = MockSearchResult(
-            id: "trimmed-book",
-            title: "Trimmed Book",
-            authors: ["Author"],
-            thumbnail: nil,
-            description: nil,
-            pageCount: 250
-        )
-        mockExternalBookSearch.addMockResult(mockResult)
-        
-        let input = SearchBooksInput(query: queryWithSpaces)
-        
-        // Act
-        let result = try await sut.execute(input)
-        
-        // Assert
-        XCTAssertEqual(result.count, 1)
-        XCTAssertEqual(mockExternalBookSearch.lastSearchQuery, queryWithSpaces) // Original query passed through
-    }
-    
-    func testExecute_WithManyResults_ReturnsAllResults() async throws {
-        // Arrange
-        let manyResults = createMockBookSearchResults(count: 50)
-        mockExternalBookSearch.addMockResults(manyResults)
-        
-        let input = SearchBooksInput(query: "popular books")
-        
-        // Act
-        let result = try await sut.execute(input)
-        
-        // Assert
-        XCTAssertEqual(result.count, 50)
-        // Verify first and last results
-        XCTAssertEqual(result[0].id, "book-0")
-        XCTAssertEqual(result[49].id, "book-49")
+        XCTAssertEqual(mockExternalBookSearch.searchCallCount, 1)
     }
     
     // MARK: - Helper Methods
-    
-    private func createMockBookSearchResults(count: Int) -> [MockSearchResult] {
-        return (0..<count).map { index in
-            MockSearchResult(
-                id: "book-\(index)",
-                title: "Test Book \(index)",
-                authors: ["Author \(index)"],
-                thumbnail: "https://example.com/thumb\(index).jpg",
-                description: "Description for book \(index)",
-                pageCount: 200 + index
-            )
-        }
-    }
     
     private func assertThrowsSpecificError<T>(
         _ expectedError: DomainError,

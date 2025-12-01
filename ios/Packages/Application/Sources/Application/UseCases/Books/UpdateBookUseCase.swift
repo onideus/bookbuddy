@@ -61,7 +61,7 @@ public final class UpdateBookUseCase: UseCase {
 
         // Verify user owns the book
         guard book.userId == input.userId else {
-            throw DomainError.unauthorized("You don't have permission to update this book")
+            throw DomainError.ownershipMismatch
         }
 
         // Update the book

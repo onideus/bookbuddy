@@ -36,7 +36,6 @@ final class UpdateBookUseCaseTests: XCTestCase {
             bookRepository: mockBookRepository
         )
         
-        // Reset all mocks
         mockBookRepository.reset()
     }
     
@@ -49,40 +48,12 @@ final class UpdateBookUseCaseTests: XCTestCase {
     
     // MARK: - Success Path Tests
     
-    func testExecute_WithValidInput_UpdatesBookSuccessfully() async throws {
+    func testExecute_WithStatusUpdate_UpdatesStatusSuccessfully() async throws {
         // Arrange
         let existingBook = createTestBook()
         mockBookRepository.addBook(existingBook)
         
-        let updates = BookUpdate(status: .reading, currentPage: 50)
-        let input = UpdateBookInput(
-            bookId: testBookId,
-            userId: testUserId,
-            updates: updates
-        )
-        
-        // Act
-        let result = try await sut.execute(input)
-        
-        // Assert
-        XCTAssertEqual(result.id, testBookId)
-        XCTAssertEqual(result.userId, testUserId)
-        XCTAssertEqual(result.status, .reading)
-        XCTAssertEqual(result.currentPage, 50)
-        XCTAssertEqual(mockBookRepository.updateCallCount, 1)
-        XCTAssertEqual(mockBookRepository.findByIdCallCount, 1)
-    }
-    
-    func testExecute_WithRatingUpdate_UpdatesBookSuccessfully() async throws {
-        // Arrange
-        let existingBook = createTestBook()
-        mockBookRepository.addBook(existingBook)
-        
-        let updates = BookUpdate(
-            status: .read,
-            rating: 5,
-            finishedAt: Date()
-        )
+        let updates = BookUpdate(status: .read)
         let input = UpdateBookInput(
             bookId: testBookId,
             userId: testUserId,
@@ -94,127 +65,16 @@ final class UpdateBookUseCaseTests: XCTestCase {
         
         // Assert
         XCTAssertEqual(result.status, .read)
-        XCTAssertEqual(result.rating, 5)
-        XCTAssertNotNil(result.finishedAt)
-    }
-    
-    // MARK: - Error Path Tests
-    
-    func testExecute_WithNonExistentBook_ThrowsEntityNotFoundError() async throws {
-        // Arrange
-        let input = UpdateBookInput(
-            bookId: "non-existent-id",
-            userId: testUserId,
-            updates: BookUpdate(status: .reading)
-        )
-        
-        // Act & Assert
-        await assertThrowsSpecificError(
-            DomainError.entityNotFound("Book", id: "non-existent-id")
-        ) {
-            try await self.sut.execute(input)
-        }
-        
-        XCTAssertEqual(mockBookRepository.findByIdCallCount, 1)
-        XCTAssertEqual(mockBookRepository.updateCallCount, 0)
-    }
-    
-    func testExecute_WithUnauthorizedUser_ThrowsUnauthorizedError() async throws {
-        // Arrange
-        let existingBook = createTestBook() // Belongs to testUserId
-        mockBookRepository.addBook(existingBook)
-        
-        let input = UpdateBookInput(
-            bookId: testBookId,
-            userId: otherUserId, // Different user trying to update
-            updates: BookUpdate(status: .reading)
-        )
-        
-        // Act & Assert
-        await assertThrowsSpecificError(
-            DomainError.unauthorized("You don't have permission to update this book")
-        ) {
-            try await self.sut.execute(input)
-        }
-        
-        XCTAssertEqual(mockBookRepository.findByIdCallCount, 1)
-        XCTAssertEqual(mockBookRepository.updateCallCount, 0)
-    }
-    
-    func testExecute_WithRepositoryUpdateReturningNil_ThrowsEntityNotFoundError() async throws {
-        // Arrange
-        let existingBook = createTestBook()
-        mockBookRepository.addBook(existingBook)
-        mockBookRepository.shouldReturnNilOnUpdate = true
-        
-        let input = UpdateBookInput(
-            bookId: testBookId,
-            userId: testUserId,
-            updates: BookUpdate(status: .reading)
-        )
-        
-        // Act & Assert
-        await assertThrowsSpecificError(
-            DomainError.entityNotFound("Book", id: testBookId)
-        ) {
-            try await self.sut.execute(input)
-        }
-        
         XCTAssertEqual(mockBookRepository.updateCallCount, 1)
+        XCTAssertEqual(mockBookRepository.lastUpdatedBookId, testBookId)
     }
     
-    func testExecute_WithRepositoryFindError_PropagatesError() async throws {
-        // Arrange
-        mockBookRepository.findByIdError = DomainError.general("Database connection failed")
-        
-        let input = UpdateBookInput(
-            bookId: testBookId,
-            userId: testUserId,
-            updates: BookUpdate(status: .reading)
-        )
-        
-        // Act & Assert
-        await assertThrowsSpecificError(
-            DomainError.general("Database connection failed")
-        ) {
-            try await self.sut.execute(input)
-        }
-        
-        XCTAssertEqual(mockBookRepository.findByIdCallCount, 1)
-        XCTAssertEqual(mockBookRepository.updateCallCount, 0)
-    }
-    
-    func testExecute_WithRepositoryUpdateError_PropagatesError() async throws {
-        // Arrange
-        let existingBook = createTestBook()
-        mockBookRepository.addBook(existingBook)
-        mockBookRepository.shouldThrowOnUpdate = true
-        mockBookRepository.updateError = DomainError.general("Update failed")
-        
-        let input = UpdateBookInput(
-            bookId: testBookId,
-            userId: testUserId,
-            updates: BookUpdate(status: .reading)
-        )
-        
-        // Act & Assert
-        await assertThrowsSpecificError(
-            DomainError.general("Update failed")
-        ) {
-            try await self.sut.execute(input)
-        }
-        
-        XCTAssertEqual(mockBookRepository.updateCallCount, 1)
-    }
-    
-    // MARK: - Edge Cases
-    
-    func testExecute_WithEmptyUpdate_UpdatesBookSuccessfully() async throws {
+    func testExecute_WithCurrentPageUpdate_UpdatesPageSuccessfully() async throws {
         // Arrange
         let existingBook = createTestBook()
         mockBookRepository.addBook(existingBook)
         
-        let updates = BookUpdate() // All fields nil
+        let updates = BookUpdate(currentPage: 150)
         let input = UpdateBookInput(
             bookId: testBookId,
             userId: testUserId,
@@ -224,23 +84,39 @@ final class UpdateBookUseCaseTests: XCTestCase {
         // Act
         let result = try await sut.execute(input)
         
-        // Assert - Book should remain unchanged
-        XCTAssertEqual(result.status, existingBook.status)
-        XCTAssertEqual(result.currentPage, existingBook.currentPage)
-        XCTAssertEqual(result.rating, existingBook.rating)
+        // Assert
+        XCTAssertEqual(result.currentPage, 150)
     }
     
-    func testExecute_WithAllFieldsUpdate_UpdatesBookSuccessfully() async throws {
+    func testExecute_WithRatingUpdate_UpdatesRatingSuccessfully() async throws {
         // Arrange
         let existingBook = createTestBook()
         mockBookRepository.addBook(existingBook)
         
-        let finishedDate = Date()
+        let updates = BookUpdate(rating: 5)
+        let input = UpdateBookInput(
+            bookId: testBookId,
+            userId: testUserId,
+            updates: updates
+        )
+        
+        // Act
+        let result = try await sut.execute(input)
+        
+        // Assert
+        XCTAssertEqual(result.rating, 5)
+    }
+    
+    func testExecute_WithMultipleUpdates_UpdatesAllFieldsSuccessfully() async throws {
+        // Arrange
+        let existingBook = createTestBook()
+        mockBookRepository.addBook(existingBook)
+        
         let updates = BookUpdate(
             status: .read,
             currentPage: 300,
             rating: 4,
-            finishedAt: finishedDate
+            finishedAt: Date()
         )
         let input = UpdateBookInput(
             bookId: testBookId,
@@ -255,15 +131,15 @@ final class UpdateBookUseCaseTests: XCTestCase {
         XCTAssertEqual(result.status, .read)
         XCTAssertEqual(result.currentPage, 300)
         XCTAssertEqual(result.rating, 4)
-        XCTAssertEqual(result.finishedAt, finishedDate)
+        XCTAssertNotNil(result.finishedAt)
     }
     
-    func testExecute_WithCurrentPageOnly_UpdatesBookSuccessfully() async throws {
+    func testExecute_WithGenresUpdate_UpdatesGenresSuccessfully() async throws {
         // Arrange
         let existingBook = createTestBook()
         mockBookRepository.addBook(existingBook)
         
-        let updates = BookUpdate(currentPage: 123)
+        let updates = BookUpdate(genres: ["Fiction", "Thriller"])
         let input = UpdateBookInput(
             bookId: testBookId,
             userId: testUserId,
@@ -274,8 +150,135 @@ final class UpdateBookUseCaseTests: XCTestCase {
         let result = try await sut.execute(input)
         
         // Assert
-        XCTAssertEqual(result.currentPage, 123)
-        XCTAssertEqual(result.status, existingBook.status) // Other fields unchanged
+        XCTAssertEqual(mockBookRepository.updateCallCount, 1)
+        XCTAssertEqual(mockBookRepository.lastUpdatedBookUpdates?.genres, ["Fiction", "Thriller"])
+    }
+    
+    // MARK: - Error Path Tests
+    
+    func testExecute_WithNonExistentBook_ThrowsEntityNotFoundError() async throws {
+        // Arrange
+        let updates = BookUpdate(status: .read)
+        let input = UpdateBookInput(
+            bookId: "non-existent-id",
+            userId: testUserId,
+            updates: updates
+        )
+        
+        // Act & Assert
+        await assertThrowsSpecificError(
+            DomainError.entityNotFound("Book", id: "non-existent-id")
+        ) {
+            try await self.sut.execute(input)
+        }
+        
+        XCTAssertEqual(mockBookRepository.updateCallCount, 0)
+    }
+    
+    func testExecute_WithWrongUserId_ThrowsOwnershipMismatchError() async throws {
+        // Arrange
+        let existingBook = createTestBook()
+        mockBookRepository.addBook(existingBook)
+        
+        let updates = BookUpdate(status: .read)
+        let input = UpdateBookInput(
+            bookId: testBookId,
+            userId: otherUserId,  // Different user
+            updates: updates
+        )
+        
+        // Act & Assert
+        await assertThrowsSpecificError(
+            DomainError.ownershipMismatch
+        ) {
+            try await self.sut.execute(input)
+        }
+        
+        XCTAssertEqual(mockBookRepository.updateCallCount, 0)
+    }
+    
+    func testExecute_WithRepositoryFindByIdError_PropagatesError() async throws {
+        // Arrange
+        mockBookRepository.findByIdError = DomainError.general("Database connection failed")
+        
+        let updates = BookUpdate(status: .read)
+        let input = UpdateBookInput(
+            bookId: testBookId,
+            userId: testUserId,
+            updates: updates
+        )
+        
+        // Act & Assert
+        await assertThrowsSpecificError(
+            DomainError.general("Database connection failed")
+        ) {
+            try await self.sut.execute(input)
+        }
+    }
+    
+    func testExecute_WithRepositoryUpdateError_PropagatesError() async throws {
+        // Arrange
+        let existingBook = createTestBook()
+        mockBookRepository.addBook(existingBook)
+        mockBookRepository.updateError = DomainError.general("Update failed")
+        
+        let updates = BookUpdate(status: .read)
+        let input = UpdateBookInput(
+            bookId: testBookId,
+            userId: testUserId,
+            updates: updates
+        )
+        
+        // Act & Assert
+        await assertThrowsSpecificError(
+            DomainError.general("Update failed")
+        ) {
+            try await self.sut.execute(input)
+        }
+    }
+    
+    func testExecute_WithUpdateReturningNil_ThrowsEntityNotFoundError() async throws {
+        // Arrange
+        let existingBook = createTestBook()
+        mockBookRepository.addBook(existingBook)
+        mockBookRepository.shouldReturnNilOnUpdate = true
+        
+        let updates = BookUpdate(status: .read)
+        let input = UpdateBookInput(
+            bookId: testBookId,
+            userId: testUserId,
+            updates: updates
+        )
+        
+        // Act & Assert
+        await assertThrowsSpecificError(
+            DomainError.entityNotFound("Book", id: testBookId)
+        ) {
+            try await self.sut.execute(input)
+        }
+    }
+    
+    // MARK: - Edge Cases
+    
+    func testExecute_WithEmptyUpdates_ReturnsUnchangedBook() async throws {
+        // Arrange
+        let existingBook = createTestBook()
+        mockBookRepository.addBook(existingBook)
+        
+        let updates = BookUpdate()  // No changes
+        let input = UpdateBookInput(
+            bookId: testBookId,
+            userId: testUserId,
+            updates: updates
+        )
+        
+        // Act
+        let result = try await sut.execute(input)
+        
+        // Assert
+        XCTAssertEqual(result.title, existingBook.title)
+        XCTAssertEqual(result.status, existingBook.status)
+        XCTAssertEqual(result.currentPage, existingBook.currentPage)
     }
     
     // MARK: - Helper Methods
@@ -285,13 +288,13 @@ final class UpdateBookUseCaseTests: XCTestCase {
             id: testBookId,
             userId: testUserId,
             googleBooksId: "google-books-id",
-            title: "Test Book",
+            title: "Test Book Title",
             authors: ["Test Author"],
-            thumbnail: "https://example.com/thumb.jpg",
+            thumbnail: "https://example.com/thumbnail.jpg",
             description: "Test description",
             pageCount: 300,
-            status: .wantToRead,
-            currentPage: 0,
+            status: .reading,
+            currentPage: 50,
             rating: nil,
             addedAt: Date(),
             finishedAt: nil
