@@ -11,6 +11,11 @@ import { PrismaReadingSessionRepository } from '../../infrastructure/persistence
 // Import other infrastructure
 import { BcryptPasswordHasher } from '../../infrastructure/security/bcrypt-password-hasher';
 import { GoogleBooksClient } from '../../infrastructure/external/google-books-client';
+import { CSVParserImpl } from '../../infrastructure/external/csv-parser-impl';
+import { GoodreadsImporterImpl } from '../../infrastructure/external/goodreads-importer-impl';
+
+// Import domain services
+import { GoodreadsMapper } from '../../domain/services/goodreads-mapper';
 
 // Import interfaces for typing
 import type { IUserRepository } from '../../domain/interfaces/user-repository';
@@ -21,6 +26,8 @@ import type { IReadingActivityRepository } from '../../domain/interfaces/reading
 import type { IReadingSessionRepository } from '../../domain/interfaces/reading-session-repository';
 import type { IPasswordHasher } from '../../domain/interfaces/password-hasher';
 import type { IExternalBookSearch } from '../../domain/interfaces/external-book-search';
+import type { GoodreadsImporter } from '../../domain/interfaces/goodreads-importer';
+import type { CSVParser } from '../../domain/interfaces/csv-parser';
 
 /**
  * Dependency Injection Container for Serverless Functions
@@ -41,6 +48,8 @@ export interface Container {
   readingSessionRepository: IReadingSessionRepository;
   passwordHasher: IPasswordHasher;
   externalBookSearch: IExternalBookSearch;
+  csvParser: CSVParser;
+  goodreadsImporter: GoodreadsImporter;
 }
 
 /**
@@ -48,15 +57,22 @@ export interface Container {
  * Call this at the start of each serverless function invocation.
  */
 export function getContainer(): Container {
+  const bookRepository = new PrismaBookRepository();
+  const csvParser = new CSVParserImpl();
+  const goodreadsMapper = new GoodreadsMapper();
+  const goodreadsImporter = new GoodreadsImporterImpl(csvParser, bookRepository, goodreadsMapper);
+
   return {
     userRepository: new PrismaUserRepository(),
-    bookRepository: new PrismaBookRepository(),
+    bookRepository,
     goalRepository: new PrismaGoalRepository(),
     refreshTokenRepository: new PrismaRefreshTokenRepository(prisma),
     readingActivityRepository: new PrismaReadingActivityRepository(),
     readingSessionRepository: new PrismaReadingSessionRepository(prisma),
     passwordHasher: new BcryptPasswordHasher(),
     externalBookSearch: new GoogleBooksClient(),
+    csvParser,
+    goodreadsImporter,
   };
 }
 

@@ -14,6 +14,7 @@ import { RegisterUserUseCase } from '../application/use-cases/auth/register-user
 import { AddBookUseCase } from '../application/use-cases/books/add-book';
 import { UpdateBookUseCase } from '../application/use-cases/books/update-book';
 import { DeleteBookUseCase } from '../application/use-cases/books/delete-book';
+import { ImportGoodreadsUseCase } from '../application/use-cases/books/import-goodreads';
 import { CreateGoalUseCase } from '../application/use-cases/goals/create-goal';
 import { UpdateGoalUseCase } from '../application/use-cases/goals/update-goal';
 import { DeleteGoalUseCase } from '../application/use-cases/goals/delete-goal';
@@ -278,6 +279,15 @@ async function handleBooks(req: VercelRequest, res: VercelResponse, path: string
   const container = getContainer();
   const bookId = path[0];
   const subRoute = path[0];
+
+  // /books/import - POST CSV file for Goodreads import
+  if (subRoute === 'import') {
+    if (req.method !== 'POST') {
+      res.setHeader('Allow', ['POST']);
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+    return handleGoodreadsImport(req, res, userId, container);
+  }
 
   // /books/genres
   if (subRoute === 'genres') {
@@ -884,4 +894,90 @@ function goalsToCSV(goals: Array<{ id: string; title: string; description?: stri
     goal.completed,
   ]);
   return [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
+}
+
+// ============================================================================
+// Goodreads Import Handler
+// ============================================================================
+
+async function handleGoodreadsImport(
+  req: VercelRequest,
+  res: VercelResponse,
+  userId: string,
+  container: ReturnType<typeof getContainer>
+) {
+  try {
+    // Get raw body content
+    const body = req.body;
+
+    // Vercel automatically parses JSON bodies, but for file uploads we need to handle it differently
+    // Check if this is a JSON request with csvContent field
+    if (body && typeof body === 'object' && 'csvContent' in body) {
+      const csvContent = body.csvContent;
+
+      // Validate CSV content
+      if (!csvContent || typeof csvContent !== 'string') {
+        return res.status(400).json({
+          error: 'ValidationError',
+          message: 'CSV content must be provided as a string in the csvContent field',
+          statusCode: 400,
+        });
+      }
+
+      // Validate CSV content is not empty
+      if (csvContent.trim().length === 0) {
+        return res.status(400).json({
+          error: 'ValidationError',
+          message: 'CSV file is empty. Please provide a valid Goodreads library export CSV file.',
+          statusCode: 400,
+        });
+      }
+
+      // Validate file size (10MB max as per design doc)
+      const fileSizeBytes = Buffer.byteLength(csvContent, 'utf8');
+      const maxSizeBytes = 10 * 1024 * 1024; // 10MB
+      if (fileSizeBytes > maxSizeBytes) {
+        return res.status(400).json({
+          error: 'ValidationError',
+          message: `File size exceeds the maximum limit of 10MB. Your file is ${(fileSizeBytes / 1024 / 1024).toFixed(2)}MB. Please try exporting a smaller date range or splitting your library into multiple imports.`,
+          statusCode: 400,
+        });
+      }
+
+      // Validate CSV appears to have headers (basic sanity check)
+      const lines = csvContent.trim().split('\n');
+      if (lines.length < 2) {
+        return res.status(400).json({
+          error: 'ValidationError',
+          message: 'CSV file appears to be empty or contains only headers. Please ensure your Goodreads export contains book data.',
+          statusCode: 400,
+        });
+      }
+
+      // Execute the import use case
+      const useCase = new ImportGoodreadsUseCase(container.goodreadsImporter);
+      const result = await useCase.execute({
+        userId,
+        csvContent,
+      });
+
+      // Return the import result
+      return res.status(200).json({
+        success: result.success,
+        imported: result.imported,
+        skipped: result.skipped,
+        message: result.message,
+        errors: result.errors.length > 0 ? result.errors : undefined,
+      });
+    }
+
+    // If we get here, the request format is invalid
+    return res.status(400).json({
+      error: 'ValidationError',
+      message: 'Request must include csvContent field with CSV file content as a string',
+      statusCode: 400,
+    });
+  } catch (error) {
+    handleError(error, res);
+  }
 }

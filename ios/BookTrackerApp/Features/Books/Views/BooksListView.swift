@@ -5,11 +5,13 @@ import SwiftUI
 struct BooksListView: View {
     @StateObject var viewModel: BooksListViewModel
     @State private var showingAddBook = false
+    @State private var showingImport = false
 
     // Dependencies for AddBookView
     let searchBooksUseCase: SearchBooksUseCase
     let addBookUseCase: AddBookUseCase
     let currentUserId: String
+    let networkClient: NetworkClientProtocol
 
     var body: some View {
         ZStack {
@@ -86,6 +88,15 @@ struct BooksListView: View {
         .navigationTitle("My Books")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(
+                    action: { showingImport = true },
+                    label: {
+                        Label("Import", systemImage: "square.and.arrow.down")
+                    }
+                )
+            }
+
             ToolbarItem(placement: .primaryAction) {
                 Button(
                     action: { showingAddBook = true },
@@ -103,6 +114,16 @@ struct BooksListView: View {
                     currentUserId: currentUserId
                 ),
                 onBookAdded: {
+                    Task {
+                        await viewModel.refresh()
+                    }
+                }
+            )
+        }
+        .sheet(isPresented: $showingImport) {
+            ImportGoodreadsView(
+                viewModel: ImportGoodreadsViewModel(networkClient: networkClient),
+                onImportCompleted: {
                     Task {
                         await viewModel.refresh()
                     }

@@ -137,6 +137,19 @@ public extension APIEndpoint {
             requiresAuth: true
         )
     }
+
+    static func importGoodreads(csvContent: String) throws -> APIEndpoint {
+        let request = ImportGoodreadsRequest(csvContent: csvContent)
+        let body = try JSONEncoder().encode(request)
+
+        return APIEndpoint(
+            path: "/books/import",
+            method: .post,
+            body: body,
+            headers: ["Content-Type": "application/json"],
+            requiresAuth: true
+        )
+    }
 }
 
 // MARK: - Goal Endpoints

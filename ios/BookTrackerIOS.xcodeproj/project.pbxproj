@@ -458,13 +458,6 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		"TEMP_61682B71-964E-4D4C-8BF9-E8FC4FD9DFB8" /* BookTrackerApp */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = BookTrackerApp;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -532,11 +525,12 @@
 			mainGroup = EF467EEB835BD03F2ADA38D3;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				91502EAD54EBEA896E325374 /* XCLocalSwiftPackageReference "Packages/Application" */,
-				9D79150F849EC30FD8B0C239 /* XCLocalSwiftPackageReference "Packages/CoreDomain" */,
-				1CE595770780CC94B1D18C99 /* XCLocalSwiftPackageReference "Packages/InfrastructureIOS" */,
+				91502EAD54EBEA896E325374 /* XCLocalSwiftPackageReference "Application" */,
+				9D79150F849EC30FD8B0C239 /* XCLocalSwiftPackageReference "CoreDomain" */,
+				1CE595770780CC94B1D18C99 /* XCLocalSwiftPackageReference "InfrastructureIOS" */,
 			);
 			preferredProjectObjectVersion = 77;
+			productRefGroup = E42C93387ADD40C655A79251 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -844,15 +838,15 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		1CE595770780CC94B1D18C99 /* XCLocalSwiftPackageReference "Packages/InfrastructureIOS" */ = {
+		1CE595770780CC94B1D18C99 /* XCLocalSwiftPackageReference "InfrastructureIOS" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/InfrastructureIOS;
 		};
-		91502EAD54EBEA896E325374 /* XCLocalSwiftPackageReference "Packages/Application" */ = {
+		91502EAD54EBEA896E325374 /* XCLocalSwiftPackageReference "Application" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/Application;
 		};
-		9D79150F849EC30FD8B0C239 /* XCLocalSwiftPackageReference "Packages/CoreDomain" */ = {
+		9D79150F849EC30FD8B0C239 /* XCLocalSwiftPackageReference "CoreDomain" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/CoreDomain;
 		};

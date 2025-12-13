@@ -179,6 +179,72 @@ export class PrismaBookRepository implements IBookRepository {
     return count > 0;
   }
 
+  async findByISBN(userId: string, isbn: string): Promise<Book | null> {
+    // Since ISBN fields don't exist in the schema, search by description or googleBooksId
+    // For now, we'll use a simple description search as a fallback
+    // Note: This is a workaround until ISBN fields are added to the schema
+    const books = await prisma.book.findMany({
+      where: {
+        userId,
+        OR: [
+          {
+            description: {
+              contains: isbn,
+              mode: 'insensitive',
+            },
+          },
+          {
+            googleBooksId: {
+              contains: isbn,
+            },
+          },
+        ],
+      },
+    });
+
+    // Return first match or null
+    return books.length > 0 ? this.mapToBook(books[0]) : null;
+  }
+
+  async findByTitleAndAuthor(userId: string, title: string, author: string): Promise<Book | null> {
+    // Normalize for comparison
+    const normalizedTitle = title.toLowerCase().trim();
+    const normalizedAuthor = author.toLowerCase().trim();
+
+    const books = await prisma.book.findMany({
+      where: {
+        userId,
+        title: {
+          contains: normalizedTitle,
+          mode: 'insensitive',
+        },
+      },
+    });
+
+    // Filter books where any author matches (case-insensitive)
+    for (const book of books) {
+      const hasMatchingAuthor = book.authors.some(
+        a => a.toLowerCase().includes(normalizedAuthor) || normalizedAuthor.includes(a.toLowerCase())
+      );
+      if (hasMatchingAuthor) {
+        return this.mapToBook(book);
+      }
+    }
+
+    return null;
+  }
+
+  async findByGoodreadsId(userId: string, goodreadsId: string): Promise<Book | null> {
+    const book = await prisma.book.findFirst({
+      where: {
+        userId,
+        googleBooksId: `goodreads-${goodreadsId}`,
+      },
+    });
+
+    return book ? this.mapToBook(book) : null;
+  }
+
   private mapToBook(prismaBook: PrismaBook): Book {
     return {
       id: prismaBook.id,
